@@ -116,7 +116,13 @@
     </div>
 
     <div id="crosshair"></div>
-    <div id="instructions">WASD - Move | RIGHT CLICK - Turn<br>SHIFT - Shift-Lock | SCROLL - Zoom<br>1 - Equip Item | LEFT CLICK - Use Item<br>'/' or ENTER - Chat | ESC - Menu</div>
+    <div id="instructions">
+        WASD - Move | RIGHT CLICK - Turn<br>
+        SHIFT - Shift-Lock | SCROLL - Zoom<br>
+        1 - Equip Item | LEFT CLICK - Use Item<br>
+        E - Sit in Chair<br>
+        '/' or ENTER - Chat | ESC - Menu
+    </div>
 
     <script type="importmap">
     {
@@ -135,10 +141,7 @@
         let audioCtx = null;
 
         function initAudio() {
-            if (!audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
-            }
+            if (!audioCtx) { const AudioContext = window.AudioContext || window.webkitAudioContext; audioCtx = new AudioContext(); }
             if(audioCtx.state === 'suspended') audioCtx.resume();
         }
 
@@ -203,11 +206,12 @@
         }
 
         // --- GAME CONSTANTS & STATE ---
-        const STATE = { IDLE: 0, RUN: 1, JUMP: 2, FALL: 3, SWIM: 4, CLIMB: 5 };
+        const STATE = { IDLE: 0, RUN: 1, JUMP: 2, FALL: 3, SWIM: 4, CLIMB: 5, SIT: 6 };
         let gameActive = false, isPaused = false, isDead = false, username = "Guest";
         let isTrunchbull = false;
         let currentMap = "none"; 
-        let localAvatar = null; // FIXED: Explicitly declared here!
+        let localAvatar = null; 
+        window.chairPositions = []; // Global to track seat locations
 
         // --- MULTIPLAYER ---
         let peer = null, isHost = false, myPeerId = "", hostConn = null, clientConns = [], maxPlayers = 4;
@@ -408,7 +412,8 @@
 
         function buildMap(type) {
             while(envGroup.children.length > 0) { envGroup.remove(envGroup.children[0]); }
-            
+            window.chairPositions = []; // Reset chair locations
+
             if (type === 'pool') {
                 scene.background.setHex(0x87CEEB);
                 gridTex.repeat.set(50, 50); const gMat = new THREE.MeshStandardMaterial({ map: gridTex });
@@ -454,11 +459,14 @@
                 const l3 = new THREE.Mesh(legGeo, chairMat); l3.position.set(-0.9, 0.5, 0.9); chairGrp.add(l3);
                 const l4 = new THREE.Mesh(legGeo, chairMat); l4.position.set(0.9, 0.5, 0.9); chairGrp.add(l4);
                 
+                // Spawn 180 chairs, facing the stage (rotated 180 deg)
                 for(let r=0; r<12; r++) {
                     for(let c=0; c<15; c++) {
                         const inst = chairGrp.clone();
                         inst.position.set(-28 + c*4, 0, -20 + r*5);
+                        inst.rotation.y = Math.PI; // Face the stage
                         envGroup.add(inst);
+                        window.chairPositions.push(new THREE.Vector3(-28 + c*4, 0, -20 + r*5));
                     }
                 }
             }
@@ -472,10 +480,14 @@
 
         function createWhip() {
             const grp = new THREE.Group();
-            const handle = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 0.2), new THREE.MeshStandardMaterial({color: 0x331100}));
-            const rope = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.05, 3), new THREE.MeshStandardMaterial({color: 0x111111}));
-            rope.position.set(0, 1.5, 0.5); rope.rotation.x = Math.PI / 4;
-            grp.add(handle); grp.add(rope); return grp;
+            const handle = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.6, 0.15), new THREE.MeshStandardMaterial({color: 0x221100}));
+            const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.04, 2.5), new THREE.MeshStandardMaterial({color: 0x111111}));
+            stick.position.set(0, 1.5, 0); 
+            const tip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.3, 0.1), new THREE.MeshStandardMaterial({color: 0x000000}));
+            tip.position.set(0, 2.8, 0);
+            grp.add(handle); grp.add(stick); grp.add(tip); 
+            grp.rotation.x = -Math.PI / 4; // Angle forward to stand upright in hand
+            return grp;
         }
 
         function createCake() {
@@ -518,7 +530,8 @@
                 const hMat = new THREE.MeshStandardMaterial({color: 0x111111});
                 const hairBase = new THREE.Mesh(new THREE.SphereGeometry(0.62, 16, 16, 0, Math.PI*2, 0, Math.PI/2), hMat);
                 const bun = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), hMat);
-                bun.position.set(0, 0.3, 0.6); headGroup.add(hairBase); headGroup.add(bun);
+                bun.position.set(0, 0.75, 0.45); // Set higher on the back of the head
+                headGroup.add(hairBase); headGroup.add(bun);
             }
 
             headGroup.position.set(0, 1.5, 0); torso.add(headGroup);
@@ -572,6 +585,8 @@
         // --- INVENTORY / ACTIONS ---
         window.addEventListener('keydown', (e) => {
             if (!gameActive || isPaused || chatFocused || isDead) return;
+            
+            // Equip Item
             if (e.key === '1') {
                 const targetEquip = isTrunchbull ? 'whip' : 'cake';
                 if (localAvatar.equipped === targetEquip) {
@@ -582,10 +597,30 @@
                     document.getElementById('slot-1').classList.add('active');
                 }
             }
+
+            // Sitting Mechanic
+            if (e.key.toLowerCase() === 'e') {
+                if (playerState === STATE.SIT) {
+                    playerState = STATE.IDLE;
+                    localAvatar.group.position.y += 1;
+                } else if (currentMap === 'hall') {
+                    let nearest = null; let minDist = 3;
+                    for(let pos of window.chairPositions) {
+                        let d = localAvatar.group.position.distanceTo(pos);
+                        if(d < minDist) { minDist = d; nearest = pos; }
+                    }
+                    if (nearest) {
+                        playerState = STATE.SIT;
+                        // Snap to seat
+                        localAvatar.group.position.set(nearest.x, nearest.y + 1.2, nearest.z);
+                        localAvatar.group.rotation.y = Math.PI; // Face the stage
+                    }
+                }
+            }
         });
 
         document.addEventListener('mousedown', (e) => {
-            if (!gameActive || isPaused || chatFocused || isDead || rightClickDown) return;
+            if (!gameActive || isPaused || chatFocused || isDead || rightClickDown || playerState === STATE.SIT) return;
             if (e.button === 0 && localAvatar.equipped && localAvatar.actionTimer <= 0) {
                 localAvatar.actionTimer = 0.5; 
                 broadcast({ type: 'action', id: myPeerId, action: localAvatar.equipped });
@@ -706,6 +741,16 @@
 
             if (isDead) { updateDeathPhysics(localAvatar, dt); return; }
 
+            // Handle Sitting Bypass
+            if (playerState === STATE.SIT) {
+                vel.set(0,0,0);
+                isGrounded = true;
+                if (keys.space && !isPaused && !chatFocused) {
+                    playerState = STATE.JUMP; vel.y = jumpPower; keys.space = false;
+                }
+                return; // Prevent normal WASD movement while seated
+            }
+
             let px = localAvatar.group.position.x; let pz = localAvatar.group.position.z; let py = localAvatar.group.position.y;
             const inPoolHole = currentMap === 'pool' && (px > -10 && px < 10 && pz > -10 && pz < 10);
             const inWater = inPoolHole && py < -1; 
@@ -775,13 +820,16 @@
                 const speed = 10;
                 animTargets.leftArmX = Math.PI + Math.sin(t * speed)*0.5; animTargets.rightArmX = Math.PI - Math.sin(t * speed)*0.5;
                 animTargets.leftLegX = -Math.sin(t * speed)*0.5; animTargets.rightLegX = Math.sin(t * speed)*0.5;
+            } else if (pState === STATE.SIT) {
+                animTargets.leftArmX = 0; animTargets.rightArmX = 0;
+                animTargets.leftLegX = -Math.PI / 2; animTargets.rightLegX = -Math.PI / 2;
             }
 
             if (av.actionTimer > 0) {
                 av.actionTimer -= dt;
-                if (av.equipped === 'whip') animTargets.rightArmX = THREE.MathUtils.lerp(-Math.PI, 0, 1 - (av.actionTimer/0.5)); 
+                if (av.equipped === 'whip') animTargets.rightArmX = THREE.MathUtils.lerp(-Math.PI / 2, Math.PI / 4, 1 - (av.actionTimer/0.5)); // Swing chop
                 if (av.equipped === 'cake') animTargets.rightArmX = Math.PI / 1.5; 
-            } else {
+            } else if (pState !== STATE.SIT) {
                 if (av.equipped === 'cake' || av.equipped === 'whip') animTargets.rightArmX = Math.PI / 2.5; 
             }
 
