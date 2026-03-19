@@ -2208,69 +2208,88 @@
             return new THREE.Vector3(Math.sin(a), 0, Math.cos(a));
         }
 
-        function fireBullet() {
-            if (!localAvatar || isDead || playerState === STATE.SIT || shopOpen) return;
+       function fireBullet() {
+    if (!localAvatar || isDead || playerState === STATE.SIT || shopOpen) return;
 
-            playGunSound();
-            if (PERF.enableShells) playShellSound();
+    playGunSound();
+    if (PERF.enableShells || isMobile) playShellSound();
 
-            localAvatar.actionTimer = 0.30;
-            broadcast({ type: 'action', id: myPeerId, action: 'gun' });
+    localAvatar.actionTimer = 0.30;
+    broadcast({ type: 'action', id: myPeerId, action: 'gun' });
 
-            let fd, or;
-            if (fpsMode) {
-                fd = new THREE.Vector3(0, 0, -1);
-                fd.applyQuaternion(camera.quaternion);
-                fd.normalize();
-                or = camera.position.clone().addScaledVector(fd, 0.5);
-            } else {
-                fd = getPlayerForwardDir();
-                or = localAvatar.group.position.clone().add(new THREE.Vector3(0, 3.6, 0));
-                or.addScaledVector(fd, 1.5);
-            }
+    let fd, or;
+    if (fpsMode) {
+        fd = new THREE.Vector3(0, 0, -1);
+        fd.applyQuaternion(camera.quaternion);
+        fd.normalize();
+        or = camera.position.clone().addScaledVector(fd, 0.5);
+    } else {
+        fd = getPlayerForwardDir();
+        or = localAvatar.group.position.clone().add(new THREE.Vector3(0, 3.6, 0));
+        or.addScaledVector(fd, 1.5);
+    }
 
-            const rl = PERF.mobileLowPower ? 30 : 45;
+    const rl = isMobile ? 24 : 45;
 
-            const tracerGeo = new THREE.CylinderGeometry(0.03, 0.03, rl, 4);
-            const tracerMat = new THREE.MeshBasicMaterial({ color: 0xffcc00, transparent: true, opacity: 0.9 });
-            const tr = new THREE.Mesh(tracerGeo, tracerMat);
-            const mp = or.clone().addScaledVector(fd, rl / 2);
-            tr.position.copy(mp);
-            tr.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), fd);
-            scene.add(tr);
-            bullets.push({ mesh: tr, life: 0.05, maxLife: 0.05 });
+    // Main tracer - keep this even on mobile
+    const tracerGeo = new THREE.CylinderGeometry(isMobile ? 0.025 : 0.03, isMobile ? 0.025 : 0.03, rl, 4);
+    const tracerMat = new THREE.MeshBasicMaterial({ color: 0xffcc00, transparent: true, opacity: 0.95 });
+    const tr = new THREE.Mesh(tracerGeo, tracerMat);
+    const mp = or.clone().addScaledVector(fd, rl / 2);
+    tr.position.copy(mp);
+    tr.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), fd);
+    scene.add(tr);
+    bullets.push({ mesh: tr, life: 0.07, maxLife: 0.07 });
 
-            if (!PERF.mobileLowPower) {
-                const co = new THREE.Mesh(
-                    new THREE.CylinderGeometry(0.012, 0.012, rl, 4),
-                    new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 1 })
-                );
-                co.position.copy(mp);
-                co.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), fd);
-                scene.add(co);
-                bullets.push({ mesh: co, life: 0.05, maxLife: 0.05 });
-            }
+    // White core tracer - restore on mobile too, just shorter life
+    const co = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.01, 0.01, rl, 4),
+        new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 1.0 })
+    );
+    co.position.copy(mp);
+    co.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), fd);
+    scene.add(co);
+    bullets.push({ mesh: co, life: isMobile ? 0.04 : 0.05, maxLife: isMobile ? 0.04 : 0.05 });
 
-            if (PERF.enableParticles) {
-                const fp = or.clone().addScaledVector(fd, 0.8);
-                const fl = new THREE.Mesh(
-                    new THREE.SphereGeometry(0.3, 5, 5),
-                    new THREE.MeshBasicMaterial({ color: 0xff8800, transparent: true, opacity: 1 })
-                );
-                fl.position.copy(fp);
-                scene.add(fl);
-                bullets.push({ mesh: fl, life: 0.04, maxLife: 0.04 });
-            }
+    // Muzzle flash on all devices
+    const flashPos = or.clone().addScaledVector(fd, 0.8);
+    const flash = new THREE.Mesh(
+        new THREE.SphereGeometry(isMobile ? 0.22 : 0.3, 5, 5),
+        new THREE.MeshBasicMaterial({ color: 0xff8800, transparent: true, opacity: 1.0 })
+    );
+    flash.position.copy(flashPos);
+    scene.add(flash);
+    bullets.push({ mesh: flash, life: 0.05, maxLife: 0.05 });
 
-            if (PERF.enableShells) {
-                spawnShellCasing(or.clone().addScaledVector(fd, 0.8), fd);
-            }
-
-            recoilOffset.y -= 0.035 + Math.random() * 0.02;
-            recoilOffset.x += (Math.random() - 0.5) * 0.02;
-            camShake.intensity = PERF.mobileLowPower ? 0.05 : 0.12;
-            fpsGunRecoil = 0.15;
+    if (!isMobile && PERF.enableParticles) {
+        for (let i = 0; i < 3; i++) {
+            const sd = fd.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 0.6)).normalize();
+            const sp = new THREE.Mesh(
+                new THREE.SphereGeometry(0.06, 4, 4),
+                new THREE.MeshBasicMaterial({ color: 0xffdd44, transparent: true, opacity: 1 })
+            );
+            sp.position.copy(flashPos);
+            scene.add(sp);
+            bullets.push({ mesh: sp, life: 0.12, maxLife: 0.12, velocity: sd.clone().multiplyScalar(25 + Math.random() * 15) });
         }
+    }
+
+    if (!isMobile) {
+        const fL = new THREE.PointLight(0xff7700, 8, 12);
+        fL.position.copy(flashPos);
+        scene.add(fL);
+        bullets.push({ mesh: fL, life: 0.07, maxLife: 0.07, isLight: true });
+    }
+
+    if (PERF.enableShells && !isMobile) {
+        spawnShellCasing(flashPos, fd);
+    }
+
+    recoilOffset.y -= 0.035 + Math.random() * 0.02;
+    recoilOffset.x += (Math.random() - 0.5) * 0.02;
+    camShake.intensity = isMobile ? 0.04 : 0.12;
+    fpsGunRecoil = 0.15;
+}
 
         function spawnShellCasing(o, fd) {
             if (!PERF.enableShells) return;
