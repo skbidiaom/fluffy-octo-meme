@@ -1411,7 +1411,7 @@
                 const sens = fpsMode ? 0.003 : 0.005;
                 camYaw -= e.movementX * sens;
                 // FLIPPED: positive movementY = look down (pitch decreases), negative = look up
-                camPitch += e.movementY * sens;
+                camPitch -= e.movementY * sens;
                 camPitch = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, camPitch));
             }
         });
