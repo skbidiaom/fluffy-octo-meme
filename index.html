@@ -178,6 +178,7 @@
         #btn-fps { top: 12px; left: 120px; width: 44px; height: 44px; font-size: 10px; background: rgba(100,100,100,0.3); border: 2px solid rgba(150,150,150,0.3); border-radius: 10px; display: none; }
         #btn-fps.active-fps { background: rgba(200,0,0,0.5); }
         #btn-summon { top: 64px; left: 12px; width: 44px; height: 44px; font-size: 14px; background: rgba(100,50,200,0.3); border: 2px solid rgba(150,100,255,0.4); border-radius: 10px; }
+        #btn-admin { top: 64px; left: 62px; width: 44px; height: 44px; font-size: 14px; background: rgba(255,215,0,0.18); border: 2px solid rgba(255,215,0,0.35); border-radius: 10px; display: none; }
 
         #btn-zoom-in { bottom: 30px; left: 180px; width: 38px; height: 38px; font-size: 20px; background: rgba(100,100,100,0.25); border: 2px solid rgba(150,150,150,0.25); border-radius: 8px; }
         #btn-zoom-out { bottom: 80px; left: 180px; width: 38px; height: 38px; font-size: 20px; background: rgba(100,100,100,0.25); border: 2px solid rgba(150,150,150,0.25); border-radius: 8px; }
@@ -333,6 +334,7 @@
         <div id="btn-chat" class="mobile-btn">💬</div>
         <div id="btn-fps" class="mobile-btn">FPS</div>
         <div id="btn-summon" class="mobile-btn">👤</div>
+        <div id="btn-admin" class="mobile-btn">🛠</div>
 
         <div id="btn-zoom-in" class="mobile-btn">+</div>
         <div id="btn-zoom-out" class="mobile-btn">−</div>
@@ -2791,6 +2793,8 @@
             if (!ui) return;
 
             ui.style.display = 'none';
+            const mb = document.getElementById('btn-admin');
+            if (mb) mb.style.display = adminDevEnabled ? 'flex' : 'none';
 
             if (!adminDevEnabled) return;
 
@@ -3107,6 +3111,7 @@
             const jR = 40;
 
             jZ.addEventListener('touchstart', (e) => {
+                if (adminOpen) return;
                 e.preventDefault();
                 for (const t of e.changedTouches) {
                     if (joystickTouchId === null) {
@@ -3118,6 +3123,7 @@
             }, { passive: false });
 
             jZ.addEventListener('touchmove', (e) => {
+                if (adminOpen) return;
                 e.preventDefault();
                 for (const t of e.changedTouches) {
                     if (t.identifier === joystickTouchId) updateJ(t);
@@ -3157,6 +3163,7 @@
             }
 
             lZ.addEventListener('touchstart', (e) => {
+                if (adminOpen) return;
                 e.preventDefault();
                 for (const t of e.changedTouches) {
                     if (lookTouchId === null) {
@@ -3168,6 +3175,7 @@
             }, { passive: false });
 
             lZ.addEventListener('touchmove', (e) => {
+                if (adminOpen) return;
                 e.preventDefault();
                 for (const t of e.changedTouches) {
                     if (t.identifier === lookTouchId) {
@@ -3196,15 +3204,18 @@
                 el.addEventListener('touchstart', (e) => {
                     e.preventDefault(); e.stopPropagation();
                     el.classList.add('pressed');
+                    if (adminOpen && id !== 'btn-admin') return;
                     if (d) d();
                 }, { passive: false });
                 el.addEventListener('touchend', (e) => {
                     e.preventDefault(); e.stopPropagation();
                     el.classList.remove('pressed');
+                    if (adminOpen && id !== 'btn-admin') return;
                     if (u) u();
                 }, { passive: false });
                 el.addEventListener('touchcancel', () => {
                     el.classList.remove('pressed');
+                    if (adminOpen && id !== 'btn-admin') return;
                     if (u) u();
                 });
             }
@@ -3227,6 +3238,7 @@
             btnE('btn-chat', () => { if (!chatFocused) openChat(); else sendChat(); });
             btnE('btn-fps', () => toggleFpsMode());
             btnE('btn-summon', () => summonNpcs(false, null));
+            btnE('btn-admin', () => { if (adminDevEnabled) toggleAdminPanel(); });
 
             let zI = null, zO = null;
             btnE('btn-zoom-in', () => {
@@ -3300,7 +3312,7 @@
             }
 
             if (isDead) { updateDeathPhysics(localAvatar, dt); return; }
-            if (shopOpen) { vel.set(0, 0, 0); return; }
+            if (shopOpen || adminOpen) { vel.set(0, 0, 0); return; }
 
             if (playerState === STATE.SIT) {
                 vel.set(0, 0, 0);
