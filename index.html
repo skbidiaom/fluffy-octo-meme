@@ -3285,12 +3285,11 @@
             renderer.domElement.style.width = window.innerWidth + 'px';
             renderer.domElement.style.height = window.innerHeight + 'px';
 
-            if (fpsWeaponRenderer && PERF.enableFPSWeaponRenderer) {
-                fpsWeaponRenderer.setSize(window.innerWidth, window.innerHeight);
-                fpsWeaponCamera.aspect = window.innerWidth / window.innerHeight;
-                fpsWeaponCamera.updateProjectionMatrix();
-            }
-
+            if (fpsWeaponRenderer) {
+    fpsWeaponRenderer.setSize(window.innerWidth, window.innerHeight);
+    fpsWeaponCamera.aspect = window.innerWidth / window.innerHeight;
+    fpsWeaponCamera.updateProjectionMatrix();
+}
             checkOrientation();
         });
 
