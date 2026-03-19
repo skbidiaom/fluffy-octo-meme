@@ -213,7 +213,7 @@
         <div class="menu-box">
             <h1>R6 MULTI</h1>
             <p style="color:#666; font-size:13px; margin-top:-14px; font-family:'Orbitron',sans-serif; letter-spacing:2px;">TACTICAL EDITION</p>
-            <input type="text" id="username-input" placeholder="Enter Callsign" maxlength="16" value="Student">
+            <input type="text" id="username-input" placeholder="Enter Callsign" maxlength="16" value="Guest">
             <div class="row">
                 <button id="host-btn" class="menu-btn" style="background:linear-gradient(135deg,#28a745,#1a7a30);">Host</button>
                 <input type="number" id="max-players" value="4" min="2" max="10" style="width: 50px;" title="Max Players">
@@ -237,6 +237,12 @@
             <button id="resume-btn" class="menu-btn">Resume</button>
             <button id="reset-btn" class="menu-btn" style="background:linear-gradient(135deg,#cc3333,#881111); margin-top:12px;">Reset Character</button>
             <button id="music-btn" class="menu-btn" style="background:linear-gradient(135deg,#aa33aa,#771177); margin-top:12px;">Music: ON</button>
+            <div id="dev-extras" style="display:none; margin-top:16px; border-top:1px solid #555; padding-top:12px; text-align:left;">
+                <div style="font-weight:bold; color:#ffd700; margin-bottom:6px; font-size:12px;">DEV EXTRAS</div>
+                <label style="display:block; margin-bottom:6px; font-size:14px; cursor:pointer;"><input type="checkbox" id="dev-ck-bubble" onchange="window.devFx=(window.devFx||{});window.devFx.bubble=this.checked;"> Golden Chat Bubble</label>
+                <label style="display:block; margin-bottom:6px; font-size:14px; cursor:pointer;"><input type="checkbox" id="dev-ck-trail" onchange="window.devFx=(window.devFx||{});window.devFx.trail=this.checked;"> Cosmic Dev Trail</label>
+                <label style="display:block; font-size:14px; cursor:pointer;"><input type="checkbox" id="dev-ck-hat" onchange="window.devFx=(window.devFx||{});window.devFx.hat=this.checked; if(localAvatar){localAvatar.devFx=window.devFx;}"> Top Hat & Shades</label>
+            </div>
         </div>
     </div>
 
@@ -318,16 +324,22 @@
         <div class="hotbar-slot" id="slot-4" style="display:none; border-color:#d900ff; box-shadow:0 0 10px #d900ff;"><span>4</span>VXTOOL</div>
     </div>
 
-    <div id="vx-ui" style="display:none; position:absolute; bottom:80px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); border:2px solid #ff0; padding:12px; color:#fff; border-radius:8px; z-index:50;">
-        <h3 style="margin:0 0 8px 0; color:#ff0; font-family:'Orbitron',sans-serif; font-size:14px; text-align:center;">VX TOOLS</h3>
+    <div id="vx-ui" style="display:none; position:absolute; bottom:80px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.9); border:2px solid #ff0; padding:12px; color:#fff; border-radius:8px; z-index:50;">
+        <h3 style="margin:0 0 8px 0; color:#ff0; font-family:'Orbitron',sans-serif; font-size:14px; text-align:center;">VX TOOLS 🛠️</h3>
         <div style="display:flex; justify-content:center; gap:6px; margin-bottom:6px;">
             <input type="number" id="vx-w" value="2" step="0.5" style="width:45px; padding:2px; font-size:12px; background:#222; color:#fff; border:1px solid #770;" title="Width"> 
             <input type="number" id="vx-h" value="2" step="0.5" style="width:45px; padding:2px; font-size:12px; background:#222; color:#fff; border:1px solid #770;" title="Height"> 
             <input type="number" id="vx-d" value="2" step="0.5" style="width:45px; padding:2px; font-size:12px; background:#222; color:#fff; border:1px solid #770;" title="Depth">
         </div>
-        <input type="color" id="vx-col" value="#d900ff" style="width:100%; height:24px; margin-bottom:6px; border:none; background:none;">
-        <label style="font-size:12px; display:block; text-align:center; font-weight:bold;"><input type="checkbox" id="vx-move"> Moving Parts</label>
-        <button id="vx-clear" style="margin-top:8px; width:100%; background:#a33; color:#fff; border:1px solid #ff4444; padding:6px; font-weight:bold; cursor:pointer;">Clear Generated Objects</button>
+        <div style="display:flex; justify-content:center; gap:6px; margin-bottom:6px;">
+            <input type="number" id="vx-rx" value="0" step="15" style="width:45px; padding:2px; font-size:12px; background:#112; color:#fff; border:1px solid #00f;" title="Pitch (RX)"> 
+            <input type="number" id="vx-ry" value="0" step="15" style="width:45px; padding:2px; font-size:12px; background:#112; color:#fff; border:1px solid #00f;" title="Yaw (RY)"> 
+            <input type="number" id="vx-rz" value="0" step="15" style="width:45px; padding:2px; font-size:12px; background:#112; color:#fff; border:1px solid #00f;" title="Roll (RZ)">
+        </div>
+        <input type="color" id="vx-col" value="#d900ff" style="width:100%; height:28px; margin-bottom:6px; border:none; background:none; cursor:pointer;" title="Color">
+        <label style="font-size:12px; display:block; text-align:center; font-weight:bold; margin-bottom:6px; cursor:pointer;"><input type="checkbox" id="vx-move"> Moving Parts</label>
+        <button id="vx-place" style="margin-top:4px; width:100%; background:linear-gradient(135deg,#00b09b,#96c93d); color:#fff; border:1px solid #fff; padding:6px; font-weight:bold; cursor:pointer; font-size:14px;">⬇ PLACE PART ⬇</button>
+        <button id="vx-clear" style="margin-top:6px; width:100%; background:#a33; color:#fff; border:1px solid #ff4444; padding:6px; font-weight:bold; cursor:pointer;">Clear All Objects</button>
     </div>
 
     <div id="mode-indicator" class="normal">Normal Mode</div>
@@ -944,15 +956,19 @@
                         targetRot: data.rot,
                         state: data.state,
                         isDead: false,
-                        name: data.name
+                        name: data.name,
+                        devFx: data.devFx || null,
+                        lastSeen: performance.now()
                     };
                     updateMapContext();
                 } else {
                     const p = remotePlayers[data.id];
+                    p.lastSeen = performance.now();
                     if (!p.isDead) {
                         p.targetPos.fromArray(data.pos);
                         p.targetRot = data.rot;
                         p.state = data.state;
+                        p.avatar.devFx = data.devFx || null;
                     }
                     if (p.avatar.equipped !== data.equip) setAvatarEquip(p.avatar, data.equip);
                 }
@@ -1037,6 +1053,14 @@
 
         setInterval(() => {
             if (!gameActive || !localAvatar) return;
+            
+            const now = performance.now();
+            for (let id in remotePlayers) {
+                if (now - remotePlayers[id].lastSeen > 3500) {
+                    removePlayer(id);
+                }
+            }
+
             broadcast({
                 type: 'state',
                 id: myPeerId,
@@ -1044,7 +1068,8 @@
                 pos: localAvatar.group.position.toArray(),
                 rot: localAvatar.group.rotation.y,
                 state: playerState,
-                equip: localAvatar.equipped
+                equip: localAvatar.equipped,
+                devFx: window.devFx || null
             });
         }, networkTickRate);
 
@@ -1141,12 +1166,21 @@
             const bw = Math.min(tw + 30, 340);
             const bx = (384 - bw) / 2;
 
-            ctx.fillStyle = 'rgba(0,0,0,0.82)';
+            if (avatar.devFx?.bubble || (avatar===localAvatar && window.devFx?.bubble)) {
+                ctx.fillStyle = 'rgba(255,215,0,0.95)';
+            } else {
+                ctx.fillStyle = 'rgba(0,0,0,0.82)';
+            }
+            
             ctx.beginPath();
             ctx.roundRect(bx, 8, bw, 58, 12);
             ctx.fill();
 
-            ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+            if (avatar.devFx?.bubble || (avatar===localAvatar && window.devFx?.bubble)) {
+                ctx.strokeStyle = '#000000';
+            } else {
+                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+            }
             ctx.lineWidth = 2;
             ctx.stroke();
 
@@ -1156,7 +1190,11 @@
             ctx.lineTo(200, 66);
             ctx.fill();
 
-            ctx.fillStyle = '#ffffff';
+            if (avatar.devFx?.bubble || (avatar===localAvatar && window.devFx?.bubble)) {
+                ctx.fillStyle = '#000000';
+            } else {
+                ctx.fillStyle = '#ffffff';
+            }
             ctx.fillText(displayText, 192, 44);
 
             const tex = new THREE.CanvasTexture(cvs);
@@ -1911,6 +1949,41 @@
 
         const dynamicObjects = {};
 
+        let vxPreviewMesh = null;
+        function initVxPreview() {
+            if (vxPreviewMesh) return;
+            const geo = new THREE.BoxGeometry(1, 1, 1);
+            const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.5 });
+            vxPreviewMesh = new THREE.Mesh(geo, mat);
+            vxPreviewMesh.visible = false;
+            scene.add(vxPreviewMesh);
+        }
+
+        function updateVxPreview() {
+            if (!vxPreviewMesh) initVxPreview();
+            if (localAvatar && localAvatar.equipped === 'vxtool') {
+                vxPreviewMesh.visible = true;
+                const w = parseFloat(document.getElementById('vx-w').value) || 2;
+                const h = parseFloat(document.getElementById('vx-h').value) || 2;
+                const d = parseFloat(document.getElementById('vx-d').value) || 2;
+                const col = document.getElementById('vx-col').value;
+                vxPreviewMesh.scale.set(w, h, d);
+                vxPreviewMesh.material.color.set(col);
+                
+                let fd = fpsMode ? new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize() : getPlayerForwardDir();
+                const origin = localAvatar.group.position.clone().add(new THREE.Vector3(0, 2, 0)).addScaledVector(fd, 4 + Math.max(w,d)/2);
+                
+                const rx = parseFloat(document.getElementById('vx-rx')?.value) || 0;
+                const ry = parseFloat(document.getElementById('vx-ry')?.value) || 0;
+                const rz = parseFloat(document.getElementById('vx-rz')?.value) || 0;
+                
+                vxPreviewMesh.position.copy(origin);
+                vxPreviewMesh.rotation.set(rx * Math.PI / 180, camYaw + (ry * Math.PI / 180), rz * Math.PI / 180);
+            } else {
+                vxPreviewMesh.visible = false;
+            }
+        }
+
         function spawnDynamicObject(data) {
             if (dynamicObjects[data.id]) return;
             const geo = new THREE.BoxGeometry(data.w, data.h, data.d);
@@ -1980,6 +2053,26 @@
             hd.castShadow = PERF.enableShadows;
             hG.add(hd);
 
+            const hr = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.05, 16), new THREE.MeshStandardMaterial({color: 0x111111}));
+            hr.position.y = 0.5;
+            const hc = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.6, 16), new THREE.MeshStandardMaterial({color: 0x111111}));
+            hc.position.y = 0.8;
+            const hatGroup = new THREE.Group();
+            hatGroup.add(hr); hatGroup.add(hc);
+            hatGroup.visible = false;
+            hG.add(hatGroup);
+            
+            const sG = new THREE.Group();
+            const sg1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.15, 0.05), new THREE.MeshStandardMaterial({color: 0x050505}));
+            sg1.position.set(-0.16, 0.15, 0.36);
+            const sg2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.15, 0.05), new THREE.MeshStandardMaterial({color: 0x050505}));
+            sg2.position.set(0.16, 0.15, 0.36);
+            const sg3 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.04, 0.05), new THREE.MeshStandardMaterial({color: 0x050505}));
+            sg3.position.set(0, 0.15, 0.36);
+            sG.add(sg1); sG.add(sg2); sG.add(sg3);
+            sG.visible = false;
+            hG.add(sG);
+
             if (isT) {
                 const hM = new THREE.MeshStandardMaterial({ color: 0x111111 });
 
@@ -2047,6 +2140,7 @@
                 group, torso, leftArm: lA, rightArm: rA, leftLeg: lL, rightLeg: rL, headGroup: hG,
                 nametagSprite: ns, explosionData: null, equipped: null,
                 itemWhip: iW, itemCake: iC, itemGun: iG, itemGrenade: iGr, itemVX: iVX,
+                itemHat: hatGroup, itemShades: sG,
                 actionTimer: 0, isTrunchbull: isT
             };
         }
@@ -2995,6 +3089,32 @@
                 addSystemChat("✅ Cleared Network Objects");
             });
 
+            const vxPlace = document.getElementById('vx-place');
+            if (vxPlace) vxPlace.addEventListener('click', () => {
+                const w = parseFloat(document.getElementById('vx-w').value) || 2;
+                const h = parseFloat(document.getElementById('vx-h').value) || 2;
+                const d = parseFloat(document.getElementById('vx-d').value) || 2;
+                const col = document.getElementById('vx-col').value;
+                const move = document.getElementById('vx-move').checked;
+                
+                let fd = fpsMode ? new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize() : getPlayerForwardDir();
+                const origin = localAvatar.group.position.clone().add(new THREE.Vector3(0, 2, 0)).addScaledVector(fd, 4 + Math.max(w,d)/2);
+                
+                const rx = parseFloat(document.getElementById('vx-rx')?.value) || 0;
+                const ry = parseFloat(document.getElementById('vx-ry')?.value) || 0;
+                const rz = parseFloat(document.getElementById('vx-rz')?.value) || 0;
+
+                const packet = {
+                    id: Math.random().toString(36).substring(2, 10),
+                    w, h, d, col, move,
+                    pos: origin.toArray(),
+                    rot: [rx * Math.PI / 180, camYaw + ry * Math.PI / 180, rz * Math.PI / 180]
+                };
+                spawnDynamicObject(packet);
+                broadcast({ type: 'sync_obj', data: packet });
+                playBuySound();
+            });
+
             const coinsBtn = document.getElementById('admin-apply-coins');
             if (coinsBtn) coinsBtn.addEventListener('click', () => {
                 const v = parseInt(document.getElementById('admin-coin-input')?.value ?? '', 10);
@@ -3115,24 +3235,6 @@
                     broadcast({ type: 'action', id: myPeerId, action: 'grenade', grenade: grenadeData });
                 } else if (localAvatar.equipped === 'vxtool' && playerState !== STATE.SIT) {
                     localAvatar.actionTimer = 0.5;
-                    const w = parseFloat(document.getElementById('vx-w').value) || 2;
-                    const h = parseFloat(document.getElementById('vx-h').value) || 2;
-                    const d = parseFloat(document.getElementById('vx-d').value) || 2;
-                    const col = document.getElementById('vx-col').value;
-                    const move = document.getElementById('vx-move').checked;
-                    
-                    let fd = fpsMode ? new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize() : getPlayerForwardDir();
-                    const origin = localAvatar.group.position.clone().add(new THREE.Vector3(0, 2, 0)).addScaledVector(fd, 4 + Math.max(w,d)/2);
-
-                    const packet = {
-                        id: Math.random().toString(36).substring(2, 10),
-                        w, h, d, col, move,
-                        pos: origin.toArray(),
-                        rot: [0, camYaw, 0]
-                    };
-                    spawnDynamicObject(packet);
-                    broadcast({ type: 'sync_obj', data: packet });
-                    playBuySound();
                 } else if (playerState !== STATE.SIT) {
                     localAvatar.actionTimer = 0.5;
                     broadcast({ type: 'action', id: myPeerId, action: localAvatar.equipped });
@@ -3759,10 +3861,35 @@
 
         function updateAnimations(t, dt) {
             if (!gameActive || !localAvatar) return;
-            if (!isDead) applyAnim(localAvatar, playerState, t, dt);
+
+            const applyDevFx = (av, ps) => {
+                const bLocalCheck = (av === localAvatar) ? window.devFx : av.devFx;
+                if (av.itemHat) av.itemHat.visible = !!bLocalCheck?.hat;
+                if (av.itemShades) av.itemShades.visible = !!bLocalCheck?.hat;
+                
+                const hasTrail = !!bLocalCheck?.trail;
+                if (hasTrail && ps !== STATE.IDLE && ps !== STATE.SIT) {
+                    if (av.group.position.distanceToSquared(av.__lastTrail || av.group.position) > 0.3 || !av.__lastTrail) {
+                        av.__lastTrail = av.group.position.clone();
+                        const pt = new THREE.Mesh(new THREE.SphereGeometry(0.18, 5, 5), new THREE.MeshBasicMaterial({ color: 0xff00ff, transparent:true, opacity:0.8 }));
+                        pt.position.copy(av.group.position);
+                        pt.position.y += 0.5 + Math.random();
+                        scene.add(pt);
+                        bullets.push({ mesh: pt, life: 1.5, maxLife: 1.5, isParticle: true, velocity: new THREE.Vector3((Math.random()-0.5)*3, 1.5, (Math.random()-0.5)*3) });
+                    }
+                }
+            };
+
+            if (!isDead) {
+                applyAnim(localAvatar, playerState, t, dt);
+                applyDevFx(localAvatar, playerState);
+            }
             for (let id in remotePlayers) {
                 const p = remotePlayers[id];
-                if (!p.isDead) applyAnim(p.avatar, p.state, t, dt);
+                if (!p.isDead) {
+                    applyAnim(p.avatar, p.state, t, dt);
+                    applyDevFx(p.avatar, p.state);
+                }
             }
             for (const sa of shopAvatars) applyAnim(sa, STATE.IDLE, t, dt);
         }
@@ -3895,6 +4022,7 @@
             updateGrenades(dt);
             updateExplosions(dt);
             updateDynamicObjects(t, dt);
+            if (typeof updateVxPreview === 'function') updateVxPreview();
             updateShopProximity();
             updateSpeechBubbles(dt);
             updateNpcs(dt);
