@@ -621,7 +621,7 @@
             tip.position.set(0, -2.8, 0);
             g.add(tip);
             // Whip hangs down naturally from the hand VERTICALLY
-            g.rotation.x = Math.PI / 2;
+            g.rotation.x = -Math.PI / 2;
             return g;
         }
         function createCake() { const g = new THREE.Group(); g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.3, 16), new THREE.MeshStandardMaterial({ color: 0x4a2f1d }))); const i = new THREE.Mesh(new THREE.CylinderGeometry(0.41, 0.41, 0.1, 16), new THREE.MeshStandardMaterial({ color: 0xeeeeee })); i.position.y = 0.15; g.add(i); return g; }
