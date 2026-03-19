@@ -261,7 +261,7 @@
             });
         }
 
-        // ── NEW: Gun shot sound ──
+        // ── Gun shot sound ──
         function playGunSound() {
             playSoundSafe(() => {
                 // Sharp crack (white noise burst)
@@ -295,12 +295,12 @@
         let currentMap = "none";
         let localAvatar = null;
         window.chairPositions = [];
-        window.shopPositions = [];  // ← shop interaction zones
+        window.shopPositions = [];
 
         // Shop / gun state
         let hasGun = false, shopOpen = false, isNearShop = false;
-        const shopAvatars = [];   // animated shop NPCs
-        const bullets = [];       // active bullet tracers / flashes
+        const shopAvatars = [];
+        const bullets = [];
 
         // ─────────────────────────────────────────────
         //  MULTIPLAYER
@@ -378,7 +378,7 @@
                     remotePlayers[data.id].avatar.actionTimer = 0.5;
                     if (data.action === 'eat')  playEatSound();
                     if (data.action === 'whip') playWhipSound();
-                    if (data.action === 'gun')  playGunSound();  // ← NEW
+                    if (data.action === 'gun')  playGunSound();
                 }
             }
         }
@@ -614,7 +614,6 @@
             sCtx.fillStyle = 'rgba(0,0,0,0)'; sCtx.fillRect(0, 0, 512, 128);
             sCtx.font = 'bold 54px Arial';
             sCtx.textAlign = 'center';
-            // Neon glow layers
             sCtx.shadowColor = '#ff3300'; sCtx.shadowBlur = 30;
             sCtx.fillStyle = '#ff7744'; sCtx.fillText("🔫 TONY'S SHOP", 256, 90);
             sCtx.shadowBlur = 0;
@@ -625,7 +624,7 @@
             signSprite.position.set(x, y + 6.5, z);
             envGroup.add(signSprite);
 
-            // A few "gun prop" items on the counter
+            // Gun prop items on the counter
             const propMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
             for (let i = -1; i <= 1; i++) {
                 const propBody = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.25, 0.85), propMat);
@@ -640,7 +639,7 @@
             // Tony the shopkeeper NPC
             const tony = buildTonyAvatar();
             tony.group.position.set(x, y, z + 2.5);
-            tony.group.rotation.y = Math.PI; // facing players
+            tony.group.rotation.y = Math.PI;
             envGroup.add(tony.group);
             shopAvatars.push(tony);
 
@@ -676,7 +675,7 @@
             grp.add(cake); grp.add(icing); return grp;
         }
 
-        // ── NEW: Pistol model ──
+        // ── Pistol model ──
         function createGun() {
             const grp = new THREE.Group();
             const dark = new THREE.MeshStandardMaterial({ color: 0x222222 });
@@ -763,7 +762,7 @@
 
             const itemWhip = createWhip(); itemWhip.visible = false; equipGrp.add(itemWhip);
             const itemCake = createCake(); itemCake.visible = false; equipGrp.add(itemCake);
-            const itemGun  = createGun();  itemGun.visible  = false; equipGrp.add(itemGun);  // ← NEW
+            const itemGun  = createGun();  itemGun.visible  = false; equipGrp.add(itemGun);
 
             return { group, torso, leftArm, rightArm, leftLeg, rightLeg, headGroup, nametagSprite, explosionData: null, equipped: null, itemWhip, itemCake, itemGun, actionTimer: 0, isTrunchbull: isT };
         }
@@ -805,7 +804,7 @@
             av.equipped = equipName;
             if (av.itemWhip) av.itemWhip.visible = (equipName === 'whip');
             if (av.itemCake) av.itemCake.visible = (equipName === 'cake');
-            if (av.itemGun)  av.itemGun.visible  = (equipName === 'gun');  // ← NEW
+            if (av.itemGun)  av.itemGun.visible  = (equipName === 'gun');
         }
 
         // ─────────────────────────────────────────────
@@ -1220,18 +1219,20 @@
                 animTargets.leftLegX  = -Math.PI / 2; animTargets.rightLegX = -Math.PI / 2;
             }
 
-            // Equip / action overrides
+            // ── FIX: Equip / action overrides ──
+            // Negative X rotation = arm goes FORWARD (in front of character)
+            // Positive X rotation = arm goes BACKWARD (behind character)
             if (av.actionTimer > 0) {
                 av.actionTimer -= dt;
-                if (av.equipped === 'whip') animTargets.rightArmX = THREE.MathUtils.lerp(-Math.PI / 2, Math.PI / 4, 1 - (av.actionTimer / 0.5));
-                if (av.equipped === 'cake') animTargets.rightArmX = Math.PI / 1.5;
+                if (av.equipped === 'whip') animTargets.rightArmX = THREE.MathUtils.lerp(Math.PI / 4, -Math.PI / 2, 1 - (av.actionTimer / 0.5));
+                if (av.equipped === 'cake') animTargets.rightArmX = -Math.PI / 1.5;
                 if (av.equipped === 'gun')  {
-                    // Recoil kick then settle
-                    animTargets.rightArmX = Math.PI / 2 + Math.sin(av.actionTimer * Math.PI / 0.25) * 0.4;
+                    // Recoil kick then settle (arm forward with slight upward kick)
+                    animTargets.rightArmX = -Math.PI / 2 - Math.sin(av.actionTimer * Math.PI / 0.25) * 0.4;
                 }
             } else if (pState !== STATE.SIT) {
-                if (av.equipped === 'cake' || av.equipped === 'whip') animTargets.rightArmX = Math.PI / 2.5;
-                if (av.equipped === 'gun')  animTargets.rightArmX = Math.PI / 2.5; // aim pose
+                if (av.equipped === 'cake' || av.equipped === 'whip') animTargets.rightArmX = -Math.PI / 2.5;
+                if (av.equipped === 'gun')  animTargets.rightArmX = -Math.PI / 2.5; // aim pose forward
             }
 
             const ls = 15 * dt;
@@ -1272,8 +1273,8 @@
             updatePhysics(dt);
             updateAnimations(t, dt);
             updateCamera();
-            updateBullets(dt);         // ← NEW
-            updateShopProximity();     // ← NEW
+            updateBullets(dt);
+            updateShopProximity();
             renderer.render(scene, camera);
             frames++;
             const now = performance.now();
