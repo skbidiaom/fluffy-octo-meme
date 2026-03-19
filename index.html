@@ -643,6 +643,8 @@
         const shopAvatars = [];
         const bullets = [];
         const shellCasings = [];
+        const grenades = [];
+        const explosions = [];
 
         let actionMode = false, fpsMode = false;
         let recoilOffset = { x: 0, y: 0 }, camShake = { x: 0, y: 0, intensity: 0 };
@@ -809,7 +811,11 @@
                     if (data.action === 'eat') playEatSound();
                     if (data.action === 'whip') playWhipSound();
                     if (data.action === 'gun') playGunSound();
-                    if (data.action === 'grenade') playExplosionSound();
+                    if (data.action === 'grenade') {
+                        remotePlayers[data.id].avatar.actionTimer = 1.0;
+                        if (data.grenade) spawnGrenade(data.grenade);
+                        else playExplosionSound();
+                    }
                 }
             }
             else if (data.type === 'summon_npcs') {
@@ -2346,6 +2352,129 @@
         }
 
         /* ─────────────────────────────────────────────
+           GRENADES / EXPLOSIONS
+           ───────────────────────────────────────────── */
+        function spawnExplosionFx(pos) {
+            const geo = new THREE.SphereGeometry(0.15, 10, 10);
+            const mat = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 1 });
+            const sp = new THREE.Mesh(geo, mat);
+            sp.position.copy(pos);
+            scene.add(sp);
+
+            explosions.push({ mesh: sp, life: PERF.mobileLowPower ? 0.55 : 0.45, maxLife: PERF.mobileLowPower ? 0.55 : 0.45 });
+        }
+
+        function spawnGrenade(grenadeData) {
+            if (!grenadeData || !grenadeData.origin || !grenadeData.velocity) return;
+
+            const o = new THREE.Vector3().fromArray(grenadeData.origin);
+            const v = new THREE.Vector3().fromArray(grenadeData.velocity);
+            const fuse = Number(grenadeData.fuse ?? 2.4);
+
+            const geo = new THREE.SphereGeometry(0.18, 12, 12);
+            const mat = new THREE.MeshStandardMaterial({
+                color: 0x666666,
+                metalness: 0.2,
+                roughness: 0.65,
+                emissive: 0x220000,
+                emissiveIntensity: 0.3
+            });
+            const gm = new THREE.Mesh(geo, mat);
+            gm.castShadow = PERF.enableShadows;
+            gm.receiveShadow = PERF.enableShadows;
+            gm.position.copy(o);
+            scene.add(gm);
+
+            grenades.push({
+                mesh: gm,
+                vel: v,
+                life: fuse,
+                maxLife: fuse
+            });
+        }
+
+        function createGrenadeThrowData() {
+            // Aim forward; in normal mode we keep it horizontal and rely on the arc.
+            let fd;
+            if (fpsMode) {
+                fd = new THREE.Vector3(0, 0, -1);
+                fd.applyQuaternion(camera.quaternion);
+                fd.normalize();
+            } else {
+                fd = getPlayerForwardDir();
+            }
+
+            // Convert to horizontal direction to keep the arc predictable.
+            const hDir = fd.clone();
+            hDir.y = 0;
+            if (hDir.lengthSq() < 1e-6) hDir.set(0, 0, -1);
+            hDir.normalize();
+
+            // Small inaccuracy so spamming doesn't look perfectly locked.
+            const yawJitter = (Math.random() - 0.5) * 0.10;
+            hDir.applyAxisAngle(new THREE.Vector3(0, 1, 0), yawJitter).normalize();
+
+            const origin = fpsMode
+                ? camera.position.clone().addScaledVector(hDir, 0.6).add(new THREE.Vector3(0, 0.3, 0))
+                : localAvatar.group.position.clone().add(new THREE.Vector3(0, 3.6, 0)).addScaledVector(hDir, 0.9);
+
+            const speed = PERF.mobileLowPower ? 16 : 18;
+            const up = PERF.mobileLowPower ? 6.5 : 7.5;
+            const vel = hDir.multiplyScalar(speed);
+            vel.y += up;
+
+            return {
+                id: Math.random().toString(36).slice(2, 10),
+                origin: origin.toArray(),
+                velocity: vel.toArray(),
+                fuse: PERF.mobileLowPower ? 2.8 : 2.4
+            };
+        }
+
+        function updateGrenades(dt) {
+            for (let i = grenades.length - 1; i >= 0; i--) {
+                const g = grenades[i];
+                g.life -= dt;
+
+                // Gravity.
+                g.vel.y -= 9.8 * dt;
+                g.mesh.position.addScaledVector(g.vel, dt);
+                g.mesh.rotation.x += dt * 6;
+                g.mesh.rotation.z += dt * 6;
+
+                const gy = getGroundHeight(g.mesh.position.x, g.mesh.position.z);
+                const hitGround = g.mesh.position.y <= gy + 0.08;
+                const timeUp = g.life <= 0;
+
+                if (hitGround || timeUp) {
+                    const exPos = g.mesh.position.clone();
+                    scene.remove(g.mesh);
+                    grenades.splice(i, 1);
+
+                    spawnExplosionFx(exPos);
+                    playExplosionSound();
+                }
+            }
+        }
+
+        function updateExplosions(dt) {
+            for (let i = explosions.length - 1; i >= 0; i--) {
+                const e = explosions[i];
+                e.life -= dt;
+                const t = Math.max(0, e.life / e.maxLife);
+                const p = 1 - t;
+
+                e.mesh.scale.setScalar(0.25 + p * 2.4);
+                e.mesh.material.opacity = t;
+
+                if (e.life <= 0) {
+                    scene.remove(e.mesh);
+                    explosions.splice(i, 1);
+                }
+            }
+        }
+
+        /* ─────────────────────────────────────────────
            GAME START
            ───────────────────────────────────────────── */
         function safeStartGame(code) {
@@ -2454,8 +2583,9 @@
                     fireBullet();
                 } else if (localAvatar.equipped === 'grenade' && playerState !== STATE.SIT) {
                     localAvatar.actionTimer = 1.0;
-                    broadcast({ type: 'action', id: myPeerId, action: 'grenade' });
-                    playExplosionSound();
+                    const grenadeData = createGrenadeThrowData();
+                    spawnGrenade(grenadeData);
+                    broadcast({ type: 'action', id: myPeerId, action: 'grenade', grenade: grenadeData });
                 } else if (playerState !== STATE.SIT) {
                     localAvatar.actionTimer = 0.5;
                     broadcast({ type: 'action', id: myPeerId, action: localAvatar.equipped });
@@ -3206,6 +3336,8 @@
             updateAnimations(t, dt);
             updateCamera(dt);
             updateBullets(dt);
+            updateGrenades(dt);
+            updateExplosions(dt);
             updateShopProximity();
             updateSpeechBubbles(dt);
             updateNpcs(dt);
