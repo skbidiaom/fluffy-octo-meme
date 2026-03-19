@@ -336,23 +336,65 @@
         document.getElementById('join-btn').addEventListener('click', () => { initAudio(); username = document.getElementById('username-input').value || "Guest"; let code = document.getElementById('join-code').value.toUpperCase(); isTrunchbull = (username.toLowerCase() === 'miss_trunchbull'); if (code.length !== 5) { showError("Enter valid code."); return; } showLoading(true, "JOINING..."); peer = new Peer(); peer.on('open', (id) => { isHost = false; myPeerId = id; hostConn = peer.connect(code + "-r6clone"); hostConn.on('open', () => { safeStartGame(code); addSystemChat("✓ Connected."); }); hostConn.on('data', (d) => handleNetworkData(d, hostConn.peer)); hostConn.on('close', () => { addSystemChat("⚠ Host disconnected."); setTimeout(() => location.reload(), 3000); }); }); peer.on('error', () => { showError("Could not connect."); if (peer) peer.destroy(); }); });
 
         function broadcast(d) { if (isHost) clientConns.forEach(c => { if (c.open) c.send(d); }); else if (hostConn && hostConn.open) hostConn.send(d); }
-        function handleNetworkData(data, senderId) {
-            if (data.type === 'error') { alert(data.msg); location.reload(); return; }
-            if (isHost && data.type !== 'chat' && data.type !== 'speech') clientConns.forEach(c => { if (c.peer !== senderId && c.open) c.send(data); });
-            if (data.type === 'state') { if (data.id === myPeerId) return; if (!remotePlayers[data.id]) { const av = buildAvatar(data.name || "Guest"); scene.add(av.group); if (data.equip) setAvatarEquip(av, data.equip); remotePlayers[data.id] = { avatar: av, targetPos: new THREE.Vector3().fromArray(data.pos), targetRot: data.rot, state: data.state, isDead: false, name: data.name }; updateMapContext(); } else { const p = remotePlayers[data.id]; if (!p.isDead) { p.targetPos.fromArray(data.pos); p.targetRot = data.rot; p.state = data.state; } if (p.avatar.equipped !== data.equip) setAvatarEquip(p.avatar, data.equip); } }
-            else if (data.type === 'chat') {
-                appendChat(data.name, data.text); playReceiveSound();
-                if (isHost) broadcast(data);
-                // Check for "Sit!" command from miss_trunchbull
-                if (data.name.toLowerCase() === 'miss_trunchbull' && data.text.toLowerCase().trim() === 'sit!') {
-                    makeNpcsSit();
-                }
-            }
-            else if (data.type === 'speech') { if (remotePlayers[data.id]) createSpeechBubble(remotePlayers[data.id].avatar, data.text); if (isHost) broadcast(data); }
-            else if (data.type === 'death') { if (remotePlayers[data.id] && !remotePlayers[data.id].isDead) { executeBreakApart(remotePlayers[data.id].avatar); remotePlayers[data.id].isDead = true; } }
-            else if (data.type === 'respawn') { if (remotePlayers[data.id]) { executeRespawn(remotePlayers[data.id].avatar); remotePlayers[data.id].isDead = false; } }
-            else if (data.type === 'action') { if (remotePlayers[data.id]) { remotePlayers[data.id].avatar.actionTimer = 0.5; if (data.action === 'eat') playEatSound(); if (data.action === 'whip') playWhipSound(); if (data.action === 'gun') playGunSound(); if (data.action === 'grenade') playExplosionSound(); } }
+       function handleNetworkData(data, senderId) {
+    if (data.type === 'error') { alert(data.msg); location.reload(); return; }
+    if (isHost && data.type !== 'chat' && data.type !== 'speech') clientConns.forEach(c => { if (c.peer !== senderId && c.open) c.send(data); });
+    if (data.type === 'state') {
+        if (data.id === myPeerId) return;
+        if (!remotePlayers[data.id]) {
+            const av = buildAvatar(data.name || "Guest");
+            scene.add(av.group);
+            if (data.equip) setAvatarEquip(av, data.equip);
+            remotePlayers[data.id] = { avatar: av, targetPos: new THREE.Vector3().fromArray(data.pos), targetRot: data.rot, state: data.state, isDead: false, name: data.name };
+            updateMapContext();
+        } else {
+            const p = remotePlayers[data.id];
+            if (!p.isDead) { p.targetPos.fromArray(data.pos); p.targetRot = data.rot; p.state = data.state; }
+            if (p.avatar.equipped !== data.equip) setAvatarEquip(p.avatar, data.equip);
         }
+    }
+    else if (data.type === 'chat') {
+        appendChat(data.name, data.text);
+        playReceiveSound();
+        if (isHost) broadcast(data);
+        if (data.name.toLowerCase() === 'miss_trunchbull' && data.text.toLowerCase().trim() === 'sit!') {
+            makeNpcsSit(true);
+        }
+    }
+    else if (data.type === 'speech') {
+        if (remotePlayers[data.id]) createSpeechBubble(remotePlayers[data.id].avatar, data.text);
+        if (isHost) broadcast(data);
+    }
+    else if (data.type === 'death') {
+        if (remotePlayers[data.id] && !remotePlayers[data.id].isDead) {
+            executeBreakApart(remotePlayers[data.id].avatar);
+            remotePlayers[data.id].isDead = true;
+        }
+    }
+    else if (data.type === 'respawn') {
+        if (remotePlayers[data.id]) {
+            executeRespawn(remotePlayers[data.id].avatar);
+            remotePlayers[data.id].isDead = false;
+        }
+    }
+    else if (data.type === 'action') {
+        if (remotePlayers[data.id]) {
+            remotePlayers[data.id].avatar.actionTimer = 0.5;
+            if (data.action === 'eat') playEatSound();
+            if (data.action === 'whip') playWhipSound();
+            if (data.action === 'gun') playGunSound();
+            if (data.action === 'grenade') playExplosionSound();
+        }
+    }
+    else if (data.type === 'summon_npcs') {
+        summonNpcs(true, data.data);
+        if (isHost) broadcast(data);
+    }
+    else if (data.type === 'npcs_sit') {
+        makeNpcsSit(true);
+        if (isHost) broadcast(data);
+    }
+}
         function removePlayer(id) { if (remotePlayers[id]) { scene.remove(remotePlayers[id].avatar.group); delete remotePlayers[id]; addSystemChat("⚡ A player left."); } if (isHost) clientConns = clientConns.filter(c => c.peer !== id); updateMapContext(); }
         setInterval(() => { if (!gameActive || !localAvatar) return; broadcast({ type: 'state', id: myPeerId, name: username, pos: localAvatar.group.position.toArray(), rot: localAvatar.group.rotation.y, state: playerState, equip: localAvatar.equipped }); }, networkTickRate);
 
