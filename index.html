@@ -1002,7 +1002,7 @@
             if (fpsMode) {
                 // In FPS, camera directly at target looking forward
                 const lookDir = new THREE.Vector3(0, 0, -1);
-                lookDir.applyAxisAngle(new THREE.Vector3(1, 0, 0), -camPitch);
+                lookDir.applyAxisAngle(new THREE.Vector3(1, 0, 0), camPitch);
                 lookDir.applyAxisAngle(new THREE.Vector3(0, 1, 0), camYaw);
                 camera.position.copy(tp);
                 camera.position.x += camShake.x;
