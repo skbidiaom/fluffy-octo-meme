@@ -416,7 +416,7 @@
                 playSendSound();
                 // Local check for "Sit!" from trunchbull
                 if (isTrunchbull && text.toLowerCase().trim() === 'sit!') {
-                    makeNpcsSit();
+                    makeNpcsSit(false);
                 }
             }
             chatInput.value = ''; chatInput.blur(); chatInputWrapper.style.display = 'none'; chatFocused = false;
