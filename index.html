@@ -3246,6 +3246,7 @@
 
         window.addEventListener('keydown', (e) => {
             if (!gameActive || isPaused || chatFocused || isDead || adminOpen) return;
+            if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
             if (e.key === '1') { equipItem(1); return; }
             if (e.key === '2' && inventory.gun) { equipItem(2); return; }
             if (e.key === '3' && inventory.grenade) { equipItem(3); return; }
@@ -3354,6 +3355,7 @@
 
         window.addEventListener('keydown', (e) => {
             if (isPaused || !gameActive || isDead || chatFocused || shopOpen || adminOpen) return;
+            if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
             const k = e.key.toLowerCase();
             if (keys.hasOwnProperty(k)) keys[k] = true;
             if (e.code === 'Space') {
