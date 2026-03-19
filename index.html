@@ -3265,10 +3265,9 @@
 
             renderer.render(scene, camera);
 
-            if (PERF.enableFPSWeaponRenderer && fpsMode && fpsWeaponRenderer && fpsWeaponScene && fpsWeaponCamera) {
-                fpsWeaponRenderer.render(fpsWeaponScene, fpsWeaponCamera);
-            }
-
+            if (fpsMode && fpsWeaponRenderer && fpsWeaponScene && fpsWeaponCamera) {
+    fpsWeaponRenderer.render(fpsWeaponScene, fpsWeaponCamera);
+}
             frames++;
             const now = performance.now();
             if (now >= lastFt + 1000) {
