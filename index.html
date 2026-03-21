@@ -2605,299 +2605,28 @@
                 gr.receiveShadow = true;
                 envGroup.add(gr);
 
+                buildShop(-18, 0, -10);
+                buildShop(-75, 0, -55);
+
                 const cT = concreteTex.clone();
                 cT.repeat.set(10, 10);
-                const pd = new THREE.Mesh(new THREE.PlaneGeometry(50, 40), new THREE.MeshStandardMaterial({ map: cT }));
-                pd.rotation.x = -Math.PI / 2;
-                pd.position.set(POOL_CX, 0.05, POOL_CZ);
-                pd.receiveShadow = true;
-                envGroup.add(pd);
-
-                const pT = poolTileTex.clone();
-                pT.repeat.set(5, 5);
-                const pM = new THREE.MeshStandardMaterial({ map: pT });
-
-                const pf = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), pM);
-                pf.rotation.x = -Math.PI / 2;
-                pf.position.set(POOL_CX, -10, POOL_CZ);
-                envGroup.add(pf);
-
-                const cW = (w, h, px, py, pz, r) => {
-                    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), pM);
-                    m.position.set(px, py, pz);
-                    m.rotation.y = r;
-                    envGroup.add(m);
-                };
-                cW(20, 10, POOL_CX, -5, POOL_CZ - 10, 0);
-                cW(20, 10, POOL_CX, -5, POOL_CZ + 10, Math.PI);
-                cW(20, 10, POOL_CX - 10, -5, POOL_CZ, Math.PI / 2);
-                cW(20, 10, POOL_CX + 10, -5, POOL_CZ, -Math.PI / 2);
-
-                const waterMesh = new THREE.Mesh(
-                    new THREE.PlaneGeometry(20, 20),
-                    new THREE.MeshStandardMaterial({ color: 0x2288cc, transparent: true, opacity: 0.65, side: THREE.DoubleSide })
-                );
-                waterMesh.rotation.x = -Math.PI / 2;
-                waterMesh.position.set(POOL_CX, -2, POOL_CZ);
-                envGroup.add(waterMesh);
-
-                const lM = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, metalness: 0.6 });
-                for (let i = 0; i < 10; i++) {
-                    const r = new THREE.Mesh(new THREE.BoxGeometry(4, 0.2, 0.2), lM);
-                    r.position.set(POOL_CX, -9.5 + i, POOL_CZ - 9.8);
-                    envGroup.add(r);
-                }
-
-                for (let i = 0; i < PERF.treeCount; i++) {
-                    let tx = (Math.random() - 0.5) * 350;
-                    let tz = (Math.random() - 0.5) * 350;
-                    if (Math.abs(tx - POOL_CX) < 35 && Math.abs(tz - POOL_CZ) < 30) continue;
-                    if (Math.abs(tx) < 20 && Math.abs(tz) < 20) continue;
-
-                    const trunk = new THREE.Mesh(
-                        new THREE.CylinderGeometry(0.3 + Math.random() * 0.3, 0.5 + Math.random() * 0.3, 4 + Math.random() * 3),
-                        new THREE.MeshStandardMaterial({ color: 0x5a3a1a })
-                    );
-                    trunk.position.set(tx, 2.5, tz);
-                    trunk.castShadow = PERF.enableShadows;
-                    envGroup.add(trunk);
-
-                    const leaves = new THREE.Mesh(
-                        new THREE.SphereGeometry(2 + Math.random() * 2, 8, 6),
-                        new THREE.MeshStandardMaterial({
-                            color: new THREE.Color().setHSL(0.25 + Math.random() * 0.1, 0.5 + Math.random() * 0.3, 0.25 + Math.random() * 0.15)
-                        })
-                    );
-                    leaves.position.set(tx, 6 + Math.random() * 2, tz);
-                    leaves.castShadow = PERF.enableShadows;
-                    envGroup.add(leaves);
-                }
-
-                for (let i = 0; i < PERF.rockCount; i++) {
-                    const rx = (Math.random() - 0.5) * 300;
-                    const rz = (Math.random() - 0.5) * 300;
-                    if (Math.abs(rx - POOL_CX) < 30 && Math.abs(rz - POOL_CZ) < 25) continue;
-                    const rock = new THREE.Mesh(
-                        new THREE.DodecahedronGeometry(0.5 + Math.random() * 1.5, 1),
-                        new THREE.MeshStandardMaterial({ color: 0x777777, roughness: 0.9 })
-                    );
-                    rock.position.set(rx, 0.3 + Math.random() * 0.3, rz);
-                    rock.rotation.set(Math.random(), Math.random(), Math.random());
-                    rock.castShadow = PERF.enableShadows;
-                    envGroup.add(rock);
-                }
-
-                for (let i = 0; i < 15; i++) {
-                    const pathSeg = new THREE.Mesh(new THREE.PlaneGeometry(4, 5), new THREE.MeshStandardMaterial({ color: 0x999999 }));
-                    pathSeg.rotation.x = -Math.PI / 2;
-                    pathSeg.position.set(10 + i * 3.5, 0.02, POOL_CZ);
-                    envGroup.add(pathSeg);
-                }
-
-                for (let i = 0; i < 4; i++) {
-                    const bx = 15 + i * 12, bz = POOL_CZ + 6;
-                    const benchSeat = new THREE.Mesh(new THREE.BoxGeometry(4, 0.3, 1.2), new THREE.MeshStandardMaterial({ color: 0x6a4a2a }));
-                    benchSeat.position.set(bx, 1.0, bz);
-                    benchSeat.castShadow = PERF.enableShadows;
-                    envGroup.add(benchSeat);
-                    for (let s = -1; s <= 1; s += 2) {
-                        const leg = new THREE.Mesh(new THREE.BoxGeometry(0.25, 1.0, 0.25), new THREE.MeshStandardMaterial({ color: 0x555555 }));
-                        leg.position.set(bx + s * 1.6, 0.5, bz);
-                        envGroup.add(leg);
-                    }
-                }
-
-                for (let i = 0; i < PERF.flowerCount; i++) {
-                    const fx = (Math.random() - 0.5) * 200;
-                    const fz = (Math.random() - 0.5) * 200;
-                    const flower = new THREE.Mesh(
-                        new THREE.SphereGeometry(0.15, 6, 6),
-                        new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(Math.random(), 0.8, 0.5) })
-                    );
-                    flower.position.set(fx, 0.2, fz);
-                    envGroup.add(flower);
-                    const stem = new THREE.Mesh(
-                        new THREE.CylinderGeometry(0.02, 0.02, 0.3),
-                        new THREE.MeshStandardMaterial({ color: 0x228822 })
-                    );
-                    stem.position.set(fx, 0.1, fz);
-                    envGroup.add(stem);
-                }
-
-                buildShop(-18, 0, -10);
-
                 const bM = new THREE.MeshStandardMaterial({ map: cT, color: 0x666666 });
                 const bW = (w, h, px, py, pz, r) => {
                     const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, 2), bM);
-                    m.position.set(px, py, pz); m.rotation.y = r;
-                    m.receiveShadow = true; m.castShadow = true;
+                    m.position.set(px, py, pz);
+                    m.rotation.y = r;
+                    m.receiveShadow = true;
+                    m.castShadow = true;
                     envGroup.add(m);
                 };
-                bW(400, 40, 0, 20, -200, 0); bW(400, 40, 0, 20, 200, Math.PI);
-                bW(400, 40, -200, 20, 0, Math.PI / 2); bW(400, 40, 200, 20, 0, -Math.PI / 2);
-
-                const tm = new THREE.MeshStandardMaterial({ color: 0xdddddd });
-                const tower = new THREE.Mesh(new THREE.BoxGeometry(4, 25, 4), tm);
-                tower.position.set(POOL_CX, 12, POOL_CZ - 14); envGroup.add(tower);
-                const board = new THREE.Mesh(new THREE.BoxGeometry(2, 0.4, 8), new THREE.MeshStandardMaterial({ color: 0x33aaee }));
-                board.position.set(POOL_CX, 24.5, POOL_CZ - 10); envGroup.add(board);
-
-                const fBase = new THREE.Mesh(new THREE.CylinderGeometry(8, 8, 2, 32), new THREE.MeshStandardMaterial({ color: 0x999999 }));
-                fBase.position.set(0, 1, 0); envGroup.add(fBase);
-                const fp = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 8, 16), new THREE.MeshStandardMaterial({ color: 0x777777 }));
-                fp.position.set(0, 4, 0); envGroup.add(fp);
-                const fw = new THREE.Mesh(new THREE.CylinderGeometry(7.5, 7.5, 0.5, 32), new THREE.MeshStandardMaterial({ color: 0x2288cc, transparent: true, opacity: 0.8 }));
-                fw.position.set(0, 1.8, 0); envGroup.add(fw);
+                bW(400, 40, 0, 20, -200, 0);
+                bW(400, 40, 0, 20, 200, Math.PI);
+                bW(400, 40, -200, 20, 0, Math.PI / 2);
+                bW(400, 40, 200, 20, 0, -Math.PI / 2);
 
                 window.jumpPads = [];
-                const addPad = (x, z) => {
-                    const pad = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 0.5, 16), new THREE.MeshStandardMaterial({ color: 0xff00ff, emissive: 0x550055 }));
-                    pad.position.set(x, 0.25, z); envGroup.add(pad);
-                    window.jumpPads.push(pad);
-                };
-                addPad(15, -15); addPad(POOL_CX - 15, POOL_CZ); addPad(-40, 40);
-                addPad(80, 60); addPad(-80, -60);
-
-                // ── PARKOUR COURSE ──
                 window.parkourPlatforms = [];
                 window.movingPlatforms = [];
-                const pkBase = { x: -70, z: -70 };
-                // Start platform
-                const startPlat = new THREE.Mesh(new THREE.BoxGeometry(6, 0.6, 6), new THREE.MeshStandardMaterial({ color: 0x00aaff, emissive: 0x003366 }));
-                startPlat.position.set(pkBase.x, 1, pkBase.z); envGroup.add(startPlat); window.parkourPlatforms.push(startPlat);
-                // Start sign
-                const sCvs = document.createElement('canvas'); sCvs.width = 256; sCvs.height = 64;
-                const sCtx2 = sCvs.getContext('2d'); sCtx2.fillStyle='#003366'; sCtx2.fillRect(0,0,256,64);
-                sCtx2.fillStyle='#00ffff'; sCtx2.font='bold 32px Arial'; sCtx2.textAlign='center'; sCtx2.fillText('PARKOUR START',128,44);
-                const sSign = new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(sCvs)}));
-                sSign.scale.set(5,1.25,1); sSign.position.set(pkBase.x, 4, pkBase.z); envGroup.add(sSign);
-
-                for (let k = 1; k <= 30; k++) {
-                    const angle = k * 0.65;
-                    const radius = 14 + Math.sin(k * 0.4) * 6;
-                    const px = pkBase.x + Math.sin(angle) * radius;
-                    const pz = pkBase.z + Math.cos(angle) * radius;
-                    const py = 1 + k * 3.2;
-                    const isCheckpoint = (k % 6 === 0);
-                    const isTop = (k === 30);
-                    const isMoving = (!isCheckpoint && !isTop && k % 4 === 0);
-                    const isNarrow = (!isCheckpoint && !isTop && !isMoving && k % 5 === 0);
-
-                    let w = isTop ? 7 : isCheckpoint ? 5 : isNarrow ? 1.8 : 3 + Math.random();
-                    let d = isTop ? 7 : isCheckpoint ? 5 : isNarrow ? 1.8 : 3 + Math.random();
-                    let col = isTop ? 0xffd700 : isCheckpoint ? 0x00ffaa : isMoving ? 0xff6600 : isNarrow ? 0xff0066 : 0x00ff44;
-                    let emCol = isTop ? 0x665500 : isCheckpoint ? 0x004433 : isMoving ? 0x441100 : isNarrow ? 0x440022 : 0x003311;
-
-                    const pt = new THREE.Mesh(new THREE.BoxGeometry(w, 0.45, d), new THREE.MeshStandardMaterial({ color: col, emissive: emCol }));
-                    pt.position.set(px, py, pz);
-                    pt.castShadow = PERF.enableShadows;
-                    envGroup.add(pt); window.parkourPlatforms.push(pt);
-
-                    if (isMoving) {
-                        window.movingPlatforms.push({ mesh: pt, baseX: px, baseZ: pz, speed: 1.5 + Math.random(), range: 4 + Math.random() * 3, axis: k % 2 === 0 ? 'x' : 'z' });
-                    }
-                    if (isCheckpoint) {
-                        const cpLight = new THREE.PointLight(0x00ffaa, 0.8, 12);
-                        cpLight.position.set(px, py + 2, pz); envGroup.add(cpLight);
-                    }
-                    if (isTop) {
-                        // Reward beacon
-                        const beacon = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.3 }));
-                        beacon.position.set(px, py + 4, pz); envGroup.add(beacon);
-                        const topLight = new THREE.PointLight(0xffd700, 1.5, 20);
-                        topLight.position.set(px, py + 3, pz); envGroup.add(topLight);
-                        const tCvs = document.createElement('canvas'); tCvs.width = 256; tCvs.height = 64;
-                        const tCtx = tCvs.getContext('2d'); tCtx.fillStyle='#332200'; tCtx.fillRect(0,0,256,64);
-                        tCtx.fillStyle='#ffd700'; tCtx.font='bold 30px Arial'; tCtx.textAlign='center'; tCtx.fillText('🏆 SUMMIT!',128,44);
-                        const tSign = new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(tCvs)}));
-                        tSign.scale.set(5,1.25,1); tSign.position.set(px, py + 6, pz); envGroup.add(tSign);
-                    }
-                }
-
-                // ── GAZEBO ──
-                const gazeboX = 40, gazeboZ = 50;
-                const gazeboFloor = new THREE.Mesh(new THREE.CylinderGeometry(6, 6, 0.3, 8), new THREE.MeshStandardMaterial({ color: 0x8B6914 }));
-                gazeboFloor.position.set(gazeboX, 0.15, gazeboZ); envGroup.add(gazeboFloor);
-                for (let p = 0; p < 8; p++) {
-                    const a2 = (p / 8) * Math.PI * 2;
-                    const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 5, 8), new THREE.MeshStandardMaterial({ color: 0xeeeeee }));
-                    pillar.position.set(gazeboX + Math.cos(a2) * 5.5, 2.5, gazeboZ + Math.sin(a2) * 5.5);
-                    envGroup.add(pillar);
-                }
-                const gazeboRoof = new THREE.Mesh(new THREE.ConeGeometry(7, 3, 8), new THREE.MeshStandardMaterial({ color: 0x8B0000 }));
-                gazeboRoof.position.set(gazeboX, 6.5, gazeboZ); envGroup.add(gazeboRoof);
-
-                // ── BASKETBALL COURT ──
-                const courtX = -50, courtZ = 60;
-                const court = new THREE.Mesh(new THREE.PlaneGeometry(16, 24), new THREE.MeshStandardMaterial({ color: 0xcc6633 }));
-                court.rotation.x = -Math.PI / 2; court.position.set(courtX, 0.03, courtZ); envGroup.add(court);
-                const courtLine = new THREE.Mesh(new THREE.PlaneGeometry(15.5, 23.5), new THREE.MeshStandardMaterial({ color: 0xdd7744 }));
-                courtLine.rotation.x = -Math.PI / 2; courtLine.position.set(courtX, 0.04, courtZ); envGroup.add(courtLine);
-                for (let side = -1; side <= 1; side += 2) {
-                    const hoopPole = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 6), new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8 }));
-                    hoopPole.position.set(courtX, 3, courtZ + side * 12); envGroup.add(hoopPole);
-                    const backboard = new THREE.Mesh(new THREE.BoxGeometry(3, 2, 0.15), new THREE.MeshStandardMaterial({ color: 0xffffff }));
-                    backboard.position.set(courtX, 5.5, courtZ + side * 11.8); envGroup.add(backboard);
-                    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.45, 0.05, 8, 16), new THREE.MeshStandardMaterial({ color: 0xff4400, metalness: 0.9 }));
-                    rim.rotation.x = Math.PI / 2; rim.position.set(courtX, 5, courtZ + side * 11.3); envGroup.add(rim);
-                }
-
-                // ── CAMPFIRE ──
-                const cfX = 30, cfZ = -80;
-                const firepit = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 0.4, 16), new THREE.MeshStandardMaterial({ color: 0x555555 }));
-                firepit.position.set(cfX, 0.2, cfZ); envGroup.add(firepit);
-                const flames = new THREE.Mesh(new THREE.ConeGeometry(0.8, 2, 8), new THREE.MeshBasicMaterial({ color: 0xff6600, transparent: true, opacity: 0.8 }));
-                flames.position.set(cfX, 1.4, cfZ); envGroup.add(flames);
-                const fireLight = new THREE.PointLight(0xff6600, 1.2, 25);
-                fireLight.position.set(cfX, 2.5, cfZ); envGroup.add(fireLight);
-                for (let li = 0; li < 6; li++) {
-                    const log = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 1.8, 6), new THREE.MeshStandardMaterial({ color: 0x5a3a1a }));
-                    const la = (li / 6) * Math.PI * 2;
-                    log.position.set(cfX + Math.cos(la) * 0.6, 0.5, cfZ + Math.sin(la) * 0.6);
-                    log.rotation.z = Math.PI / 2 + la; envGroup.add(log);
-                }
-                for (let si = 0; si < 5; si++) {
-                    const sa = (si / 5) * Math.PI * 2;
-                    const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 0.8, 8), new THREE.MeshStandardMaterial({ color: 0x6a4a2a }));
-                    stump.position.set(cfX + Math.cos(sa) * 4, 0.4, cfZ + Math.sin(sa) * 4); envGroup.add(stump);
-                }
-
-                // ── HEDGE MAZE ──
-                const hMat = new THREE.MeshStandardMaterial({ color: 0x2d5a1e });
-                const hedges = [[90,0,20,3,2],[90,10,2,3,20],[80,10,2,3,20],[80,20,22,3,2],[100,20,2,3,20],[100,0,22,3,2],[85,5,12,3,2]];
-                hedges.forEach(([hx,hz,hw,hh,hd]) => {
-                    const h = new THREE.Mesh(new THREE.BoxGeometry(hw, hh, hd), hMat);
-                    h.position.set(hx, hh/2, hz); h.castShadow = PERF.enableShadows; envGroup.add(h);
-                });
-
-                // ── PICNIC TABLES ──
-                for (let ti = 0; ti < 3; ti++) {
-                    const ptx = -30 + ti * 15, ptz = -90;
-                    const tabletop = new THREE.Mesh(new THREE.BoxGeometry(4, 0.2, 2), new THREE.MeshStandardMaterial({ color: 0x8B6914 }));
-                    tabletop.position.set(ptx, 1.5, ptz); envGroup.add(tabletop);
-                    for (let ls = -1; ls <= 1; ls += 2) {
-                        const tLeg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.5, 0.2), new THREE.MeshStandardMaterial({ color: 0x6a4a2a }));
-                        tLeg.position.set(ptx + ls * 1.7, 0.75, ptz); envGroup.add(tLeg);
-                        const bench = new THREE.Mesh(new THREE.BoxGeometry(4, 0.15, 0.8), new THREE.MeshStandardMaterial({ color: 0x8B6914 }));
-                        bench.position.set(ptx, 0.9, ptz + ls * 1.5); envGroup.add(bench);
-                    }
-                }
-
-                // ── LAMP POSTS ──
-                for (let k = 0; k < 10; k++) {
-                    const lx = -120 + k * 28, lz = 20;
-                    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 8), new THREE.MeshStandardMaterial({ color: 0x111111 }));
-                    pole.position.set(lx, 4, lz); envGroup.add(pole);
-                    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.8), new THREE.MeshBasicMaterial({ color: 0xffffaa, transparent: true, opacity: 0.8 }));
-                    bulb.position.set(lx, 8.5, lz); envGroup.add(bulb);
-                    if (PERF.enableExtraLights) {
-                        const pl = new THREE.PointLight(0xffffaa, 0.5, 40);
-                        pl.position.set(lx, 8, lz); envGroup.add(pl);
-                    }
-                }
-
-                // ── SECOND SHOP NEAR PARKOUR ──
-                buildShop(-75, 0, -55);
             }
             else if (type === 'hall') {
                 scene.background.setHex(0x0a0a12);
@@ -4920,30 +4649,7 @@
                 if (x > -25 && x < 25 && z > -69 && z < -47) return 3;
                 return 0;
             } else {
-                let maxH = -10;
-                let isPool = (x > POOL_CX - 10 && x < POOL_CX + 10 && z > POOL_CZ - 10 && z < POOL_CZ + 10);
-                if (!isPool) maxH = 0;
-
-                if (window.parkourPlatforms) {
-                    for (let pt of window.parkourPlatforms) {
-                        const geo = pt.geometry;
-                        const hw = (geo.parameters?.width || 3.5) / 2;
-                        const hd = (geo.parameters?.depth || 3.5) / 2;
-                        if (Math.abs(x - pt.position.x) < hw && Math.abs(z - pt.position.z) < hd) {
-                            if (checkY >= pt.position.y) maxH = Math.max(maxH, pt.position.y + 0.25);
-                        }
-                    }
-                }
-                // Diving board
-                if (x > POOL_CX - 1.5 && x < POOL_CX + 1.5 && z > POOL_CZ - 14 && z < POOL_CZ - 6) {
-                    if (checkY >= 24) maxH = Math.max(maxH, 24.7);
-                }
-                // Gazebo floor
-                const gDx = x - 40, gDz = z - 50;
-                if (gDx * gDx + gDz * gDz < 36) maxH = Math.max(maxH, 0.3);
-                // Fountain base
-                if (x * x + z * z < 64) maxH = Math.max(maxH, 2);
-                return maxH;
+                return 0;
             }
         }
 
@@ -4999,7 +4705,7 @@
             }
 
             let px = localAvatar.group.position.x, pz = localAvatar.group.position.z, py = localAvatar.group.position.y;
-            const inPH = currentMap === 'pool' && (px > POOL_CX - 10 && px < POOL_CX + 10 && pz > POOL_CZ - 10 && pz < POOL_CZ + 10);
+            const inPH = false;
             const inW = inPH && py < -1;
             const onL = inPH && pz < POOL_CZ - 9 && pz > POOL_CZ - 11 && px > POOL_CX - 2 && px < POOL_CX + 2;
             const nE = inPH && (px < POOL_CX - 8.5 || px > POOL_CX + 8.5 || pz < POOL_CZ - 8.5 || pz > POOL_CZ + 8.5);
