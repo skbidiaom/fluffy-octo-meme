@@ -136,34 +136,104 @@
             transform: scale(1.1);
         }
 
-        #anim-editor-ui {
-            display: none;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 95;
-        }
-
-        .anim-limb-btn {
+        /* Animation Editor mode tabs */
+        .ae-mode-tab {
+            background: #1a1a2a;
+            border: 1px solid #333;
+            color: #777;
+            padding: 4px 9px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 0.5px;
             transition: all 0.15s;
         }
-
-        .anim-limb-btn:hover {
-            background: linear-gradient(135deg, #555, #333);
+        .ae-mode-tab:hover { color: #aaa; border-color: #555; }
+        .ae-mode-active {
+            background: #1a2a44 !important;
+            border-color: #3399ff !important;
+            color: #88ccff !important;
+        }
+        .ae-gizmo-submodes {
+            position: absolute;
+            top: 38px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 6px;
+            z-index: 10;
+        }
+        .ae-gizmo-submodes.visible { display: flex; }
+        .ae-group-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: #444;
+            margin-bottom: 7px;
         }
 
-        .anim-limb-btn.active {
-            background: linear-gradient(135deg, #ffd700, #aa8800);
-            color: #000;
+        .ae-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 8px;
         }
 
-        .anim-slider {
-            width: 100%;
+        .ae-axis {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: bold;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .ae-slider {
+            flex: 1;
+            height: 4px;
+            accent-color: #3399ff;
             cursor: pointer;
         }
 
-        .anim-value {
-            display: inline-block;
-            margin-left: 8px;
-            font-family: monospace;
+        .ae-val {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #ccc;
+            width: 42px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .ae-zero {
+            background: none;
+            border: 1px solid #333;
+            color: #666;
+            border-radius: 4px;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0;
+            flex-shrink: 0;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .ae-zero:hover {
+            color: #aaa;
+            border-color: #555;
+        }
+
+        .ae-part-btn.ae-active {
+            background: #1a2a44 !important;
+            border-color: #3399ff !important;
+            color: #88ccff !important;
+            box-shadow: 0 0 8px rgba(50, 150, 255, 0.3);
+        }
+
+        #ae-output-text:empty::before {
+            content: 'Click "Export Frame" to generate output...';
+            color: #333;
         }
 
         #admin-ui {
@@ -1072,10 +1142,7 @@
                 <button id="resume-btn" class="menu-btn">Resume</button>
                 <button id="reset-btn" class="menu-btn" style="background:linear-gradient(135deg,#cc3333,#881111);margin-top:10px;">Reset Character</button>
                 <button id="music-btn" class="menu-btn" style="background:linear-gradient(135deg,#aa33aa,#771177);margin-top:10px;">Music: ON</button>
-                <div style="margin-top:12px;">
-                    <label for="music-volume" style="display:block;font-size:13px;color:#ccc;margin-bottom:6px;">Music Volume</label>
-                    <input type="range" id="music-volume" min="0" max="100" value="20" style="width:100%;cursor:pointer;">
-                </div>
+                <button id="anim-editor-btn" class="menu-btn" style="background:linear-gradient(135deg,#1166cc,#0044aa);margin-top:10px;">🎬 Animation Editor</button>
                 <div id="dev-extras" style="display:none;margin-top:14px;border-top:1px solid #555;padding-top:10px;text-align:left;">
                     <div style="font-weight:bold;color:#ffd700;margin-bottom:6px;font-size:12px;">DEV EXTRAS</div>
                     <label style="display:block;margin-bottom:6px;font-size:13px;cursor:pointer;"><input type="checkbox" id="dev-ck-bubble" onchange="window.devFx=(window.devFx||{});window.devFx.bubble=this.checked;"> Golden Chat Bubble</label>
@@ -1138,6 +1205,110 @@
                 <div style="font-size:11px;color:#555;font-family:'Orbitron',sans-serif;">← DRAG TO ROTATE →</div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- ANIMATION EDITOR -->
+    <div id="anim-editor-ui" style="display:none;position:absolute;inset:0;background:#0a0a10;z-index:200;flex-direction:row;overflow:hidden;">
+
+        <!-- LEFT PANEL: Part selector + sliders -->
+        <div id="ae-panel" style="width:300px;min-width:270px;background:#0e0e18;border-right:1px solid #222;display:flex;flex-direction:column;overflow:hidden;">
+
+            <!-- Header -->
+            <div style="padding:14px 16px;border-bottom:1px solid #222;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <button id="ae-back-btn" style="background:#1a1a2a;border:1px solid #333;color:#aaa;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:13px;">← Back</button>
+                <span style="font-family:'Orbitron',sans-serif;color:#ffd700;font-size:13px;letter-spacing:2px;flex:1;">ANIM EDITOR</span>
+                <div style="display:flex;gap:4px;">
+                    <button id="ae-mode-sliders" class="ae-mode-tab ae-mode-active" title="Use sliders">📐 Sliders</button>
+                    <button id="ae-mode-gizmo"   class="ae-mode-tab" title="Use 3D handles">🎯 Gizmo</button>
+                </div>
+            </div>
+
+            <!-- Part buttons -->
+            <div style="padding:12px 14px;border-bottom:1px solid #1a1a28;">
+                <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:#555;letter-spacing:2px;margin-bottom:8px;">SELECT PART</div>
+                <div id="ae-part-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                    <button class="ae-part-btn" data-part="torso"    style="background:#1a1a2a;border:1px solid #333;color:#ccc;padding:7px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:bold;">🟦 Torso</button>
+                    <button class="ae-part-btn" data-part="head"     style="background:#1a1a2a;border:1px solid #333;color:#ccc;padding:7px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:bold;">🟡 Head</button>
+                    <button class="ae-part-btn" data-part="leftArm"  style="background:#1a1a2a;border:1px solid #333;color:#ccc;padding:7px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:bold;">🔴 L.Arm</button>
+                    <button class="ae-part-btn" data-part="rightArm" style="background:#1a1a2a;border:1px solid #333;color:#ccc;padding:7px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:bold;">🔵 R.Arm</button>
+                    <button class="ae-part-btn" data-part="leftLeg"  style="background:#1a1a2a;border:1px solid #333;color:#ccc;padding:7px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:bold;">🟠 L.Leg</button>
+                    <button class="ae-part-btn" data-part="rightLeg" style="background:#1a1a2a;border:1px solid #333;color:#ccc;padding:7px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:bold;">🟣 R.Leg</button>
+                </div>
+            </div>
+
+            <!-- Sliders -->
+            <div id="ae-sliders" style="flex:1;overflow-y:auto;padding:12px 14px;">
+                <div id="ae-selected-label" style="font-family:'Orbitron',sans-serif;font-size:11px;color:#ffd700;letter-spacing:1px;margin-bottom:10px;">— Select a part —</div>
+
+                <!-- Rotation group -->
+                <div class="ae-group-label">ROTATION</div>
+                <div class="ae-row"><span class="ae-axis" style="color:#ff6666;">RX</span>
+                    <input type="range" class="ae-slider" id="ae-rx" min="-180" max="180" step="1" value="0">
+                    <span class="ae-val" id="ae-rx-val">0°</span>
+                    <button class="ae-zero" data-target="ae-rx">↺</button>
+                </div>
+                <div class="ae-row"><span class="ae-axis" style="color:#66ff88;">RY</span>
+                    <input type="range" class="ae-slider" id="ae-ry" min="-180" max="180" step="1" value="0">
+                    <span class="ae-val" id="ae-ry-val">0°</span>
+                    <button class="ae-zero" data-target="ae-ry">↺</button>
+                </div>
+                <div class="ae-row"><span class="ae-axis" style="color:#6699ff;">RZ</span>
+                    <input type="range" class="ae-slider" id="ae-rz" min="-180" max="180" step="1" value="0">
+                    <span class="ae-val" id="ae-rz-val">0°</span>
+                    <button class="ae-zero" data-target="ae-rz">↺</button>
+                </div>
+
+                <!-- Position group -->
+                <div class="ae-group-label" style="margin-top:12px;">POSITION OFFSET</div>
+                <div class="ae-row"><span class="ae-axis" style="color:#ff6666;">PX</span>
+                    <input type="range" class="ae-slider" id="ae-px" min="-4" max="4" step="0.05" value="0">
+                    <span class="ae-val" id="ae-px-val">0.00</span>
+                    <button class="ae-zero" data-target="ae-px">↺</button>
+                </div>
+                <div class="ae-row"><span class="ae-axis" style="color:#66ff88;">PY</span>
+                    <input type="range" class="ae-slider" id="ae-py" min="-4" max="4" step="0.05" value="0">
+                    <span class="ae-val" id="ae-py-val">0.00</span>
+                    <button class="ae-zero" data-target="ae-py">↺</button>
+                </div>
+                <div class="ae-row"><span class="ae-axis" style="color:#6699ff;">PZ</span>
+                    <input type="range" class="ae-slider" id="ae-pz" min="-4" max="4" step="0.05" value="0">
+                    <span class="ae-val" id="ae-pz-val">0.00</span>
+                    <button class="ae-zero" data-target="ae-pz">↺</button>
+                </div>
+
+                <button id="ae-reset-part-btn" style="width:100%;margin-top:14px;padding:7px;background:#1a1a2a;border:1px solid #444;color:#aaa;border-radius:7px;cursor:pointer;font-size:12px;">Reset This Part</button>
+                <button id="ae-reset-all-btn" style="width:100%;margin-top:6px;padding:7px;background:#1a1a2a;border:1px solid #cc3333;color:#ff6666;border-radius:7px;cursor:pointer;font-size:12px;">Reset All Parts</button>
+            </div>
+
+            <!-- Export -->
+            <div style="padding:12px 14px;border-top:1px solid #222;">
+                <button id="ae-export-btn" style="width:100%;padding:10px;background:linear-gradient(135deg,#22aa44,#117722);border:none;color:white;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:1px;font-weight:bold;">⬇ EXPORT FRAME</button>
+            </div>
+        </div>
+
+        <!-- CENTER: 3D Viewport -->
+        <div style="flex:1;position:relative;display:flex;flex-direction:column;">
+            <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);font-family:'Orbitron',sans-serif;font-size:10px;color:#333;letter-spacing:2px;pointer-events:none;z-index:5;" id="ae-viewport-hint">LEFT DRAG: ORBIT &nbsp;|&nbsp; RIGHT DRAG: PAN &nbsp;|&nbsp; SCROLL: ZOOM &nbsp;|&nbsp; CLICK: SELECT PART</div>
+            <div class="ae-gizmo-submodes" id="ae-gizmo-submodes">
+                <button id="ae-sub-move"   class="ae-mode-tab ae-mode-active">↔ Move</button>
+                <button id="ae-sub-rotate" class="ae-mode-tab">↺ Rotate</button>
+            </div>
+            <canvas id="ae-canvas" style="flex:1;width:100%;height:100%;display:block;cursor:crosshair;"></canvas>
+        </div>
+
+        <!-- RIGHT: Export output -->
+        <div id="ae-output-panel" style="width:320px;min-width:280px;background:#0e0e18;border-left:1px solid #222;display:flex;flex-direction:column;overflow:hidden;">
+            <div style="padding:14px 16px;border-bottom:1px solid #222;">
+                <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#ffd700;letter-spacing:2px;">EXPORT OUTPUT</div>
+                <div style="font-size:11px;color:#444;margin-top:4px;">Give this to Claude to reuse this pose</div>
+            </div>
+            <pre id="ae-output-text" style="flex:1;overflow-y:auto;margin:0;padding:14px;font-size:11px;color:#88ff88;background:#080810;font-family:'Courier New',monospace;line-height:1.6;white-space:pre-wrap;"></pre>
+            <div style="padding:10px 14px;border-top:1px solid #222;display:flex;gap:8px;">
+                <button id="ae-copy-btn" style="flex:1;padding:8px;background:#1a1a2a;border:1px solid #333;color:#aaa;border-radius:7px;cursor:pointer;font-size:12px;">📋 Copy</button>
+                <button id="ae-add-frame-btn" style="flex:1;padding:8px;background:#1a1a2a;border:1px solid #2244aa;color:#6699ff;border-radius:7px;cursor:pointer;font-size:12px;">+ Add Keyframe</button>
+            </div>
+            <div id="ae-keyframes" style="max-height:200px;overflow-y:auto;padding:8px 14px;border-top:1px solid #111;display:flex;flex-direction:column;gap:6px;"></div>
         </div>
     </div>
 
@@ -1218,91 +1389,8 @@
         </div>
     </div>
 
-    <div id="anim-editor-ui" class="overlay-menu" style="display:none;">
-        <div style="position:absolute;top:15px;right:20px;">
-            <button id="anim-close-x-btn" style="background:#cc3333;border:2px solid #ff6666;color:#fff;width:44px;height:44px;border-radius:50%;font-size:24px;font-weight:bold;cursor:pointer;line-height:1;">✕</button>
-        </div>
-        <div style="display:flex;gap:20px;align-items:flex-start;max-width:1200px;width:95%;max-height:92vh;">
-            <!-- LEFT: limb controls -->
-            <div class="menu-box" style="flex:1;min-width:220px;max-width:250px;padding:22px 18px;max-height:88vh;overflow-y:auto;">
-                <h1 style="font-size:22px;margin-bottom:14px;color:#ffd700;">🎬 ANIMATION STUDIO</h1>
-                <button id="anim-export-btn" class="menu-btn" style="background:linear-gradient(135deg,#00aa00,#007700);margin-bottom:10px;width:100%;">Export Pose</button>
-                <button id="anim-reset-btn" class="menu-btn" style="background:linear-gradient(135deg,#aa4400,#773300);margin-bottom:10px;width:100%;">Reset Pose</button>
-                <button id="anim-close-btn" class="menu-btn" style="background:linear-gradient(135deg,#cc3333,#881111);width:100%;">Exit</button>
-                <div style="margin-top:14px;border-top:1px solid #555;padding-top:10px;">
-                    <div style="font-weight:bold;color:#ffd700;margin-bottom:6px;font-size:12px;">SELECT LIMB</div>
-                    <button class="anim-limb-btn menu-btn" data-limb="torso" style="width:100%;margin-bottom:6px;font-size:13px;">Torso</button>
-                    <button class="anim-limb-btn menu-btn" data-limb="head" style="width:100%;margin-bottom:6px;font-size:13px;">Head</button>
-                    <button class="anim-limb-btn menu-btn" data-limb="leftArm" style="width:100%;margin-bottom:6px;font-size:13px;">Left Arm</button>
-                    <button class="anim-limb-btn menu-btn" data-limb="rightArm" style="width:100%;margin-bottom:6px;font-size:13px;">Right Arm</button>
-                    <button class="anim-limb-btn menu-btn" data-limb="leftLeg" style="width:100%;margin-bottom:6px;font-size:13px;">Left Leg</button>
-                    <button class="anim-limb-btn menu-btn" data-limb="rightLeg" style="width:100%;margin-bottom:6px;font-size:13px;">Right Leg</button>
-                </div>
-                <div style="margin-top:14px;border-top:1px solid #555;padding-top:10px;">
-                    <div style="font-weight:bold;color:#ffd700;margin-bottom:6px;font-size:12px;">VIEW CONTROLS</div>
-                    <button id="anim-view-reset" class="menu-btn" style="background:linear-gradient(135deg,#0066aa,#004477);margin-bottom:6px;width:100%;font-size:13px;">Reset View</button>
-                    <button id="anim-view-left" class="menu-btn" style="background:linear-gradient(135deg,#444,#222);margin-bottom:6px;width:100%;font-size:13px;">Left View</button>
-                    <button id="anim-view-right" class="menu-btn" style="background:linear-gradient(135deg,#444,#222);margin-bottom:6px;width:100%;font-size:13px;">Right View</button>
-                    <button id="anim-view-front" class="menu-btn" style="background:linear-gradient(135deg,#444,#222);margin-bottom:6px;width:100%;font-size:13px;">Front View</button>
-                    <button id="anim-view-back" class="menu-btn" style="background:linear-gradient(135deg,#444,#222);margin-bottom:6px;width:100%;font-size:13px;">Back View</button>
-                </div>
-            </div>
-
-            <!-- MIDDLE: 3D preview -->
-            <div class="menu-box" style="flex:1.2;min-width:300px;max-width:400px;padding:10px;max-height:88vh;display:flex;flex-direction:column;">
-                <h2 style="font-family:'Orbitron',sans-serif;color:#ffd700;font-size:16px;letter-spacing:2px;margin:0 0 10px;text-align:center;">3D PREVIEW</h2>
-                <canvas id="anim-preview-canvas" style="flex:1;background:linear-gradient(180deg,#1a1a2e,#16213e);border-radius:8px;cursor:grab;"></canvas>
-                <div style="text-align:center;margin-top:8px;font-size:11px;color:#888;">Drag to rotate • Scroll to zoom</div>
-            </div>
-
-            <!-- RIGHT: sliders -->
-            <div class="menu-box" style="flex:1;min-width:240px;max-width:280px;padding:22px 18px;max-height:88vh;overflow-y:auto;">
-                <h2 style="font-family:'Orbitron',sans-serif;color:#ffd700;font-size:16px;letter-spacing:2px;margin:0 0 16px;" id="anim-limb-title">TORSO</h2>
-                <div id="anim-sliders-container">
-                    <div style="margin-bottom:12px;">
-                        <label style="display:block;font-size:12px;color:#ccc;margin-bottom:4px;">Position X</label>
-                        <input type="range" class="anim-slider" data-prop="posX" min="-5" max="5" step="0.1" style="width:100%;">
-                        <span class="anim-value" data-prop="posX" style="font-size:11px;color:#888;">0.0</span>
-                    </div>
-                    <div style="margin-bottom:12px;">
-                        <label style="display:block;font-size:12px;color:#ccc;margin-bottom:4px;">Position Y</label>
-                        <input type="range" class="anim-slider" data-prop="posY" min="-5" max="5" step="0.1" style="width:100%;">
-                        <span class="anim-value" data-prop="posY" style="font-size:11px;color:#888;">0.0</span>
-                    </div>
-                    <div style="margin-bottom:12px;">
-                        <label style="display:block;font-size:12px;color:#ccc;margin-bottom:4px;">Position Z</label>
-                        <input type="range" class="anim-slider" data-prop="posZ" min="-5" max="5" step="0.1" style="width:100%;">
-                        <span class="anim-value" data-prop="posZ" style="font-size:11px;color:#888;">0.0</span>
-                    </div>
-                    <div style="margin-bottom:12px;">
-                        <label style="display:block;font-size:12px;color:#ccc;margin-bottom:4px;">Rotation X (Pitch)</label>
-                        <input type="range" class="anim-slider" data-prop="rotX" min="-3.14" max="3.14" step="0.1" style="width:100%;">
-                        <span class="anim-value" data-prop="rotX" style="font-size:11px;color:#888;">0.0</span>
-                    </div>
-                    <div style="margin-bottom:12px;">
-                        <label style="display:block;font-size:12px;color:#ccc;margin-bottom:4px;">Rotation Y (Yaw)</label>
-                        <input type="range" class="anim-slider" data-prop="rotY" min="-3.14" max="3.14" step="0.1" style="width:100%;">
-                        <span class="anim-value" data-prop="rotY" style="font-size:11px;color:#888;">0.0</span>
-                    </div>
-                    <div style="margin-bottom:12px;">
-                        <label style="display:block;font-size:12px;color:#ccc;margin-bottom:4px;">Rotation Z (Roll)</label>
-                        <input type="range" class="anim-slider" data-prop="rotZ" min="-3.14" max="3.14" step="0.1" style="width:100%;">
-                        <span class="anim-value" data-prop="rotZ" style="font-size:11px;color:#888;">0.0</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- FAR RIGHT: export output -->
-            <div class="menu-box" style="flex:0.9;min-width:220px;max-width:260px;padding:22px 18px;max-height:88vh;overflow-y:auto;">
-                <h2 style="font-family:'Orbitron',sans-serif;color:#00ff00;font-size:16px;letter-spacing:2px;margin:0 0 16px;">POSE DATA</h2>
-                <textarea id="anim-export-output" style="width:100%;height:400px;background:#111;color:#0f0;border:1px solid #333;font-family:monospace;font-size:11px;resize:none;" placeholder="Click Export Pose to generate values..."></textarea>
-                <button id="anim-copy-btn" class="menu-btn" style="background:linear-gradient(135deg,#0066aa,#004477);margin-top:10px;width:100%;">Copy to Clipboard</button>
-            </div>
-        </div>
-    </div>
-
     <div id="shop-hint">🛒 Press E — Tony's Armory</div>
-    <div id="anim-hint" style="display:none;position:absolute;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);padding:8px 16px;border-radius:8px;color:#fff;font-size:14px;z-index:100;">🎬 Press E — Animation Studio</div>
+    <div id="parkour-hint" style="position:absolute;bottom:148px;left:50%;transform:translateX(-50%);color:white;font-size:15px;font-weight:bold;text-shadow:0 0 8px rgba(0,255,200,0.7);display:none;pointer-events:none;z-index:10;background:rgba(0,0,0,0.75);padding:7px 18px;border-radius:20px;border:1px solid rgba(0,255,200,0.5);white-space:nowrap;">🚀 Step on pad to teleport to Parkour Arena</div>
 
     <div id="hud-top">
         <div id="invite-display"></div>
@@ -1453,7 +1541,7 @@
             maxNPCs: isMobile ? 24 : 120,
             hallChairRows: isMobile ? 8 : 14,
             hallChairCols: isMobile ? 10 : 16,
-            treeCount: isMobile ? 12 : 36,
+            treeCount: isMobile ? 10 : 30,
             rockCount: isMobile ? 6 : 15,
             flowerCount: isMobile ? 8 : 20,
             hallLightsStep: isMobile ? 40 : 20,
@@ -1502,14 +1590,6 @@
                             musicBtn.innerText = 'Music: OFF';
                             musicBtn.style.background = 'linear-gradient(135deg,#555,#333)';
                         }
-                    });
-                }
-
-                const musicVolumeSlider = document.getElementById('music-volume');
-                if (musicVolumeSlider) {
-                    musicVolumeSlider.value = bgMusic.volume * 100;
-                    musicVolumeSlider.addEventListener('input', () => {
-                        bgMusic.volume = musicVolumeSlider.value / 100;
                     });
                 }
             }
@@ -1863,10 +1943,6 @@
         window.shopPositions = [];
 
         let shopOpen = false, isNearShop = false;
-        let animEditorOpen = false, isNearAnimStudio = false;
-        let animSelectedLimb = 'torso';
-        let animEditorAvatar = null;
-        let animPoseData = {};
         const shopAvatars = [];
         const bullets = [];
         const shellCasings = [];
@@ -2432,42 +2508,143 @@
             fpsWeaponRenderer.domElement.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;z-index:8;display:none;';
             document.body.appendChild(fpsWeaponRenderer.domElement);
 
-            fpsWeaponScene.add(new THREE.AmbientLight(0xffffff, 0.8));
-            const dl = new THREE.DirectionalLight(0xffffff, 0.6);
-            dl.position.set(1, 2, 1);
+            fpsWeaponScene.add(new THREE.AmbientLight(0xffffff, 0.9));
+            const dl = new THREE.DirectionalLight(0xffffff, 0.7);
+            dl.position.set(2, 4, 3);
             fpsWeaponScene.add(dl);
+            const dl2 = new THREE.DirectionalLight(0x8888ff, 0.3);
+            dl2.position.set(-3, 1, -2);
+            fpsWeaponScene.add(dl2);
+
+            // ── Materials ──
+            const matBody    = new THREE.MeshStandardMaterial({ color: 0x1c1c1c, metalness: 0.55, roughness: 0.35 });
+            const matSlide   = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9,  roughness: 0.15 });
+            const matBarrel  = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.95, roughness: 0.1  });
+            const matGrip    = new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.95 });
+            const matHand    = new THREE.MeshStandardMaterial({ color: playerSkinColor || 0xffe0bd });
+            const matAccent  = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.6, roughness: 0.4 });
 
             fpsWeaponGroup = new THREE.Group();
 
-            const dk = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.4, roughness: 0.4 });
-            const sv = new THREE.MeshStandardMaterial({ color: 0x999, metalness: 0.9, roughness: 0.15 });
-            const gm = new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.8 });
-            const hm = new THREE.MeshStandardMaterial({ color: 0xddccbb });
+            // ── SLIDE (upper receiver) ──
+            const slide = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.058, 0.28), matSlide);
+            slide.position.set(0, 0.006, -0.02);
+            fpsWeaponGroup.add(slide);
 
-            fpsWeaponGroup.add(new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.065, 0.22), dk));
+            // Ejection port cut-out (visual only)
+            const eject = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.022, 0.04), new THREE.MeshStandardMaterial({ color: 0x050505 }));
+            eject.position.set(0.036, 0.006, -0.01);
+            fpsWeaponGroup.add(eject);
 
-            const br = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), sv);
-            br.rotation.x = Math.PI / 2;
-            br.position.set(0, 0.015, -0.17);
-            fpsWeaponGroup.add(br);
+            // Front sight
+            const fSight = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.018, 0.006), matAccent);
+            fSight.position.set(0, 0.044, -0.165);
+            fpsWeaponGroup.add(fSight);
 
-            const gr = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, 0.055), gm);
-            gr.position.set(0, -0.085, 0.04);
-            gr.rotation.x = 0.22;
-            fpsWeaponGroup.add(gr);
+            // Rear sight
+            const rSight = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.014, 0.006), matAccent);
+            rSight.position.set(0, 0.042, 0.095);
+            fpsWeaponGroup.add(rSight);
 
-            const hd = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.05, 0.09), hm);
-            hd.position.set(0, -0.06, 0.01);
-            hd.rotation.x = 0.15;
-            fpsWeaponGroup.add(hd);
+            // ── FRAME (lower receiver) ──
+            const frame = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.048, 0.22), matBody);
+            frame.position.set(0, -0.026, -0.008);
+            fpsWeaponGroup.add(frame);
 
-            const sh = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.045, 0.08), hm);
-            sh.position.set(-0.04, -0.05, -0.03);
-            sh.rotation.y = 0.3;
-            fpsWeaponGroup.add(sh);
+            // Trigger guard
+            const tGuard = new THREE.Mesh(new THREE.TorusGeometry(0.018, 0.004, 6, 12, Math.PI), matBody);
+            tGuard.rotation.x = Math.PI / 2;
+            tGuard.position.set(0, -0.046, 0.02);
+            fpsWeaponGroup.add(tGuard);
 
-            fpsWeaponGroup.position.set(0.18, -0.14, -0.3);
+            // Trigger
+            const trigger = new THREE.Mesh(new THREE.BoxGeometry(0.005, 0.018, 0.008), matAccent);
+            trigger.position.set(0, -0.044, 0.014);
+            fpsWeaponGroup.add(trigger);
+
+            // ── BARREL ──
+            const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 0.18, 10), matBarrel);
+            barrel.rotation.x = Math.PI / 2;
+            barrel.position.set(0, 0.008, -0.225);
+            fpsWeaponGroup.add(barrel);
+
+            // Muzzle
+            const muzzle = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.013, 0.02, 10), matBarrel);
+            muzzle.rotation.x = Math.PI / 2;
+            muzzle.position.set(0, 0.008, -0.31);
+            fpsWeaponGroup.add(muzzle);
+
+            // ── GRIP ──
+            const grip = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.115, 0.055), matGrip);
+            grip.position.set(0, -0.09, 0.048);
+            grip.rotation.x = 0.18;
+            fpsWeaponGroup.add(grip);
+
+            // Mag
+            const mag = new THREE.Mesh(new THREE.BoxGeometry(0.038, 0.07, 0.026), matAccent);
+            mag.position.set(0, -0.09, 0.035);
+            fpsWeaponGroup.add(mag);
+
+            // ── HANDS ──
+            // Right hand (trigger hand)
+            const rHand = new THREE.Group();
+            const rPalm = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.072, 0.062), matHand);
+            rPalm.position.set(0, 0, 0);
+            rHand.add(rPalm);
+            // fingers curl around grip
+            for (let fi = 0; fi < 4; fi++) {
+                const knuckle = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.016, 0.028), matHand);
+                knuckle.position.set(-0.018 + fi * 0.012, -0.038, 0.025);
+                knuckle.rotation.x = 0.45;
+                rHand.add(knuckle);
+            }
+            rHand.position.set(0.005, -0.082, 0.052);
+            rHand.rotation.x = 0.18;
+            fpsWeaponGroup.add(rHand);
+
+            // Left hand (support hand)
+            const lHand = new THREE.Group();
+            const lPalm = new THREE.Mesh(new THREE.BoxGeometry(0.058, 0.065, 0.068), matHand);
+            lHand.add(lPalm);
+            for (let fi = 0; fi < 4; fi++) {
+                const f = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.014, 0.025), matHand);
+                f.position.set(-0.016 + fi * 0.011, -0.035, 0.03);
+                f.rotation.x = 0.5;
+                lHand.add(f);
+            }
+            lHand.position.set(-0.01, -0.015, -0.13);
+            lHand.rotation.set(0.1, 0.12, -0.08);
+            fpsWeaponGroup.add(lHand);
+
+            // ── Muzzle flash (hidden by default) ──
+            const muzzleFlash = new THREE.Mesh(
+                new THREE.SphereGeometry(0.028, 6, 6),
+                new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0 })
+            );
+            muzzleFlash.position.set(0, 0.008, -0.32);
+            fpsWeaponGroup.add(muzzleFlash);
+            fpsWeaponGroup.userData.muzzleFlash = muzzleFlash;
+
+            // Resting position (drawn, hipfire)
+            fpsWeaponGroup.position.set(0.2, -0.22, -0.35);
+            fpsWeaponGroup.rotation.set(0.04, -0.06, 0.02);
             fpsWeaponScene.add(fpsWeaponGroup);
+
+            // ── Animation state machine ──
+            window.gunAnim = {
+                state: 'draw',     // draw | idle | run | fire | reload | ads | sprint
+                timer: 0,
+                drawDuration: 0.55,
+                reloadTimer: 0,
+                reloadDuration: 1.6,
+                adsBlend: 0,       // 0=hip, 1=ADS
+                bobPhase: 0,
+                isADS: false,
+                // Targets (lerped each frame)
+                posX: 0.2, posY: -0.22, posZ: -0.35,
+                rotX: 0.04, rotY: -0.06, rotZ: 0.02,
+                triggerDown: false,
+            };
         }
 
         /* ─────────────────────────────────────────────
@@ -2953,7 +3130,115 @@
                 }
 
                 buildShop(-18, 0, -10);
-                buildAnimStudioEntrance(-18, 0, 8);
+
+                // ── PARKOUR TELEPORTER ──
+                const PKX = 80, PKZ = 80, PKY_ARENA = 120;
+                window.parkourTeleporter = { gx: PKX, gz: PKZ, gy: 0, ax: 0, ay: PKY_ARENA, az: 0 };
+
+                // Ground pad
+                const padGlow = new THREE.Mesh(
+                    new THREE.CylinderGeometry(3.5, 3.5, 0.18, 32),
+                    new THREE.MeshStandardMaterial({ color: 0x00ffcc, emissive: 0x00ffcc, emissiveIntensity: 1.2, metalness: 0.3 })
+                );
+                padGlow.position.set(PKX, 0.09, PKZ); envGroup.add(padGlow);
+                const padRing = new THREE.Mesh(
+                    new THREE.TorusGeometry(4.2, 0.22, 8, 48),
+                    new THREE.MeshBasicMaterial({ color: 0x00ffff })
+                );
+                padRing.rotation.x = Math.PI / 2; padRing.position.set(PKX, 0.12, PKZ); envGroup.add(padRing);
+                const padLight = new THREE.PointLight(0x00ffcc, 2.5, 18);
+                padLight.position.set(PKX, 3, PKZ); envGroup.add(padLight);
+
+                // Label sprite
+                const lblCvs = document.createElement('canvas'); lblCvs.width = 256; lblCvs.height = 64;
+                const lblCtx = lblCvs.getContext('2d');
+                lblCtx.fillStyle = 'rgba(0,255,200,0.18)'; lblCtx.fillRect(0,0,256,64);
+                lblCtx.fillStyle = '#00ffcc'; lblCtx.font = 'bold 28px Arial'; lblCtx.textAlign = 'center'; lblCtx.fillText('⬆ PARKOUR', 128, 42);
+                const lblSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(lblCvs) }));
+                lblSprite.scale.set(7, 1.75, 1); lblSprite.position.set(PKX, 4.5, PKZ); envGroup.add(lblSprite);
+
+                // ── FLOATING PARKOUR ARENA ──
+                const pkMats = {
+                    base: new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.4 }),
+                    plat: new THREE.MeshStandardMaterial({ color: 0x00ff88, emissive: 0x003322 }),
+                    chk:  new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0x443300 }),
+                    mov:  new THREE.MeshStandardMaterial({ color: 0xff6600, emissive: 0x441100 }),
+                    fin:  new THREE.MeshStandardMaterial({ color: 0xff00ff, emissive: 0x440044 }),
+                    sky:  new THREE.MeshStandardMaterial({ color: 0x0033aa, emissive: 0x001133 }),
+                };
+
+                // Start island
+                const startIsland = new THREE.Mesh(new THREE.BoxGeometry(12, 1.5, 12), pkMats.sky);
+                startIsland.position.set(0, PKY_ARENA - 0.75, 0); envGroup.add(startIsland);
+
+                // Return teleporter on arena
+                const retPad = new THREE.Mesh(
+                    new THREE.CylinderGeometry(2, 2, 0.18, 24),
+                    new THREE.MeshStandardMaterial({ color: 0xff4444, emissive: 0xff0000, emissiveIntensity: 1.0 })
+                );
+                retPad.position.set(-3, PKY_ARENA + 0.09, -3); envGroup.add(retPad);
+                const retRing = new THREE.Mesh(new THREE.TorusGeometry(2.8, 0.18, 8, 32), new THREE.MeshBasicMaterial({ color: 0xff6666 }));
+                retRing.rotation.x = Math.PI / 2; retRing.position.set(-3, PKY_ARENA + 0.12, -3); envGroup.add(retRing);
+                const retLbl = document.createElement('canvas'); retLbl.width = 192; retLbl.height = 48;
+                const retLblCtx = retLbl.getContext('2d'); retLblCtx.fillStyle = '#ff4444'; retLblCtx.font = 'bold 22px Arial'; retLblCtx.textAlign = 'center'; retLblCtx.fillText('⬇ RETURN', 96, 32);
+                const retSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(retLbl) }));
+                retSprite.scale.set(5, 1.25, 1); retSprite.position.set(-3, PKY_ARENA + 3.5, -3); envGroup.add(retSprite);
+                const retLight = new THREE.PointLight(0xff2222, 1.8, 12);
+                retLight.position.set(-3, PKY_ARENA + 2, -3); envGroup.add(retLight);
+
+                // Platforms
+                window.pkArena = [];
+                window.pkMoving = [];
+                const platDefs = [
+                    { x: 10, y: 0,  z: 0,  w: 5, d: 5, type: 'plat' },
+                    { x: 18, y: 3,  z: 6,  w: 4, d: 3, type: 'plat' },
+                    { x: 24, y: 7,  z: 14, w: 3, d: 3, type: 'chk'  },
+                    { x: 30, y: 11, z: 20, w: 2.5, d: 2.5, type: 'plat' },
+                    { x: 36, y: 15, z: 14, w: 2,   d: 4,   type: 'mov', axis: 'x', range: 5, speed: 1.4 },
+                    { x: 36, y: 19, z: 4,  w: 3,   d: 3,   type: 'plat' },
+                    { x: 28, y: 23, z: -4, w: 2.5, d: 2.5, type: 'plat' },
+                    { x: 18, y: 27, z: -8, w: 2,   d: 2,   type: 'mov', axis: 'z', range: 6, speed: 1.8 },
+                    { x:  8, y: 31, z:-14, w: 3,   d: 3,   type: 'chk'  },
+                    { x: -2, y: 35, z:-20, w: 2,   d: 2,   type: 'plat' },
+                    { x:-12, y: 39, z:-14, w: 2,   d: 2,   type: 'mov', axis: 'x', range: 4, speed: 2.1 },
+                    { x:-20, y: 43, z: -8, w: 3,   d: 3,   type: 'plat' },
+                    { x:-26, y: 47, z:  0, w: 2,   d: 2,   type: 'plat' },
+                    { x:-22, y: 51, z:  8, w: 2,   d: 2,   type: 'mov', axis: 'z', range: 5, speed: 2.4 },
+                    { x:-14, y: 55, z: 16, w: 3.5, d: 3.5, type: 'chk'  },
+                    { x: -4, y: 59, z: 22, w: 2,   d: 2,   type: 'plat' },
+                    { x:  6, y: 63, z: 16, w: 1.8, d: 1.8, type: 'plat' },
+                    { x: 14, y: 67, z:  8, w: 1.8, d: 1.8, type: 'mov', axis: 'x', range: 5, speed: 2.8 },
+                    { x: 10, y: 71, z:  0, w: 2,   d: 2,   type: 'plat' },
+                    { x:  0, y: 75, z:  0, w: 8,   d: 8,   type: 'fin'  },
+                ];
+                platDefs.forEach((pd, i) => {
+                    const mat = pkMats[pd.type];
+                    const mesh = new THREE.Mesh(new THREE.BoxGeometry(pd.w, 0.5, pd.d), mat);
+                    mesh.position.set(pd.x, PKY_ARENA + pd.y, pd.z);
+                    mesh.castShadow = PERF.enableShadows;
+                    envGroup.add(mesh);
+                    window.pkArena.push(mesh);
+                    if (pd.type === 'mov') {
+                        window.pkMoving.push({ mesh, base: mesh.position.clone(), axis: pd.axis, range: pd.range, speed: pd.speed, phase: i * 0.7 });
+                    }
+                    if (pd.type === 'chk') {
+                        const cpL = new THREE.PointLight(0xffd700, 0.8, 10);
+                        cpL.position.copy(mesh.position).y += 2; envGroup.add(cpL);
+                    }
+                    if (pd.type === 'fin') {
+                        const finBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 12, 8), new THREE.MeshBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.25 }));
+                        finBeam.position.set(pd.x, PKY_ARENA + pd.y + 6, pd.z); envGroup.add(finBeam);
+                        const finL = new THREE.PointLight(0xff00ff, 2, 18); finL.position.set(pd.x, PKY_ARENA + pd.y + 4, pd.z); envGroup.add(finL);
+                        const finCvs = document.createElement('canvas'); finCvs.width = 256; finCvs.height = 64;
+                        const finCtx = finCvs.getContext('2d'); finCtx.fillStyle = '#ff00ff'; finCtx.font = 'bold 30px Arial'; finCtx.textAlign = 'center'; finCtx.fillText('🏆 FINISH!', 128, 44);
+                        const finSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(finCvs) }));
+                        finSprite.scale.set(6, 1.5, 1); finSprite.position.set(pd.x, PKY_ARENA + pd.y + 10, pd.z); envGroup.add(finSprite);
+                    }
+                });
+
+                // Sky backdrop for arena
+                const skyRing = new THREE.Mesh(new THREE.TorusGeometry(45, 3, 8, 32), new THREE.MeshBasicMaterial({ color: 0x001144, side: THREE.BackSide }));
+                skyRing.position.set(0, PKY_ARENA + 40, 0); envGroup.add(skyRing);
 
                 const bM = new THREE.MeshStandardMaterial({ map: concreteTex, color: 0x666666 });
                 const bW = (w, h, px, py, pz, r) => {
@@ -3209,47 +3494,6 @@
             shopAvatars.push(tony);
 
             window.shopPositions.push(new THREE.Vector3(x, y, z - 1.5));
-        }
-
-        function buildAnimStudioEntrance(x, y, z) {
-            // Entrance chute/frame
-            const frameMat = new THREE.MeshStandardMaterial({ color: 0x4400aa, metalness: 0.6, roughness: 0.4 });
-            const glowMat = new THREE.MeshStandardMaterial({ color: 0xaa00ff, emissive: 0xaa00ff, emissiveIntensity: 0.5 });
-
-            // Arch frame
-            const arch = new THREE.Mesh(new THREE.TorusGeometry(2.5, 0.3, 16, 32, Math.PI), frameMat);
-            arch.position.set(x, y + 5, z);
-            arch.rotation.y = Math.PI / 2;
-            envGroup.add(arch);
-
-            // Glowing floor pad
-            const pad = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, 0.2, 32), glowMat);
-            pad.position.set(x, y, z);
-            pad.receiveShadow = true;
-            envGroup.add(pad);
-
-            // Sign
-            const sc = document.createElement('canvas');
-            sc.width = 512; sc.height = 128;
-            const sx = sc.getContext('2d');
-            sx.font = 'bold 48px Orbitron,Arial';
-            sx.textAlign = 'center';
-            sx.shadowColor = '#aa00ff';
-            sx.shadowBlur = 20;
-            sx.fillStyle = '#ff88ff';
-            sx.fillText("🎬 ANIMATION STUDIO", 256, 80);
-
-            const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(sc) }));
-            sign.scale.set(7, 1.5, 1);
-            sign.position.set(x, y + 7.5, z);
-            envGroup.add(sign);
-
-            // Particle light
-            const pl = new THREE.PointLight(0xaa00ff, 2, 12);
-            pl.position.set(x, y + 4, z - 1);
-            envGroup.add(pl);
-
-            window.animStudioPosition = new THREE.Vector3(x, y, z);
         }
 
         /* ─────────────────────────────────────────────
@@ -3804,6 +4048,7 @@
             if (!gameActive || !localAvatar || isDead) {
                 isNearShop = false;
                 document.getElementById('shop-hint').style.display = 'none';
+                document.getElementById('parkour-hint').style.display = 'none';
                 return;
             }
             isNearShop = false;
@@ -3812,167 +4057,28 @@
             }
             document.getElementById('shop-hint').style.display = isNearShop && !shopOpen ? 'block' : 'none';
             if (!isNearShop && shopOpen) closeShop();
+
+            // Parkour pad hint
+            if (window.parkourTeleporter && !window._pkTpCooldown) {
+                const tp = window.parkourTeleporter;
+                const px = localAvatar.group.position.x, pz = localAvatar.group.position.z, py = localAvatar.group.position.y;
+                const nearGround = Math.sqrt((px - tp.gx) ** 2 + (pz - tp.gz) ** 2) < 7 && Math.abs(py) < 4;
+                const nearReturn = Math.sqrt((px - tp.ax + 3) ** 2 + (pz - tp.az + 3) ** 2) < 6 && Math.abs(py - tp.ay) < 5;
+                const ph = document.getElementById('parkour-hint');
+                if (nearReturn) {
+                    ph.textContent = '⬇ Step on red pad to return to ground';
+                    ph.style.display = 'block';
+                } else if (nearGround) {
+                    ph.textContent = '🚀 Step on pad to teleport to Parkour Arena';
+                    ph.style.display = 'block';
+                } else {
+                    ph.style.display = 'none';
+                }
+            } else {
+                document.getElementById('parkour-hint').style.display = 'none';
+            }
         }
         document.getElementById('close-shop-btn').addEventListener('click', closeShop);
-
-        /* ─────────────────────────────────────────────
-        ANIMATION STUDIO
-        ───────────────────────────────────────────── */
-        function updateAnimStudioProximity() {
-            if (!gameActive || !localAvatar || isDead) {
-                isNearAnimStudio = false;
-                document.getElementById('anim-hint').style.display = 'none';
-                return;
-            }
-            isNearAnimStudio = false;
-            if (window.animStudioPosition) {
-                if (localAvatar.group.position.distanceTo(window.animStudioPosition) < 5) {
-                    isNearAnimStudio = true;
-                }
-            }
-            document.getElementById('anim-hint').style.display = isNearAnimStudio && !animEditorOpen ? 'block' : 'none';
-        }
-
-        function openAnimEditor() {
-            if (animEditorOpen || isDead || isPaused) return;
-            animEditorOpen = true;
-            animEditorAvatar = localAvatar;
-            animSelectedLimb = 'torso';
-            document.getElementById('anim-editor-ui').style.display = 'flex';
-            keys.w = keys.a = keys.s = keys.d = keys.space = false;
-            initAnimSliders();
-            updateAnimLimbTitle();
-        }
-
-        function closeAnimEditor() {
-            animEditorOpen = false;
-            document.getElementById('anim-editor-ui').style.display = 'none';
-            animEditorAvatar = null;
-        }
-
-        function initAnimSliders() {
-            const limb = animSelectedLimb;
-            if (!animEditorAvatar || !animEditorAvatar[limb]) return;
-
-            const group = animEditorAvatar[limb];
-            const posX = group.position.x || 0;
-            const posY = group.position.y || 0;
-            const posZ = group.position.z || 0;
-            const rotX = group.rotation.x || 0;
-            const rotY = group.rotation.y || 0;
-            const rotZ = group.rotation.z || 0;
-
-            document.querySelectorAll('.anim-slider').forEach(slider => {
-                const prop = slider.dataset.prop;
-                let value = 0;
-                if (prop === 'posX') value = posX;
-                else if (prop === 'posY') value = posY;
-                else if (prop === 'posZ') value = posZ;
-                else if (prop === 'rotX') value = rotX;
-                else if (prop === 'rotY') value = rotY;
-                else if (prop === 'rotZ') value = rotZ;
-
-                slider.value = value;
-                const display = document.querySelector(`.anim-value[data-prop="${prop}"]`);
-                if (display) display.textContent = value.toFixed(2);
-            });
-        }
-
-        function updateAnimLimbTitle() {
-            const titles = {
-                torso: 'TORSO',
-                head: 'HEAD',
-                leftArm: 'LEFT ARM',
-                rightArm: 'RIGHT ARM',
-                leftLeg: 'LEFT LEG',
-                rightLeg: 'RIGHT LEG'
-            };
-            document.getElementById('anim-limb-title').textContent = titles[animSelectedLimb] || 'TORSO';
-        }
-
-        function applyAnimSlider(prop, value) {
-            if (!animEditorAvatar || !animEditorAvatar[animSelectedLimb]) return;
-            const group = animEditorAvatar[animSelectedLimb];
-
-            if (prop === 'posX') group.position.x = parseFloat(value);
-            else if (prop === 'posY') group.position.y = parseFloat(value);
-            else if (prop === 'posZ') group.position.z = parseFloat(value);
-            else if (prop === 'rotX') group.rotation.x = parseFloat(value);
-            else if (prop === 'rotY') group.rotation.y = parseFloat(value);
-            else if (prop === 'rotZ') group.rotation.z = parseFloat(value);
-
-            const display = document.querySelector(`.anim-value[data-prop="${prop}"]`);
-            if (display) display.textContent = parseFloat(value).toFixed(2);
-        }
-
-        function generatePoseData() {
-            const pose = {};
-            ['torso', 'head', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'].forEach(limb => {
-                if (animEditorAvatar && animEditorAvatar[limb]) {
-                    const g = animEditorAvatar[limb];
-                    pose[limb] = {
-                        position: { x: g.position.x, y: g.position.y, z: g.position.z },
-                        rotation: { x: g.rotation.x, y: g.rotation.y, z: g.rotation.z }
-                    };
-                }
-            });
-            return pose;
-        }
-
-        function exportPose() {
-            const pose = generatePoseData();
-            animPoseData = pose;
-            const jsonStr = JSON.stringify(pose, null, 2);
-            document.getElementById('anim-export-output').value = jsonStr;
-        }
-
-        function resetPose() {
-            if (!animEditorAvatar) return;
-            ['torso', 'head', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'].forEach(limb => {
-                if (animEditorAvatar[limb]) {
-                    const g = animEditorAvatar[limb];
-                    g.position.set(0, g.position.y, g.position.z);
-                    g.rotation.set(0, g.rotation.y, g.rotation.z);
-                }
-            });
-            initAnimSliders();
-            document.getElementById('anim-export-output').value = '';
-        }
-
-        function copyPoseToClipboard() {
-            const output = document.getElementById('anim-export-output');
-            if (output.value) {
-                navigator.clipboard.writeText(output.value).then(() => {
-                    playEquipSound();
-                }).catch(() => {
-                    output.select();
-                    document.execCommand('copy');
-                });
-            }
-        }
-
-        document.querySelectorAll('.anim-limb-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.anim-limb-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                animSelectedLimb = btn.dataset.limb;
-                updateAnimLimbTitle();
-                initAnimSliders();
-            });
-        });
-
-        document.querySelectorAll('.anim-slider').forEach(slider => {
-            slider.addEventListener('input', (e) => {
-                const prop = e.target.dataset.prop;
-                applyAnimSlider(prop, e.target.value);
-            });
-        });
-
-        document.getElementById('anim-export-btn').addEventListener('click', exportPose);
-        document.getElementById('anim-reset-btn').addEventListener('click', resetPose);
-        document.getElementById('anim-close-btn').addEventListener('click', closeAnimEditor);
-        document.getElementById('anim-close-x-btn').addEventListener('click', closeAnimEditor);
-        document.getElementById('anim-copy-btn').addEventListener('click', copyPoseToClipboard);
 
         /* ─────────────────────────────────────────────
         ACTION / FPS MODE
@@ -4047,6 +4153,14 @@
 
             if (fpsWeaponRenderer) fpsWeaponRenderer.domElement.style.display = 'block';
             if (isMobile) document.getElementById('btn-fps').classList.add('active-fps');
+
+            // Trigger draw animation
+            if (window.gunAnim) {
+                window.gunAnim.state = 'draw';
+                window.gunAnim.timer = 0;
+                window.gunAnim.adsBlend = 0;
+                window.gunAnim.isADS = false;
+            }
 
             addSystemChat("🎯 FPS Mode.");
         }
@@ -4146,7 +4260,17 @@
             recoilOffset.y -= 0.035 + Math.random() * 0.02;
             recoilOffset.x += (Math.random() - 0.5) * 0.02;
             camShake.intensity = PERF.mobileLowPower ? 0.05 : 0.12;
-            fpsGunRecoil = 0.15;
+            fpsGunRecoil = 0.22;
+
+            // Muzzle flash
+            if (fpsWeaponGroup && fpsWeaponGroup.userData.muzzleFlash) {
+                fpsWeaponGroup.userData.muzzleFlash.material.opacity = 1.0;
+                fpsWeaponGroup.userData.muzzleFlash.scale.setScalar(0.8 + Math.random() * 0.5);
+            }
+            // Trigger fire animation state
+            if (window.gunAnim && window.gunAnim.state !== 'reload' && window.gunAnim.state !== 'draw') {
+                window.gunAnim.state = 'fire';
+            }
         }
 
         function spawnShellCasing(o, fd) {
@@ -4748,11 +4872,6 @@
         }
 
         function handleInteract() {
-            if (isNearAnimStudio) {
-                if (animEditorOpen) closeAnimEditor(); else openAnimEditor();
-                return;
-            }
-            if (animEditorOpen) { closeAnimEditor(); return; }
             if (isNearShop) {
                 if (shopOpen) closeShop(); else openShop();
                 return;
@@ -4825,6 +4944,14 @@
             if (e.key.toLowerCase() === 'e') { handleInteract(); return; }
             if (e.key.toLowerCase() === 'g') { summonNpcs(false, null); return; }
             if (e.key.toLowerCase() === 'm') { toggleMinimap(); return; }
+            if (e.key.toLowerCase() === 'r' && fpsMode && localAvatar?.equipped === 'gun') {
+                if (window.gunAnim && window.gunAnim.state !== 'reload' && window.gunAnim.state !== 'draw') {
+                    window.gunAnim.state = 'reload';
+                    window.gunAnim.reloadTimer = 0;
+                    addSystemChat('🔄 Reloading...');
+                }
+                return;
+            }
         });
 
         document.addEventListener('mousedown', (e) => {
@@ -5046,6 +5173,448 @@
             };
         })();
 
+        /* ─────────────────────────────────────────────
+        ANIMATION EDITOR
+        ───────────────────────────────────────────── */
+        (function initAnimEditor() {
+            const UI = document.getElementById('anim-editor-ui');
+            const canvas = document.getElementById('ae-canvas');
+
+            // ── Three.js setup ──
+            const aeRenderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            aeRenderer.setPixelRatio(window.devicePixelRatio);
+            aeRenderer.setClearColor(0x0a0a10, 1);
+
+            const aeScene = new THREE.Scene();
+            aeScene.background = new THREE.Color(0x0a0a10);
+            aeScene.add(new THREE.GridHelper(20, 20, 0x1a1a2e, 0x111122));
+            aeScene.add(new THREE.AmbientLight(0xffffff, 1.1));
+            const dl = new THREE.DirectionalLight(0xffffff, 0.9); dl.position.set(5,10,7); aeScene.add(dl);
+            const dl2 = new THREE.DirectionalLight(0x8899ff, 0.4); dl2.position.set(-4,3,-5); aeScene.add(dl2);
+
+            const aeCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
+            aeCamera.position.set(0, 6, 18);
+
+            // headGroup sits at y=1.5 inside torso (which is at y=3 in group)
+            const DEFAULTS = {
+                torso:    { rx:0, ry:0, rz:0, px:0,    py:3,   pz:0 },
+                head:     { rx:0, ry:0, rz:0, px:0,    py:1.5, pz:0 },
+                leftArm:  { rx:0, ry:0, rz:0, px:-1.5, py:0.5, pz:0 },
+                rightArm: { rx:0, ry:0, rz:0, px:1.5,  py:0.5, pz:0 },
+                leftLeg:  { rx:0, ry:0, rz:0, px:-0.5, py:-1,  pz:0 },
+                rightLeg: { rx:0, ry:0, rz:0, px:0.5,  py:-1,  pz:0 },
+            };
+            const state = {};
+            for (const k in DEFAULTS) state[k] = { rx:0, ry:0, rz:0, px:0, py:0, pz:0 };
+
+            let aeAvatar = null, selectedPart = null;
+            const partObjects = {}, partMeshes = {}, savedMats = {};
+
+            // ── Gizmo ──
+            const gizmoGroup = new THREE.Group();
+            gizmoGroup.visible = false;
+            aeScene.add(gizmoGroup);
+
+            // Arrow helper: shaft (cylinder) + head (cone)
+            function makeArrow(color, dir, pos) {
+                const g = new THREE.Group();
+                g.userData.axis = dir; g.userData.color = color;
+                const shaftMat = new THREE.MeshBasicMaterial({ color, depthTest: false });
+                const headMat  = new THREE.MeshBasicMaterial({ color, depthTest: false });
+                const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.4, 8), shaftMat);
+                shaft.position.y = 0.7;
+                const head = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.35, 8), headMat);
+                head.position.y = 1.55;
+                g.add(shaft); g.add(head);
+                // Orient along axis
+                if (dir === 'x') g.rotation.z = -Math.PI / 2;
+                if (dir === 'z') g.rotation.x =  Math.PI / 2;
+                g.position.copy(pos);
+                g.renderOrder = 999;
+                g.traverse(c => { if (c.isMesh) { c.renderOrder = 999; c.userData.gizmoAxis = dir; c.userData.gizmoType = 'arrow'; } });
+                return g;
+            }
+
+            // Ring helper for rotation
+            function makeRing(color, axis) {
+                const mat = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, depthTest: false });
+                const ring = new THREE.Mesh(new THREE.TorusGeometry(1.8, 0.06, 6, 32), mat);
+                ring.renderOrder = 999;
+                if (axis === 'x') ring.rotation.y = Math.PI / 2;
+                if (axis === 'y') ring.rotation.x = Math.PI / 2;
+                // z ring stays default
+                ring.userData.gizmoAxis = axis;
+                ring.userData.gizmoType = 'ring';
+                return ring;
+            }
+
+            const gizmoArrows = new THREE.Group(); gizmoGroup.add(gizmoArrows);
+            const gizmoRings  = new THREE.Group(); gizmoGroup.add(gizmoRings);
+
+            gizmoArrows.add(makeArrow(0xff3333, 'x', new THREE.Vector3(0,0,0)));
+            gizmoArrows.add(makeArrow(0x33ff66, 'y', new THREE.Vector3(0,0,0)));
+            gizmoArrows.add(makeArrow(0x3399ff, 'z', new THREE.Vector3(0,0,0)));
+            gizmoRings.add(makeRing(0xff3333, 'x'));
+            gizmoRings.add(makeRing(0x33ff66, 'y'));
+            gizmoRings.add(makeRing(0x3399ff, 'z'));
+
+            // ── Mode state ──
+            let useGizmo = false;   // false = sliders, true = gizmo
+            let gizmoSub = 'move';  // 'move' | 'rotate'
+
+            function setGizmoSub(sub) {
+                gizmoSub = sub;
+                gizmoArrows.visible = (sub === 'move');
+                gizmoRings.visible  = (sub === 'rotate');
+                document.getElementById('ae-sub-move').classList.toggle('ae-mode-active', sub === 'move');
+                document.getElementById('ae-sub-rotate').classList.toggle('ae-mode-active', sub === 'rotate');
+            }
+            setGizmoSub('move');
+
+            document.getElementById('ae-mode-sliders').addEventListener('click', () => {
+                useGizmo = false;
+                document.getElementById('ae-mode-sliders').classList.add('ae-mode-active');
+                document.getElementById('ae-mode-gizmo').classList.remove('ae-mode-active');
+                document.getElementById('ae-gizmo-submodes').classList.remove('visible');
+                document.getElementById('ae-sliders').style.display = '';
+                document.getElementById('ae-viewport-hint').textContent = 'LEFT DRAG: ORBIT   |   RIGHT DRAG: PAN   |   SCROLL: ZOOM   |   CLICK: SELECT PART';
+                gizmoGroup.visible = false;
+            });
+            document.getElementById('ae-mode-gizmo').addEventListener('click', () => {
+                useGizmo = true;
+                document.getElementById('ae-mode-gizmo').classList.add('ae-mode-active');
+                document.getElementById('ae-mode-sliders').classList.remove('ae-mode-active');
+                document.getElementById('ae-gizmo-submodes').classList.add('visible');
+                document.getElementById('ae-sliders').style.display = '';
+                document.getElementById('ae-viewport-hint').textContent = 'LEFT DRAG: ORBIT   |   RIGHT DRAG: PAN   |   DRAG HANDLE: EDIT   |   CLICK: SELECT PART';
+                if (selectedPart) { gizmoGroup.visible = true; updateGizmoPos(); }
+            });
+            document.getElementById('ae-sub-move').addEventListener('click',   () => setGizmoSub('move'));
+            document.getElementById('ae-sub-rotate').addEventListener('click', () => setGizmoSub('rotate'));
+
+            // ── Highlight ──
+            const hlMat = new THREE.MeshStandardMaterial({ color: 0x00ccff, emissive: 0x003344, emissiveIntensity: 0.6 });
+            function setHighlight(pname) {
+                if (selectedPart && partMeshes[selectedPart]) {
+                    partMeshes[selectedPart].forEach((m, i) => { if (savedMats[selectedPart]) m.material = savedMats[selectedPart][i]; });
+                }
+                selectedPart = pname;
+                if (!pname) { gizmoGroup.visible = false; return; }
+                savedMats[pname] = partMeshes[pname].map(m => m.material);
+                partMeshes[pname].forEach(m => { m.material = hlMat; });
+                document.getElementById('ae-selected-label').textContent = pname.replace(/([A-Z])/g, ' $1').toUpperCase();
+                document.querySelectorAll('.ae-part-btn').forEach(b => b.classList.toggle('ae-active', b.dataset.part === pname));
+                syncSlidersFromState();
+                if (useGizmo) { gizmoGroup.visible = true; updateGizmoPos(); }
+            }
+
+            function updateGizmoPos() {
+                if (!selectedPart || !partObjects[selectedPart]) return;
+                const wp = new THREE.Vector3();
+                partObjects[selectedPart].getWorldPosition(wp);
+                gizmoGroup.position.copy(wp);
+                // Scale gizmo with camera distance
+                const d = aeCamera.position.distanceTo(wp);
+                const s = d * 0.09;
+                gizmoGroup.scale.setScalar(s);
+            }
+
+            // ── Avatar ──
+            function buildAeAvatar() {
+                if (aeAvatar) aeScene.remove(aeAvatar.group);
+                aeAvatar = buildAvatar('__anim_editor__', 0x2244cc, 0x1a1a2a, 0xffe0bd);
+                aeAvatar.group.position.set(0, 0, 0);
+                aeScene.add(aeAvatar.group);
+                partObjects.torso    = aeAvatar.torso;
+                partObjects.head     = aeAvatar.headGroup;
+                partObjects.leftArm  = aeAvatar.leftArm;
+                partObjects.rightArm = aeAvatar.rightArm;
+                partObjects.leftLeg  = aeAvatar.leftLeg;
+                partObjects.rightLeg = aeAvatar.rightLeg;
+                for (const pname in partObjects) {
+                    partMeshes[pname] = [];
+                    partObjects[pname].traverse(c => { if (c.isMesh) { c.userData.aePart = pname; partMeshes[pname].push(c); } });
+                }
+                for (const k in state) state[k] = { rx:0, ry:0, rz:0, px:0, py:0, pz:0 };
+                applyAllOffsets();
+            }
+
+            function applyAllOffsets() {
+                if (!aeAvatar) return;
+                for (const pname in state) {
+                    const s = state[pname], d = DEFAULTS[pname];
+                    const obj = partObjects[pname]; if (!obj) continue;
+                    obj.rotation.set((d.rx+s.rx)*Math.PI/180, (d.ry+s.ry)*Math.PI/180, (d.rz+s.rz)*Math.PI/180);
+                    obj.position.set(d.px+s.px, d.py+s.py, d.pz+s.pz);
+                }
+                if (selectedPart && useGizmo) updateGizmoPos();
+            }
+
+            // ── Sliders ──
+            function syncSlidersFromState() {
+                if (!selectedPart) return;
+                const s = state[selectedPart];
+                ['rx','ry','rz','px','py','pz'].forEach(k => {
+                    const el = document.getElementById('ae-' + k);
+                    if (el) { el.value = s[k]; updateValLabel(k, s[k]); }
+                });
+            }
+            function updateValLabel(key, val) {
+                const el = document.getElementById('ae-' + key + '-val');
+                if (!el) return;
+                el.textContent = key.startsWith('r')
+                    ? (val >= 0 ? '+' : '') + parseFloat(val).toFixed(0) + '°'
+                    : (val >= 0 ? '+' : '') + parseFloat(val).toFixed(2);
+            }
+            ['rx','ry','rz','px','py','pz'].forEach(key => {
+                const el = document.getElementById('ae-' + key);
+                el.addEventListener('input', () => {
+                    if (!selectedPart) return;
+                    state[selectedPart][key] = parseFloat(el.value);
+                    updateValLabel(key, el.value);
+                    applyAllOffsets();
+                });
+            });
+            document.querySelectorAll('.ae-zero').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const key = btn.dataset.target.replace('ae-', '');
+                    const el = document.getElementById(btn.dataset.target);
+                    el.value = 0;
+                    if (selectedPart) { state[selectedPart][key] = 0; updateValLabel(key, 0); applyAllOffsets(); }
+                });
+            });
+            document.querySelectorAll('.ae-part-btn').forEach(btn => {
+                btn.addEventListener('click', () => setHighlight(btn.dataset.part));
+            });
+            document.getElementById('ae-reset-part-btn').addEventListener('click', () => {
+                if (!selectedPart) return;
+                state[selectedPart] = { rx:0, ry:0, rz:0, px:0, py:0, pz:0 };
+                syncSlidersFromState(); applyAllOffsets();
+            });
+            document.getElementById('ae-reset-all-btn').addEventListener('click', () => {
+                for (const k in state) state[k] = { rx:0, ry:0, rz:0, px:0, py:0, pz:0 };
+                syncSlidersFromState(); applyAllOffsets();
+            });
+
+            // ── Export ──
+            function generateExport() {
+                const pad = (s, n) => String(s).padEnd(n);
+                let out = '// ╔══════════════════════════════════════════════════════╗\n';
+                out += '// ║         ANIMATION FRAME — R6 EDITOR EXPORT           ║\n';
+                out += '// ╚══════════════════════════════════════════════════════╝\n';
+                out += '// Rotations in RADIANS. Positions are ABSOLUTE (default+offset).\n\n';
+                out += 'const frame = {\n';
+                const parts = ['torso','head','leftArm','rightArm','leftLeg','rightLeg'];
+                parts.forEach((p, i) => {
+                    const s = state[p], d = DEFAULTS[p];
+                    const rx = ((d.rx+s.rx)*Math.PI/180).toFixed(4);
+                    const ry = ((d.ry+s.ry)*Math.PI/180).toFixed(4);
+                    const rz = ((d.rz+s.rz)*Math.PI/180).toFixed(4);
+                    const comma = i < parts.length-1 ? ',' : '';
+                    out += `  ${pad(p+':', 12)} { rotX:${String(rx).padStart(9)}, rotY:${String(ry).padStart(9)}, rotZ:${String(rz).padStart(9)},  `;
+                    out += `posX:${String((d.px+s.px).toFixed(3)).padStart(7)}, posY:${String((d.py+s.py).toFixed(3)).padStart(7)}, posZ:${String((d.pz+s.pz).toFixed(3)).padStart(7)} }${comma}\n`;
+                });
+                out += '};\n\n// Degrees reference:\n';
+                parts.forEach(p => {
+                    const s = state[p], d = DEFAULTS[p];
+                    out += `// ${pad(p+':', 12)} rotX:${pad((d.rx+s.rx).toFixed(1)+'°',9)} rotY:${pad((d.ry+s.ry).toFixed(1)+'°',9)} rotZ:${pad((d.rz+s.rz).toFixed(1)+'°',9)}`;
+                    out += `  posX:${pad((d.px+s.px).toFixed(2),7)} posY:${pad((d.py+s.py).toFixed(2),7)} posZ:${(d.pz+s.pz).toFixed(2)}\n`;
+                });
+                return out;
+            }
+            document.getElementById('ae-export-btn').addEventListener('click', () => {
+                document.getElementById('ae-output-text').textContent = generateExport();
+            });
+            document.getElementById('ae-copy-btn').addEventListener('click', () => {
+                const text = document.getElementById('ae-output-text').textContent;
+                if (!text) return;
+                navigator.clipboard.writeText(text).then(() => {
+                    const btn = document.getElementById('ae-copy-btn');
+                    btn.textContent = '✅ Copied!';
+                    setTimeout(() => { btn.textContent = '📋 Copy'; }, 1800);
+                });
+            });
+
+            // Keyframes
+            let keyframes = [];
+            document.getElementById('ae-add-frame-btn').addEventListener('click', () => {
+                const idx = keyframes.length + 1;
+                const snap = JSON.parse(JSON.stringify(state));
+                keyframes.push({ idx, snap });
+                const kf = document.createElement('div');
+                kf.style.cssText = 'background:#111;border:1px solid #222;border-radius:6px;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#aaa;';
+                kf.innerHTML = `<span>Frame ${idx}</span><button style="background:none;border:none;color:#3399ff;cursor:pointer;font-size:12px;">Load</button>`;
+                kf.querySelector('button').addEventListener('click', () => {
+                    Object.assign(state, JSON.parse(JSON.stringify(snap)));
+                    syncSlidersFromState(); applyAllOffsets();
+                    document.getElementById('ae-output-text').textContent = generateExport();
+                });
+                document.getElementById('ae-keyframes').appendChild(kf);
+            });
+
+            // ── Orbit + Gizmo drag ──
+            const raycaster = new THREE.Raycaster();
+            let orbitActive = false, orbitButton = -1;
+            let lastMX = 0, lastMY = 0;
+            let orbitTheta = 0, orbitPhi = Math.PI / 5, orbitRadius = 18;
+            const orbitTarget = new THREE.Vector3(0, 4, 0);
+
+            // Gizmo drag state
+            let gizmoDragging = false, gizmoAxis = null, gizmoType = null;
+            let gizmoDragStartX = 0, gizmoDragStartY = 0;
+            let gizmoDragStartVal = 0, gizmoDragStartVal2 = 0;
+
+            function updateAeCamera() {
+                const x = orbitTarget.x + orbitRadius * Math.sin(orbitTheta) * Math.cos(orbitPhi);
+                const y = orbitTarget.y + orbitRadius * Math.sin(orbitPhi);
+                const z = orbitTarget.z + orbitRadius * Math.cos(orbitTheta) * Math.cos(orbitPhi);
+                aeCamera.position.set(x, y, z);
+                aeCamera.lookAt(orbitTarget);
+            }
+
+            function getGizmoMeshes() {
+                const meshes = [];
+                const group = gizmoSub === 'move' ? gizmoArrows : gizmoRings;
+                group.traverse(c => { if (c.isMesh) meshes.push(c); });
+                return meshes;
+            }
+
+            function applyGizmoDelta(dx, dy) {
+                if (!selectedPart || !gizmoAxis) return;
+                const sensitivity = gizmoType === 'ring' ? 1.2 : 0.04;
+                const delta = gizmoAxis === 'y' ? -dy * sensitivity : dx * sensitivity;
+                const key = gizmoType === 'arrow' ? 'p' + gizmoAxis : 'r' + gizmoAxis;
+                let newVal;
+                if (gizmoType === 'ring') {
+                    newVal = Math.max(-180, Math.min(180, gizmoDragStartVal + delta));
+                } else {
+                    newVal = Math.max(-4, Math.min(4, gizmoDragStartVal + delta));
+                }
+                state[selectedPart][key] = newVal;
+                // Sync slider
+                const el = document.getElementById('ae-' + key);
+                if (el) { el.value = newVal; updateValLabel(key, newVal); }
+                applyAllOffsets();
+            }
+
+            canvas.addEventListener('mousedown', e => {
+                const rect = canvas.getBoundingClientRect();
+                const mouse = new THREE.Vector2(
+                    ((e.clientX - rect.left) / rect.width) * 2 - 1,
+                    -((e.clientY - rect.top) / rect.height) * 2 + 1
+                );
+                raycaster.setFromCamera(mouse, aeCamera);
+
+                // Check gizmo first (only in gizmo mode, left button)
+                if (useGizmo && e.button === 0 && selectedPart && gizmoGroup.visible) {
+                    const hits = raycaster.intersectObjects(getGizmoMeshes());
+                    if (hits.length > 0) {
+                        const h = hits[0].object;
+                        gizmoDragging = true;
+                        gizmoAxis = h.userData.gizmoAxis;
+                        gizmoType = h.userData.gizmoType;
+                        gizmoDragStartX = e.clientX;
+                        gizmoDragStartY = e.clientY;
+                        const key = gizmoType === 'arrow' ? 'p' + gizmoAxis : 'r' + gizmoAxis;
+                        gizmoDragStartVal = state[selectedPart][key] || 0;
+                        canvas.style.cursor = 'grabbing';
+                        e.preventDefault();
+                        return;
+                    }
+                }
+
+                // Otherwise orbit
+                orbitActive = true; orbitButton = e.button;
+                lastMX = e.clientX; lastMY = e.clientY;
+                e.preventDefault();
+            });
+
+            window.addEventListener('mouseup', () => {
+                orbitActive = false;
+                if (gizmoDragging) { gizmoDragging = false; gizmoAxis = null; canvas.style.cursor = 'crosshair'; }
+            });
+
+            window.addEventListener('mousemove', e => {
+                if (gizmoDragging) {
+                    const dx = (e.clientX - gizmoDragStartX) * 0.5;
+                    const dy = (e.clientY - gizmoDragStartY) * 0.5;
+                    applyGizmoDelta(dx, dy);
+                    return;
+                }
+                if (!orbitActive) return;
+                const dx = e.clientX - lastMX, dy = e.clientY - lastMY;
+                lastMX = e.clientX; lastMY = e.clientY;
+                if (orbitButton === 0) {
+                    orbitTheta -= dx * 0.012;
+                    orbitPhi = Math.max(0.05, Math.min(Math.PI / 2 - 0.01, orbitPhi - dy * 0.012));
+                } else if (orbitButton === 2) {
+                    const right = new THREE.Vector3().crossVectors(aeCamera.getWorldDirection(new THREE.Vector3()), new THREE.Vector3(0,1,0)).normalize();
+                    orbitTarget.addScaledVector(right, -dx * 0.015);
+                    orbitTarget.y += dy * 0.015;
+                }
+                updateAeCamera();
+            });
+
+            canvas.addEventListener('wheel', e => {
+                orbitRadius = Math.max(4, Math.min(40, orbitRadius + e.deltaY * 0.02));
+                updateAeCamera(); e.preventDefault();
+            }, { passive: false });
+            canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+            // Click to select part (only when not dragging)
+            canvas.addEventListener('click', e => {
+                if (Math.abs(e.clientX - lastMX) > 5 || Math.abs(e.clientY - lastMY) > 5) return;
+                const rect = canvas.getBoundingClientRect();
+                const mouse = new THREE.Vector2(
+                    ((e.clientX - rect.left) / rect.width) * 2 - 1,
+                    -((e.clientY - rect.top) / rect.height) * 2 + 1
+                );
+                raycaster.setFromCamera(mouse, aeCamera);
+                if (!aeAvatar) return;
+                const bodyMeshes = [];
+                aeAvatar.group.traverse(c => { if (c.isMesh && c.userData.aePart) bodyMeshes.push(c); });
+                const hits = raycaster.intersectObjects(bodyMeshes);
+                if (hits.length > 0) setHighlight(hits[0].object.userData.aePart);
+            });
+
+            // ── Resize ──
+            function resizeAeCanvas() {
+                const w = canvas.clientWidth, h = canvas.clientHeight;
+                if (!w || !h) return;
+                aeCamera.aspect = w / h;
+                aeCamera.updateProjectionMatrix();
+                aeRenderer.setSize(w, h, false);
+            }
+            new ResizeObserver(resizeAeCanvas).observe(canvas);
+
+            // ── Render loop ──
+            let aeAnimating = false;
+            function aeLoop() {
+                if (!aeAnimating) return;
+                requestAnimationFrame(aeLoop);
+                if (selectedPart && useGizmo) updateGizmoPos();
+                aeRenderer.render(aeScene, aeCamera);
+            }
+
+            // ── Open / Close ──
+            document.getElementById('anim-editor-btn').addEventListener('click', () => {
+                document.getElementById('pause-menu').style.display = 'none';
+                UI.style.display = 'flex';
+                aeAnimating = true;
+                setTimeout(() => {
+                    resizeAeCanvas();
+                    updateAeCamera();
+                    buildAeAvatar();
+                    aeLoop();
+                }, 50);
+            });
+            document.getElementById('ae-back-btn').addEventListener('click', () => {
+                aeAnimating = false;
+                UI.style.display = 'none';
+                document.getElementById('pause-menu').style.display = 'flex';
+            });
+
+        })();
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && gameActive && !isDead && !chatFocused && !adminOpen) {
@@ -5328,6 +5897,19 @@
             } else {
                 let maxH = 0;
 
+                // Parkour arena platforms
+                if (window.pkArena) {
+                    for (const pt of window.pkArena) {
+                        const geo = pt.geometry;
+                        const hw = (geo.parameters?.width || 3) / 2;
+                        const hd = (geo.parameters?.depth || 3) / 2;
+                        if (Math.abs(x - pt.position.x) < hw && Math.abs(z - pt.position.z) < hd) {
+                            const top = pt.position.y + 0.25;
+                            if (checkY >= top - 1) maxH = Math.max(maxH, top);
+                        }
+                    }
+                }
+
                 return maxH;
             }
         }
@@ -5505,17 +6087,45 @@
         /* ─────────────────────────────────────────────
         ANIMATIONS
         ───────────────────────────────────────────── */
-        const aT = { torsoX: 0, lAX: 0, rAX: 0, lAZ: 0, lLX: 0, rLX: 0, hX: 0 };
+        const aT = {
+            torsoX: 0,
+            lAX: 0, lAY: 0, lAZ: 0,
+            rAX: 0, rAY: 0, rAZ: 0,
+            lLX: 0, lLY: 0,
+            rLX: 0, rLY: 0,
+            hX:  0, hZ:  0,
+            // Position overrides (only applied when gun equipped)
+            lAPX: -1.5, lAPY: 0.5,
+            rAPX:  1.5, rAPY: 0.5,
+            hPX:  0,    hPY:  1.5,
+        };
+
+        // Base gun pose from Animation Editor export
+        const GUN_BASE = {
+            lAX: -1.6755, lAY:  0.2618, lAZ:  0.5585, lAPX: -0.85, lAPY: 0.55,
+            rAX: -1.5533, rAY:  0.0873, rAZ: -0.2618, rAPX:  1.05, rAPY: 0.65,
+            lLY:  0.0349, rLY:  0.2967,
+            hX:   0.0873, hZ:  -0.1745, hPX: 0.2, hPY: 1.6,
+        };
 
         function applyAnim(av, ps, t, dt) {
             const ia = (av.equipped === 'gun');
-            aT.torsoX = 0; aT.lAZ = 0; aT.hX = 0;
+
+            // Reset to defaults
+            aT.torsoX = 0;
+            aT.lAX = 0; aT.lAY = 0; aT.lAZ = 0;
+            aT.rAX = 0; aT.rAY = 0; aT.rAZ = 0;
+            aT.lLX = 0; aT.lLY = 0;
+            aT.rLX = 0; aT.rLY = 0;
+            aT.hX  = 0; aT.hZ  = 0;
+            aT.lAPX = -1.5; aT.lAPY = 0.5;
+            aT.rAPX =  1.5; aT.rAPY = 0.5;
+            aT.hPX  =  0;   aT.hPY  = 1.5;
 
             if (!ia) {
                 if (ps === STATE.IDLE) {
                     aT.lAX = Math.sin(t * 2) * 0.1;
                     aT.rAX = -Math.sin(t * 2) * 0.1;
-                    aT.lLX = 0; aT.rLX = 0;
                 } else if (ps === STATE.RUN) {
                     const sp = 11, sA = 0.6, sL = 0.7;
                     aT.lAX = Math.sin(t * sp) * sA;
@@ -5523,10 +6133,8 @@
                     aT.lLX = -Math.sin(t * sp) * sL;
                     aT.rLX = Math.sin(t * sp) * sL;
                 } else if (ps === STATE.JUMP || ps === STATE.FALL) {
-                    aT.lAX = -Math.PI;
-                    aT.rAX = -Math.PI;
-                    aT.lLX = 0.2;
-                    aT.rLX = -0.2;
+                    aT.lAX = -Math.PI; aT.rAX = -Math.PI;
+                    aT.lLX = 0.2;      aT.rLX = -0.2;
                 } else if (ps === STATE.SWIM) {
                     aT.torsoX = Math.PI / 2;
                     const sp = 8;
@@ -5541,87 +6149,207 @@
                     aT.lLX = -Math.sin(t * sp) * 0.5;
                     aT.rLX = Math.sin(t * sp) * 0.5;
                 } else if (ps === STATE.SIT) {
-                    aT.lAX = 0; aT.rAX = 0;
                     aT.lLX = -Math.PI / 2; aT.rLX = -Math.PI / 2;
                 }
             } else {
+                // ── GUN POSES — based on Animation Editor export ──
+                const B = GUN_BASE;
+                // Breathing / idle sway shared across all gun states
+                const breathe = Math.sin(t * 1.4) * 0.012;
+                const swayX   = Math.sin(t * 0.9) * 0.008;
+
                 if (ps === STATE.IDLE) {
-                    aT.rAX = -Math.PI / 2.2 + Math.sin(t * 1.5 + 0.5) * 0.03;
-                    aT.lAX = -Math.PI / 2.5 + Math.sin(t * 1.5) * 0.03;
-                    aT.lAZ = 0.35;
-                    aT.lLX = Math.sin(t * 1.2) * 0.02;
-                    aT.rLX = -Math.sin(t * 1.2) * 0.02;
+                    const idleSway = Math.sin(t * 1.1) * 0.018;
+                    const idleBob  = Math.cos(t * 0.7) * 0.012;
+                    aT.lAX = B.lAX + breathe; aT.lAY = B.lAY; aT.lAZ = B.lAZ + swayX * 0.4;
+                    aT.rAX = B.rAX + breathe; aT.rAY = B.rAY; aT.rAZ = B.rAZ + swayX * 0.3;
+                    aT.lAPX = B.lAPX + idleSway * 0.3; aT.lAPY = B.lAPY + idleBob;
+                    aT.rAPX = B.rAPX + idleSway * 0.2; aT.rAPY = B.rAPY + idleBob;
+                    aT.hX = B.hX + breathe * 0.5; aT.hZ = B.hZ;
+                    aT.hPX = B.hPX; aT.hPY = B.hPY + idleBob * 0.5;
+                    aT.lLY = B.lLY; aT.rLY = B.rLY;
+
                 } else if (ps === STATE.RUN) {
                     const sp = 13, sL = 0.65;
-                    aT.torsoX = 0.12;
-                    aT.rAX = -Math.PI / 2.2 + Math.sin(t * sp * 0.5 + Math.PI) * 0.08;
-                    aT.lAX = -Math.PI / 2.5 + Math.sin(t * sp * 0.5) * 0.15;
-                    aT.lAZ = 0.3;
-                    aT.lLX = -Math.sin(t * sp) * sL;
-                    aT.rLX = Math.sin(t * sp) * sL;
-                    aT.hX = -0.08;
+                    const runBob = Math.sin(t * sp * 0.5);
+                    aT.torsoX = 0.10;
+                    // Arms mostly locked to gun pose but with slight pump
+                    aT.lAX = B.lAX + runBob * 0.06; aT.lAY = B.lAY * 0.7; aT.lAZ = B.lAZ - Math.abs(runBob) * 0.05;
+                    aT.rAX = B.rAX + runBob * 0.05; aT.rAY = B.rAY * 0.7; aT.rAZ = B.rAZ;
+                    aT.lAPX = B.lAPX + runBob * 0.04; aT.lAPY = B.lAPY + Math.abs(runBob) * 0.06;
+                    aT.rAPX = B.rAPX;                  aT.rAPY = B.rAPY + Math.abs(runBob) * 0.06;
+                    aT.hX = B.hX - 0.06; aT.hZ = B.hZ;
+                    aT.hPX = B.hPX; aT.hPY = B.hPY;
+                    aT.lLX = -Math.sin(t * sp) * sL; aT.rLX = Math.sin(t * sp) * sL;
+                    aT.lLY = B.lLY; aT.rLY = B.rLY;
+
                 } else if (ps === STATE.JUMP || ps === STATE.FALL) {
-                    aT.rAX = -Math.PI / 2;
-                    aT.lAX = -Math.PI / 2.5;
-                    aT.lAZ = 0.25;
-                    aT.lLX = ps === STATE.FALL ? -0.2 : 0.35;
-                    aT.rLX = ps === STATE.FALL ? -0.3 : -0.15;
-                    aT.torsoX = ps === STATE.FALL ? 0.08 : -0.05;
-                } else if (ps === STATE.SWIM) {
-                    aT.torsoX = Math.PI / 2.5;
-                    aT.rAX = -Math.PI / 4;
-                    aT.lAX = -Math.PI / 2 + Math.sin(t * 8) * 0.4;
-                    aT.lLX = Math.sin(t * 8) * 0.5;
-                    aT.rLX = Math.sin(t * 8 + Math.PI) * 0.5;
-                } else if (ps === STATE.CLIMB) {
-                    const sp = 10;
-                    aT.lAX = Math.PI + Math.sin(t * sp) * 0.4;
-                    aT.rAX = -Math.PI / 2.5;
-                    aT.lLX = -Math.sin(t * sp) * 0.5;
-                    aT.rLX = Math.sin(t * sp) * 0.5;
-                    aT.torsoX = 0.1;
+                    const fallTilt = ps === STATE.FALL ? 0.06 : -0.04;
+                    aT.torsoX = fallTilt;
+                    aT.lAX = B.lAX - 0.15; aT.lAY = B.lAY; aT.lAZ = B.lAZ;
+                    aT.rAX = B.rAX - 0.1;  aT.rAY = B.rAY; aT.rAZ = B.rAZ;
+                    aT.lAPX = B.lAPX; aT.lAPY = B.lAPY + (ps === STATE.FALL ? 0.1 : -0.05);
+                    aT.rAPX = B.rAPX; aT.rAPY = B.rAPY + (ps === STATE.FALL ? 0.1 : -0.05);
+                    aT.hX = B.hX; aT.hZ = B.hZ;
+                    aT.hPX = B.hPX; aT.hPY = B.hPY;
+                    aT.lLX = ps === STATE.FALL ? -0.2 : 0.3;
+                    aT.rLX = ps === STATE.FALL ? -0.3 : -0.1;
+                    aT.lLY = B.lLY; aT.rLY = B.rLY;
+
                 } else if (ps === STATE.SIT) {
-                    aT.lAX = 0; aT.rAX = 0;
+                    aT.lAX = B.lAX * 0.5; aT.rAX = B.rAX * 0.5;
                     aT.lLX = -Math.PI / 2; aT.rLX = -Math.PI / 2;
+                    aT.hX = B.hX; aT.hPY = B.hPY;
+                } else {
+                    // Fallback: pure base pose
+                    aT.lAX = B.lAX; aT.lAY = B.lAY; aT.lAZ = B.lAZ;
+                    aT.rAX = B.rAX; aT.rAY = B.rAY; aT.rAZ = B.rAZ;
+                    aT.lAPX = B.lAPX; aT.lAPY = B.lAPY;
+                    aT.rAPX = B.rAPX; aT.rAPY = B.rAPY;
+                    aT.hX = B.hX; aT.hZ = B.hZ; aT.hPX = B.hPX; aT.hPY = B.hPY;
+                    aT.lLY = B.lLY; aT.rLY = B.rLY;
                 }
             }
 
+            // ── Fire recoil / action timer override ──
             if (av.actionTimer > 0) {
                 av.actionTimer -= dt;
                 if (av.equipped === 'whip') aT.rAX = THREE.MathUtils.lerp(Math.PI / 4, -Math.PI / 2, 1 - (av.actionTimer / 0.5));
                 if (av.equipped === 'cake') aT.rAX = -Math.PI / 1.5;
-                if (av.equipped === 'grenade') aT.rAX = THREE.MathUtils.lerp(-Math.PI / 4, -Math.PI, 1 - (av.actionTimer / 1.0));
+                if (av.equipped === 'grenade') {
+                    // Total duration = 1.0s
+                    // Phase 1 (t 1.0→0.65): wind-up — lerp to START pose
+                    // Phase 2 (t 0.65→0.0): release — fast lerp to END pose, then hold
+                    const dur = 1.0;
+                    const elapsed = dur - av.actionTimer;          // 0..1
+                    const PHASE_SPLIT = 0.35;                      // first 0.35s = wind-up
+
+                    // START keyframe (wind-up pose)
+                    const KS = {
+                        torsoX: -0.1745, torsoY:  0.3491,
+                        lAX: -1.7628, lAY: 0, lAZ: 0, lAPX: -1.30, lAPY: 0.85, lAPZ: 0.50,
+                        rAX:  2.1118, rAY: 0, rAZ: 0, rAPX:  1.40, rAPY: 0.55, rAPZ: -0.45,
+                        lLX: -0.7330, lLY: -0.1222, rLX: 0.1222, rLY: 0.3491, rAPosX: 0.65, rLPZ: -0.25,
+                        hX: -0.0873, hY: 0, hZ: 0, hPZ: -0.40,
+                    };
+                    // END keyframe (throw release)
+                    const KE = {
+                        torsoX:  0.4363, torsoY:  0.3491,
+                        lAX:  0.8203, lAY: 0, lAZ: 0, lAPX: -1.55, lAPY: 0.55, lAPZ: -0.15,
+                        rAX: -2.2864, rAY: 0, rAZ: 0, rAPX:  1.45, rAPY: 0.95, rAPZ:  0.70,
+                        lLX:  0.3491, lLY: -0.1222, rLX: -0.3491, rLY: 0.3491, rAPosX: 0.70, rLPZ: 0.05,
+                        hX: -0.2618, hY: 0, hZ: -0.0349, hPZ: 0,
+                    };
+
+                    let K, lerpSpeed;
+                    if (elapsed < PHASE_SPLIT) {
+                        // Wind-up: slow lerp into start pose
+                        K = KS;
+                        lerpSpeed = 10;
+                    } else {
+                        // Release: fast snap to end pose
+                        K = KE;
+                        lerpSpeed = 28;
+                    }
+
+                    aT.torsoX  = K.torsoX;
+                    aT.lAX = K.lAX; aT.lAY = K.lAY; aT.lAZ = K.lAZ;
+                    aT.rAX = K.rAX; aT.rAY = K.rAY; aT.rAZ = K.rAZ;
+                    aT.lLX = K.lLX; aT.lLY = K.lLY;
+                    aT.rLX = K.rLX; aT.rLY = K.rLY;
+                    aT.hX  = K.hX;  aT.hZ  = K.hZ;
+
+                    // Apply with phase-specific lerp speed for everything
+                    const ls2 = lerpSpeed * dt;
+                    av.torso.rotation.x = THREE.MathUtils.lerp(av.torso.rotation.x, aT.torsoX, ls2);
+                    av.torso.rotation.y = THREE.MathUtils.lerp(av.torso.rotation.y || 0, K.torsoY, ls2);
+                    av.leftArm.rotation.x  = THREE.MathUtils.lerp(av.leftArm.rotation.x,  K.lAX, ls2);
+                    av.leftArm.rotation.y  = THREE.MathUtils.lerp(av.leftArm.rotation.y  || 0, K.lAY, ls2);
+                    av.leftArm.rotation.z  = THREE.MathUtils.lerp(av.leftArm.rotation.z  || 0, K.lAZ, ls2);
+                    av.leftArm.position.x  = THREE.MathUtils.lerp(av.leftArm.position.x,  K.lAPX, ls2);
+                    av.leftArm.position.y  = THREE.MathUtils.lerp(av.leftArm.position.y,  K.lAPY, ls2);
+                    av.leftArm.position.z  = THREE.MathUtils.lerp(av.leftArm.position.z  || 0, K.lAPZ, ls2);
+                    av.rightArm.rotation.x = THREE.MathUtils.lerp(av.rightArm.rotation.x, K.rAX, ls2);
+                    av.rightArm.rotation.y = THREE.MathUtils.lerp(av.rightArm.rotation.y || 0, K.rAY, ls2);
+                    av.rightArm.rotation.z = THREE.MathUtils.lerp(av.rightArm.rotation.z || 0, K.rAZ, ls2);
+                    av.rightArm.position.x = THREE.MathUtils.lerp(av.rightArm.position.x, K.rAPX, ls2);
+                    av.rightArm.position.y = THREE.MathUtils.lerp(av.rightArm.position.y, K.rAPY, ls2);
+                    av.rightArm.position.z = THREE.MathUtils.lerp(av.rightArm.position.z || 0, K.rAPZ, ls2);
+                    av.leftLeg.rotation.x  = THREE.MathUtils.lerp(av.leftLeg.rotation.x,  K.lLX, ls2);
+                    av.leftLeg.rotation.y  = THREE.MathUtils.lerp(av.leftLeg.rotation.y  || 0, K.lLY, ls2);
+                    av.rightLeg.rotation.x = THREE.MathUtils.lerp(av.rightLeg.rotation.x, K.rLX, ls2);
+                    av.rightLeg.rotation.y = THREE.MathUtils.lerp(av.rightLeg.rotation.y || 0, K.rLY, ls2);
+                    av.rightLeg.position.x = THREE.MathUtils.lerp(av.rightLeg.position.x || 0.5, K.rAPosX, ls2);
+                    av.rightLeg.position.z = THREE.MathUtils.lerp(av.rightLeg.position.z || 0, K.rLPZ, ls2);
+                    if (av.headGroup) {
+                        av.headGroup.rotation.x = THREE.MathUtils.lerp(av.headGroup.rotation.x || 0, K.hX, ls2);
+                        av.headGroup.rotation.z = THREE.MathUtils.lerp(av.headGroup.rotation.z || 0, K.hZ, ls2);
+                        av.headGroup.position.z = THREE.MathUtils.lerp(av.headGroup.position.z || 0, K.hPZ, ls2);
+                    }
+                    // Skip the generic lerp below for grenade
+                    return;
+                }
                 if (av.equipped === 'gun') {
                     const rp = 1 - (av.actionTimer / 0.30);
-                    if (rp < 0.15) {
-                        aT.rAX = -Math.PI / 2 - 0.35 * (rp / 0.15);
-                        aT.torsoX = -0.04;
-                    } else {
-                        const st = (rp - 0.15) / 0.85;
-                        aT.rAX = -Math.PI / 2 - 0.35 * (1 - st);
-                        aT.torsoX = -0.04 * (1 - st);
-                    }
-                    aT.lAX = -Math.PI / 2.5;
-                    aT.lAZ = 0.35;
+                    const kick = rp < 0.15 ? -(rp / 0.15) * 0.3 : -(1 - (rp - 0.15) / 0.85) * 0.3;
+                    aT.rAX += kick;
+                    aT.lAX += kick * 0.6;
+                    aT.torsoX -= kick * 0.08;
                 }
-            } else if (ps !== STATE.SIT && ps !== STATE.SWIM && ps !== STATE.CLIMB) {
+            } else if (!ia && ps !== STATE.SIT && ps !== STATE.SWIM && ps !== STATE.CLIMB) {
                 if (av.equipped === 'cake' || av.equipped === 'whip') aT.rAX = -Math.PI / 2.5;
                 if (av.equipped === 'grenade') aT.rAX = -Math.PI / 3;
-                if (av.equipped === 'gun') {
-                    aT.rAX = -Math.PI / 2.2;
-                    aT.lAX = -Math.PI / 2.5;
-                    aT.lAZ = 0.35;
-                }
             }
 
+            // ── Lerp all channels ──
             const ls = 15 * dt;
             av.torso.rotation.x = THREE.MathUtils.lerp(av.torso.rotation.x, aT.torsoX, ls);
-            av.leftArm.rotation.x = THREE.MathUtils.lerp(av.leftArm.rotation.x, aT.lAX, ls);
+            av.torso.rotation.y = THREE.MathUtils.lerp(av.torso.rotation.y || 0, 0, ls);
+
+            av.leftArm.rotation.x  = THREE.MathUtils.lerp(av.leftArm.rotation.x,  aT.lAX, ls);
+            av.leftArm.rotation.y  = THREE.MathUtils.lerp(av.leftArm.rotation.y  || 0, aT.lAY, ls);
+            av.leftArm.rotation.z  = THREE.MathUtils.lerp(av.leftArm.rotation.z  || 0, aT.lAZ, ls);
+            av.leftArm.position.z  = THREE.MathUtils.lerp(av.leftArm.position.z  || 0, 0, ls);
+
             av.rightArm.rotation.x = THREE.MathUtils.lerp(av.rightArm.rotation.x, aT.rAX, ls);
-            av.leftLeg.rotation.x = THREE.MathUtils.lerp(av.leftLeg.rotation.x, aT.lLX, ls);
+            av.rightArm.rotation.y = THREE.MathUtils.lerp(av.rightArm.rotation.y || 0, aT.rAY, ls);
+            av.rightArm.rotation.z = THREE.MathUtils.lerp(av.rightArm.rotation.z || 0, aT.rAZ, ls);
+            av.rightArm.position.z = THREE.MathUtils.lerp(av.rightArm.position.z || 0, 0, ls);
+
+            av.leftLeg.rotation.x  = THREE.MathUtils.lerp(av.leftLeg.rotation.x,  aT.lLX, ls);
+            av.leftLeg.rotation.y  = THREE.MathUtils.lerp(av.leftLeg.rotation.y  || 0, aT.lLY, ls);
             av.rightLeg.rotation.x = THREE.MathUtils.lerp(av.rightLeg.rotation.x, aT.rLX, ls);
-            av.leftArm.rotation.z = THREE.MathUtils.lerp(av.leftArm.rotation.z || 0, aT.lAZ, ls);
-            if (av.headGroup) av.headGroup.rotation.x = THREE.MathUtils.lerp(av.headGroup.rotation.x || 0, aT.hX, ls);
+            av.rightLeg.rotation.y = THREE.MathUtils.lerp(av.rightLeg.rotation.y || 0, aT.rLY, ls);
+            av.rightLeg.position.x = THREE.MathUtils.lerp(av.rightLeg.position.x || 0.5, 0.5, ls);
+            av.rightLeg.position.z = THREE.MathUtils.lerp(av.rightLeg.position.z || 0, 0, ls);
+
+            if (av.headGroup) {
+                av.headGroup.rotation.x = THREE.MathUtils.lerp(av.headGroup.rotation.x || 0, aT.hX, ls);
+                av.headGroup.rotation.z = THREE.MathUtils.lerp(av.headGroup.rotation.z || 0, aT.hZ, ls);
+                av.headGroup.position.z = THREE.MathUtils.lerp(av.headGroup.position.z || 0, 0, ls);
+            }
+
+            // Position lerp (arms + head) — only when gun equipped for clean transitions
+            if (ia) {
+                av.leftArm.position.x  = THREE.MathUtils.lerp(av.leftArm.position.x,  aT.lAPX, ls);
+                av.leftArm.position.y  = THREE.MathUtils.lerp(av.leftArm.position.y,  aT.lAPY, ls);
+                av.rightArm.position.x = THREE.MathUtils.lerp(av.rightArm.position.x, aT.rAPX, ls);
+                av.rightArm.position.y = THREE.MathUtils.lerp(av.rightArm.position.y, aT.rAPY, ls);
+                if (av.headGroup) {
+                    av.headGroup.position.x = THREE.MathUtils.lerp(av.headGroup.position.x || 0, aT.hPX, ls);
+                    av.headGroup.position.y = THREE.MathUtils.lerp(av.headGroup.position.y || 1.5, aT.hPY, ls);
+                }
+            } else {
+                // Restore default positions when not holding gun
+                av.leftArm.position.x  = THREE.MathUtils.lerp(av.leftArm.position.x,  -1.5, ls);
+                av.leftArm.position.y  = THREE.MathUtils.lerp(av.leftArm.position.y,   0.5, ls);
+                av.rightArm.position.x = THREE.MathUtils.lerp(av.rightArm.position.x,  1.5, ls);
+                av.rightArm.position.y = THREE.MathUtils.lerp(av.rightArm.position.y,  0.5, ls);
+                if (av.headGroup) {
+                    av.headGroup.position.x = THREE.MathUtils.lerp(av.headGroup.position.x || 0, 0, ls);
+                    av.headGroup.position.y = THREE.MathUtils.lerp(av.headGroup.position.y || 1.5, 1.5, ls);
+                }
+            }
         }
 
         function updateAnimations(t, dt) {
@@ -5727,15 +6455,122 @@
                 camera.lookAt(tp);
             }
 
-            if (fpsMode && fpsWeaponGroup) {
-                const mv = (vel.x !== 0 || vel.z !== 0) && isGrounded;
-                if (mv) fpsGunBob += dt * 9;
-                else fpsGunBob += dt * 1.5;
-                fpsGunRecoil *= 0.85;
-                const bx = mv ? Math.sin(fpsGunBob) * 0.008 : Math.sin(fpsGunBob) * 0.002;
-                const by = mv ? Math.cos(fpsGunBob * 2) * 0.006 : Math.cos(fpsGunBob * 2) * 0.001;
-                fpsWeaponGroup.position.set(0.18 + bx, -0.14 + by - fpsGunRecoil * 0.08, -0.3 + fpsGunRecoil * 0.12);
-                fpsWeaponGroup.rotation.set(-fpsGunRecoil * 0.6, 0, 0);
+            if (fpsMode && fpsWeaponGroup && window.gunAnim) {
+                const ga = window.gunAnim;
+                const mv = (vel.x !== 0 || vel.z !== 0);
+                const sprinting = keys.shift && mv && isGrounded;
+                const mf = fpsWeaponGroup.userData.muzzleFlash;
+
+                // Muzzle flash fade
+                if (mf && mf.material.opacity > 0) mf.material.opacity -= dt * 18;
+
+                // ADS toggle (right-click)
+                ga.isADS = !!(rightClickDown || shiftLock);
+                ga.adsBlend = THREE.MathUtils.lerp(ga.adsBlend, ga.isADS ? 1 : 0, dt * 14);
+
+                // Determine animation state
+                if (ga.state === 'draw') {
+                    ga.timer += dt;
+                    const p = Math.min(ga.timer / ga.drawDuration, 1);
+                    // Slide in from right-low, ease out
+                    const ease = 1 - Math.pow(1 - p, 3);
+                    fpsWeaponGroup.position.set(
+                        THREE.MathUtils.lerp(0.55, 0.2, ease),
+                        THREE.MathUtils.lerp(-0.45, -0.22, ease),
+                        THREE.MathUtils.lerp(-0.1, -0.35, ease)
+                    );
+                    fpsWeaponGroup.rotation.set(
+                        THREE.MathUtils.lerp(0.5, 0.04, ease),
+                        THREE.MathUtils.lerp(-0.5, -0.06, ease),
+                        THREE.MathUtils.lerp(0.4, 0.02, ease)
+                    );
+                    if (p >= 1) ga.state = 'idle';
+
+                } else if (ga.state === 'reload') {
+                    ga.reloadTimer += dt;
+                    const p = ga.reloadTimer / ga.reloadDuration;
+                    // Phase 1 (0-0.3): drop mag — tilt gun down
+                    // Phase 2 (0.3-0.7): slam mag in — gun dips sharply
+                    // Phase 3 (0.7-1.0): rack slide — gun kicks forward/back
+                    let tpx = 0.2, tpy = -0.22, tpz = -0.35, trx = 0.04, try_ = -0.06, trz = 0.02;
+                    if (p < 0.3) {
+                        const sp = p / 0.3;
+                        tpx = 0.28; tpy = -0.22 - sp * 0.08; trx = 0.04 + sp * 0.4; trz = 0.02 + sp * 0.25;
+                    } else if (p < 0.7) {
+                        const sp = (p - 0.3) / 0.4;
+                        tpx = 0.28 - sp * 0.06; tpy = -0.30 + sp * 0.06; trx = 0.44 - sp * 0.4; trz = 0.27 - sp * 0.25;
+                    } else {
+                        const sp = (p - 0.7) / 0.3;
+                        tpx = THREE.MathUtils.lerp(0.22, 0.2, sp);
+                        tpy = THREE.MathUtils.lerp(-0.24, -0.22, sp);
+                        trx = THREE.MathUtils.lerp(-0.1, 0.04, sp);
+                        tpz = THREE.MathUtils.lerp(-0.28, -0.35, sp);
+                    }
+                    fpsWeaponGroup.position.lerp(new THREE.Vector3(tpx, tpy, tpz), dt * 12);
+                    fpsWeaponGroup.rotation.x = THREE.MathUtils.lerp(fpsWeaponGroup.rotation.x, trx, dt * 10);
+                    fpsWeaponGroup.rotation.y = THREE.MathUtils.lerp(fpsWeaponGroup.rotation.y, try_, dt * 10);
+                    fpsWeaponGroup.rotation.z = THREE.MathUtils.lerp(fpsWeaponGroup.rotation.z, trz, dt * 10);
+                    if (ga.reloadTimer >= ga.reloadDuration) {
+                        ga.reloadTimer = 0;
+                        ga.state = sprinting ? 'sprint' : mv ? 'run' : 'idle';
+                    }
+
+                } else {
+                    // Determine target pose
+                    let tpx, tpy, tpz, trx, try_, trz;
+
+                    const adsX = -0.002, adsY = -0.148, adsZ = -0.28;
+
+                    if (sprinting && !ga.isADS) {
+                        ga.state = 'sprint';
+                        ga.bobPhase += dt * 14;
+                        const bob = Math.sin(ga.bobPhase) * 0.006;
+                        tpx = THREE.MathUtils.lerp(-0.06, adsX, ga.adsBlend) + bob;
+                        tpy = THREE.MathUtils.lerp(-0.16, adsY, ga.adsBlend) + Math.abs(Math.sin(ga.bobPhase * 0.5)) * 0.015;
+                        tpz = THREE.MathUtils.lerp(-0.33, adsZ, ga.adsBlend);
+                        trx = THREE.MathUtils.lerp(-0.18, 0, ga.adsBlend);
+                        try_ = THREE.MathUtils.lerp(0.35, 0, ga.adsBlend);
+                        trz = THREE.MathUtils.lerp(-0.14, 0, ga.adsBlend) + bob * 4;
+                    } else if (mv && isGrounded && !ga.isADS) {
+                        ga.state = 'run';
+                        ga.bobPhase += dt * (sprinting ? 13 : 9);
+                        const bx = Math.sin(ga.bobPhase) * 0.009;
+                        const by = Math.cos(ga.bobPhase * 2) * 0.006;
+                        tpx = 0.2 + bx;
+                        tpy = -0.22 + by;
+                        tpz = -0.35;
+                        trx = 0.04 - Math.abs(Math.sin(ga.bobPhase)) * 0.04;
+                        try_ = -0.06 + bx * 0.5;
+                        trz = bx * 1.2;
+                    } else {
+                        // Idle / ADS
+                        ga.state = ga.isADS ? 'ads' : 'idle';
+                        ga.bobPhase += dt * 1.8;
+                        const idleSway = Math.sin(ga.bobPhase) * 0.002;
+                        const idleBob  = Math.cos(ga.bobPhase * 0.7) * 0.0015;
+                        tpx = THREE.MathUtils.lerp(0.2 + idleSway, adsX, ga.adsBlend);
+                        tpy = THREE.MathUtils.lerp(-0.22 + idleBob, adsY, ga.adsBlend);
+                        tpz = THREE.MathUtils.lerp(-0.35, adsZ, ga.adsBlend);
+                        trx = THREE.MathUtils.lerp(0.04 + idleBob * 2, 0, ga.adsBlend);
+                        try_ = THREE.MathUtils.lerp(-0.06, 0, ga.adsBlend);
+                        trz = THREE.MathUtils.lerp(0.02 + idleSway, 0, ga.adsBlend);
+                    }
+
+                    // Recoil kick overlay
+                    const recoilKick = fpsGunRecoil;
+                    tpz += recoilKick * 0.08;
+                    trx -= recoilKick * 0.5;
+                    tpy += recoilKick * 0.04;
+
+                    fpsWeaponGroup.position.lerp(new THREE.Vector3(tpx, tpy, tpz), dt * 16);
+                    fpsWeaponGroup.rotation.x = THREE.MathUtils.lerp(fpsWeaponGroup.rotation.x, trx, dt * 16);
+                    fpsWeaponGroup.rotation.y = THREE.MathUtils.lerp(fpsWeaponGroup.rotation.y, try_, dt * 16);
+                    fpsWeaponGroup.rotation.z = THREE.MathUtils.lerp(fpsWeaponGroup.rotation.z, trz, dt * 16);
+                }
+
+                fpsGunRecoil *= 0.84;
+                // ADS narrows FOV
+                targetFov = ga.isADS ? 42 : 50;
             }
         }
 
@@ -5789,11 +6624,49 @@
             updateDynamicObjects(t, dt);
             if (typeof updateVxPreview === 'function') updateVxPreview();
             updateShopProximity();
-            updateAnimStudioProximity();
             updateSpeechBubbles(dt);
             updateNpcs(dt);
             updateAdaptiveResolution(dt);
             renderMinimap();
+
+            // ── Parkour arena moving platforms ──
+            if (window.pkMoving) {
+                window.pkMoving.forEach(mp => {
+                    const off = Math.sin(t * mp.speed + mp.phase) * mp.range;
+                    if (mp.axis === 'x') mp.mesh.position.x = mp.base.x + off;
+                    else mp.mesh.position.z = mp.base.z + off;
+                });
+            }
+
+            // ── Parkour teleporter logic ──
+            if (localAvatar && gameActive && !isDead && window.parkourTeleporter) {
+                const tp = window.parkourTeleporter;
+                const px = localAvatar.group.position.x, pz = localAvatar.group.position.z, py = localAvatar.group.position.y;
+                // Ground → arena
+                const distGround = Math.sqrt((px - tp.gx) ** 2 + (pz - tp.gz) ** 2);
+                if (distGround < 3.5 && Math.abs(py) < 2 && !window._pkTpCooldown) {
+                    window._pkTpCooldown = true;
+                    setTimeout(() => { window._pkTpCooldown = false; }, 2000);
+                    localAvatar.group.position.set(tp.ax + 2, tp.ay + 2, tp.az + 2);
+                    vel.set(0, 0, 0);
+                    addSystemChat('🚀 Teleported to Parkour Arena!');
+                }
+                // Arena return pad
+                const distReturn = Math.sqrt((px - tp.ax + 3) ** 2 + (pz - tp.az + 3) ** 2);
+                if (distReturn < 2.5 && Math.abs(py - tp.ay) < 3 && !window._pkTpCooldown) {
+                    window._pkTpCooldown = true;
+                    setTimeout(() => { window._pkTpCooldown = false; }, 2000);
+                    localAvatar.group.position.set(tp.gx + 6, 2, tp.gz);
+                    vel.set(0, 0, 0);
+                    addSystemChat('🌍 Returned to ground!');
+                }
+                // Fall-off safety net (fell off arena)
+                if (py < tp.ay - 20 && py > 20) {
+                    localAvatar.group.position.set(tp.ax + 2, tp.ay + 2, tp.az + 2);
+                    vel.set(0, 0, 0);
+                    addSystemChat('💀 Fell off! Respawned at start.');
+                }
+            }
 
             // Smoke bomb cooldown
             if (smokeBombCooldown > 0) smokeBombCooldown -= dt;
