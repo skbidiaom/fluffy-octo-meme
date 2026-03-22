@@ -1298,11 +1298,29 @@
                 <button id="cust-apply-btn" class="menu-btn" style="margin-top:18px;background:linear-gradient(135deg,#22aa44,#117722);">Apply & Save</button>
             </div>
 
-            <!-- RIGHT: 3D preview -->
+            <!-- RIGHT: 3D preview + controls -->
             <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
                 <div style="font-family:'Orbitron',sans-serif;color:#aaa;font-size:11px;letter-spacing:2px;">PREVIEW</div>
                 <canvas id="cust-preview-canvas" width="160" height="260" style="border-radius:12px;border:2px solid #333;background:#111;display:block;"></canvas>
                 <div style="font-size:11px;color:#555;font-family:'Orbitron',sans-serif;">← DRAG TO ROTATE →</div>
+                <div style="background:rgba(0,0,0,0.5);border:1px solid #222;border-radius:8px;padding:10px 14px;font-size:11px;color:rgba(255,255,255,0.65);line-height:1.85;text-align:right;white-space:nowrap;width:100%;">
+                    <div style="color:#ffd700;font-size:10px;letter-spacing:2px;margin-bottom:6px;">⌨ CONTROLS</div>
+                    WASD — Move<br>
+                    CTRL — Sprint<br>
+                    SHIFT — Shift Lock<br>
+                    LMB — Fire / Use<br>
+                    RMB — Orbit<br>
+                    SCROLL — Zoom<br>
+                    1/2/3/4 — Equip<br>
+                    E — Interact<br>
+                    O — FPS Mode<br>
+                    Q — Smoke Bomb<br>
+                    R — Reload<br>
+                    M — Minimap<br>
+                    F — Flashlight<br>
+                    ENTER — Chat<br>
+                    ESC — This menu
+                </div>
             </div>
 
         </div>
@@ -2301,6 +2319,24 @@
             console.log('%c🔵 [OWNER] unlocked! Admin panel enabled. Persists across sessions.', 'color:#5599ff;font-size:14px;font-weight:bold;');
         }
 
+        window.disableOwner = function() {
+            window._ownerActive = false;
+            adminDevEnabled = false;
+            localStorage.removeItem(_OWNER_KEY);
+            const mb = document.getElementById('btn-admin'); if (mb) mb.style.display = 'none';
+            const aeBtn = document.getElementById('anim-editor-btn'); if (aeBtn) aeBtn.style.display = 'none';
+            const peBtn = document.getElementById('part-editor-btn'); if (peBtn) peBtn.style.display = 'none';
+            syncHotbarVisibilityForOwnedItems();
+            console.log('%c🔴 Owner mode disabled.', 'color:#ff4444;font-weight:bold;');
+        };
+        window.enableOwner = function() {
+            if (localStorage.getItem(_OWNER_KEY) === _OWNER_HASH) {
+                _activateOwner();
+            } else {
+                console.log('%c✗ Not authorized. Use unlockOwner() first.', 'color:#ff4444;');
+            }
+        };
+
         window.unlockOwner = function(code) {
             if (_djb2(code) !== _OWNER_HASH) {
                 console.log('%c✗ Wrong code.', 'color:#ff4444;font-weight:bold;font-size:13px;');
@@ -2514,7 +2550,7 @@
         ───────────────────────────────────────────── */
         let peer = null, isHost = false, myPeerId = "", hostConn = null, clientConns = [], maxPlayers = 4;
         const remotePlayers = {};
-        let networkTickRate = 50;
+        let networkTickRate = 33; // ~30hz for lower latency
         let devFx = { bubble: false, trail: false, hat: false };
         let stamina = 100;
         let isNight = false;
@@ -2602,6 +2638,7 @@
                     const av = buildAvatar(data.name || "Guest", data.shirt, data.pant, data.skin);
                     scene.add(av.group);
                     if (data.equip) setAvatarEquip(av, data.equip);
+                    if (data.customShirt) applyShirtTextureToAvatar(av, data.customShirt);
                     remotePlayers[data.id] = {
                         avatar: av,
                         targetPos: new THREE.Vector3().fromArray(data.pos),
@@ -2627,6 +2664,13 @@
                         p.saturnRingCount = data.saturnRingCount || 0;
                     }
                     if (p.avatar.equipped !== data.equip) setAvatarEquip(p.avatar, data.equip);
+                    // Apply custom shirt texture
+                    if (data.customShirt && data.customShirt !== p.customShirt) {
+                        p.customShirt = data.customShirt;
+                        applyShirtTextureToAvatar(p.avatar, data.customShirt);
+                    } else if (!data.customShirt && p.customShirt) {
+                        p.customShirt = null;
+                    }
                     // Rebuild avatar if colors changed
                     if (data.skin !== p.skin || data.shirt !== p.shirt || data.pant !== p.pant) {
                         p.skin = data.skin; p.shirt = data.shirt; p.pant = data.pant;
@@ -2689,9 +2733,16 @@
             else if (data.type === 'leave') {
                 removePlayer(data.id);
             }
+            else if (data.type === 'shirt_sync') {
+                if (remotePlayers[data.id]) {
+                    applyShirtTextureToAvatar(remotePlayers[data.id].avatar, data.dataUrl);
+                    remotePlayers[data.id].customShirt = data.dataUrl;
+                }
+                if (isHost) clientConns.forEach(c => { if (c.peer !== data.id && c.open) c.send(data); });
+            }
             else if (data.type === 'dev_broadcast') {
-                if (window._handleDevBroadcast) window._handleDevBroadcast(data.text);
-                if (isHost) broadcast(data);
+                if (data.from !== myPeerId && window._handleDevBroadcast) window._handleDevBroadcast(data.text);
+                if (isHost) clientConns.forEach(c => { if (c.peer !== senderId && c.open) c.send(data); });
             }
             else if (data.type === 'admin_cmd') {
                 if (data.target === 'all' || data.target === myPeerId) processAdminCmd(data);
@@ -2761,6 +2812,13 @@
                 pant: playerPantColor
             });
         }, networkTickRate);
+
+        // Send shirt texture less frequently (every ~2s) to reduce packet size
+        let _shirtSyncTimer = 0;
+        setInterval(() => {
+            if (!gameActive || !localAvatar || !playerCustomShirtTexture) return;
+            broadcast({ type: 'shirt_sync', id: myPeerId, dataUrl: playerCustomShirtTexture });
+        }, 2000);
 
         /* ─────────────────────────────────────────────
         CHAT + SPEECH BUBBLES
@@ -4834,7 +4892,7 @@
             const full = `${username}: ${msg}`;
             showFloatingNotif(`<span style="font-family:'Orbitron',sans-serif;color:#ffd700;">[DEV BROADCAST]</span><br>${full}`, 5000);
             addSystemChat(`📢 ${full}`);
-            broadcast({ type: 'dev_broadcast', text: full });
+            broadcast({ type: 'dev_broadcast', text: full, from: myPeerId });
         }
         // Handle incoming broadcast
         // (add to handleNetworkData — patched below)
@@ -5343,12 +5401,8 @@
                 if (z.dead) {
                     z.deadTimer = (z.deadTimer || 0) + dt;
                     z.group.position.y -= dt * 3;
-                    z.group.traverse(c => {
-                        if (c.isMesh && c.material) {
-                            const mats = Array.isArray(c.material) ? c.material : [c.material];
-                            mats.forEach(m => { m.transparent = true; m.opacity = Math.max(0, 1 - z.deadTimer * 2); });
-                        }
-                    });
+                    const opacity = Math.max(0, 1 - z.deadTimer * 2);
+                    if (z._deadMats) z._deadMats.forEach(m => { m.opacity = opacity; });
                     if (z.deadTimer > 0.6) { scene.remove(z.group); zombies.splice(i, 1); }
                     continue;
                 }
@@ -5397,8 +5451,7 @@
             z.hbCtx.fillRect(0, 0, Math.round(64 * pct), 8);
             z.hbSprite.material.map.needsUpdate = true;
 
-            // Hit flash
-            spawnExplosionFx(z.group.position.clone().add(new THREE.Vector3(0, 3, 0)), 0.12);
+            // No per-hit explosion fx (too expensive per bullet)
 
             if (z.hp <= 0) killZombie(z);
         }
@@ -5406,10 +5459,15 @@
         function killZombie(z) {
             z.dead = true;
             z.deadTimer = 0;
+            // Cache all unique materials once so updateZombies doesn't traverse every frame
+            z._deadMats = [];
+            const seen = new Set();
             z.group.traverse(c => {
-                if (c.isMesh && c.material) {
+                if (c.isMesh) {
                     const mats = Array.isArray(c.material) ? c.material : [c.material];
-                    mats.forEach(m => { const mc = m.clone(); mc.transparent = true; c.material = mc; });
+                    mats.forEach(m => {
+                        if (!seen.has(m)) { seen.add(m); m.transparent = true; z._deadMats.push(m); }
+                    });
                 }
             });
             const reward = Math.round(ZOMBIE_BASE_COINS * multipliers.coin);
@@ -5724,16 +5782,19 @@
 
         function applyCustomShirtTexture(dataUrl) {
             if (!localAvatar) return;
+            applyShirtTextureToAvatar(localAvatar, dataUrl);
+        }
+
+        function applyShirtTextureToAvatar(av, dataUrl) {
+            if (!av || !av.torso) return;
             const img = new Image();
             img.onload = () => {
                 const tex = new THREE.CanvasTexture(img);
                 tex.minFilter = THREE.LinearFilter;
                 const newMat = new THREE.MeshStandardMaterial({ map: tex });
-                // slot 4 of shirtMatArr is the front face
-                const mats = localAvatar.torso.material;
+                const mats = av.torso.material;
                 if (Array.isArray(mats)) {
-                    const cloned = mats.map((m, i) => i === 4 ? newMat : m);
-                    localAvatar.torso.material = cloned;
+                    av.torso.material = mats.map((m, i) => i === 4 ? newMat : m);
                 }
             };
             img.src = dataUrl;
@@ -6887,8 +6948,7 @@
                 showLoading(false);
                 document.getElementById('main-menu').style.display = 'none';
                 if (!isMobile) {
-                    const cp = document.getElementById('controls-panel');
-                    if (cp) cp.style.display = 'block';
+// controls panel removed — now in ESC menu
                 }
                 document.getElementById('chat-container').style.display = 'flex';
                 document.getElementById('hotbar').style.display = 'flex';
@@ -7229,7 +7289,8 @@
             if (flyMode) {
                 vel.set(0, 0, 0);
                 playerState = STATE.IDLE;
-                addSystemChat('✈ Fly mode ON — WASD to move, SPACE = up, ALT = down');
+                addSystemChat('✈ Fly mode ON — WASD/mouse to move, SPACE = up, ALT = down');
+                if (!isMobile) document.body.requestPointerLock();
                 if (mi) { mi.style.display = 'block'; mi.className = ''; mi.style.background = 'rgba(0,180,255,0.35)'; mi.style.color = '#00ccff'; mi.textContent = '✈ FLY MODE'; }
                 document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('active'));
                 const s4fly = document.getElementById('slot-4'); if (s4fly) s4fly.classList.add('active');
@@ -7238,6 +7299,7 @@
                 if (mi && mi.textContent === '✈ FLY MODE') { mi.style.display = 'none'; mi.style.background = ''; mi.style.color = ''; }
                 document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('active'));
                 vel.set(0, 0, 0);
+                if (!shiftLock && !actionMode && !isMobile) document.exitPointerLock();
             }
         }
 
@@ -8281,7 +8343,7 @@
         });
 
         document.addEventListener('mousemove', (e) => {
-            if ((rightClickDown || shiftLock || actionMode) && gameActive && !isPaused && !chatFocused && !shopOpen && !isMobile) {
+            if ((flyMode || rightClickDown || shiftLock || actionMode) && gameActive && !isPaused && !chatFocused && !shopOpen && !isMobile) {
                 const sens = fpsMode ? 0.003 : 0.005;
                 camYaw -= e.movementX * sens;
                 camPitch -= e.movementY * sens;
@@ -8562,6 +8624,7 @@
             }
 
             if (isDead) { updateDeathPhysics(localAvatar, dt); return; }
+            if (flyMode) return; // fly physics handled by updateFlyPhysics
             if (shopOpen || adminOpen) { vel.set(0, 0, 0); return; }
 
             if (playerState === STATE.SIT) {
@@ -9453,32 +9516,8 @@
     </script>
 
     <!-- Controls panel — must be last child of body for fixed positioning to work correctly -->
-    <div id="controls-panel" style="position:fixed !important;top:12px !important;right:12px !important;z-index:99999;display:none;">
-        <button id="controls-toggle"
-            onclick="var c=document.getElementById('controls-content');var open=c.style.display!=='none';c.style.display=open?'none':'block';this.textContent=open?'⌨ Controls ▾':'⌨ Controls ▴';"
-            style="background:rgba(0,0,0,0.75);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:5px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;white-space:nowrap;display:block;">
-            ⌨ Controls ▾
-        </button>
-        <div id="controls-content" style="display:none;background:rgba(0,0,0,0.85);border:1px solid rgba(255,255,255,0.12);border-top:none;border-radius:0 0 10px 10px;padding:10px 14px;color:rgba(255,255,255,0.82);font-size:12px;line-height:1.85;text-align:right;white-space:nowrap;pointer-events:none;">
-            WASD — Move<br>
-            CTRL — Sprint<br>
-            LMB — Fire / Use<br>
-            RMB — Orbit<br>
-            SCROLL — Zoom<br>
-            1/2/3/4 — Equip<br>
-            E — Interact<br>
-            O — FPS Mode<br>
-            SHIFT — Shift Lock<br>
-            Q — Smoke Bomb<br>
-            R — Reload<br>
-            G — Summon NPCs<br>
-            M — Minimap<br>
-            F — Flashlight<br>
-            ENTER — Chat<br>
-            ESC — Menu
-        </div>
-    </div>
     <div id="instructions" style="display:none;"></div>
+
 </body>
 
 </html>
