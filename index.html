@@ -637,20 +637,24 @@
         }
 
         #instructions {
-            position: absolute;
-            top: 120px;
-            left: 12px;
-            color: rgba(255, 255, 255, 0.85);
+            position: fixed;
+            top: 56px;
+            right: 14px;
+            transform: none;
+            left: auto;
+            color: rgba(255, 255, 255, 0.75);
             font-size: 12px;
             text-shadow: 0 0 4px black;
             pointer-events: none;
             z-index: 10;
             display: none;
-            line-height: 1.6;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            line-height: 1.8;
+            background: rgba(0, 0, 0, 0.55);
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: right;
+            backdrop-filter: blur(4px);
         }
 
         #hud-bottom-left {
@@ -1234,9 +1238,6 @@
                 <button id="resume-btn" class="menu-btn">Resume</button>
                 <button id="reset-btn" class="menu-btn" style="background:linear-gradient(135deg,#cc3333,#881111);margin-top:10px;">Reset Character</button>
                 <button id="music-btn" class="menu-btn" style="background:linear-gradient(135deg,#aa33aa,#771177);margin-top:10px;">Music: ON</button>
-                <button id="inventory-btn" class="menu-btn" style="background:linear-gradient(135deg,#885500,#553300);margin-top:10px;">🎒 Inventory</button>
-                <button id="premium-shop-btn" class="menu-btn" style="background:linear-gradient(135deg,#226611,#113300);margin-top:10px;">💳 Premium Shop</button>
-                <button id="profile-btn" class="menu-btn" style="background:linear-gradient(135deg,#224488,#112266);margin-top:10px;">📋 Profile</button>
                 <button id="anim-editor-btn" class="menu-btn" style="background:linear-gradient(135deg,#1166cc,#0044aa);margin-top:10px;display:none;">🎬 Animation Editor</button>
                 <button id="part-editor-btn" class="menu-btn" style="background:linear-gradient(135deg,#aa6611,#774400);margin-top:10px;display:none;">🧱 Part Editor</button>
                 <!-- Username change -->
@@ -1763,6 +1764,16 @@
         <div id="coin-display">💰 100</div>
     </div>
 
+    <!-- STACKING NOTIFICATIONS (top center) -->
+    <div id="notif-stack" style="position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:320;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;width:clamp(280px,50vw,520px);"></div>
+
+    <!-- PERSISTENT HUD BUTTONS (right side, in-game) -->
+    <div id="hud-game-btns" style="display:none;position:fixed;right:14px;bottom:14px;z-index:30;flex-direction:column;gap:8px;align-items:flex-end;">
+        <button id="inventory-btn" style="background:rgba(80,50,0,0.88);border:1px solid #aa7700;color:#ffd700;padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;backdrop-filter:blur(6px);white-space:nowrap;text-shadow:0 1px 3px #000;box-shadow:0 2px 8px rgba(0,0,0,0.5);">🎒 Inventory</button>
+        <button id="premium-shop-btn" style="background:rgba(10,50,10,0.88);border:1px solid #33aa44;color:#88ff88;padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;backdrop-filter:blur(6px);white-space:nowrap;text-shadow:0 1px 3px #000;box-shadow:0 2px 8px rgba(0,0,0,0.5);">💳 Shop</button>
+        <button id="profile-btn" style="background:rgba(5,20,60,0.88);border:1px solid #3366cc;color:#88aaff;padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;backdrop-filter:blur(6px);white-space:nowrap;text-shadow:0 1px 3px #000;box-shadow:0 2px 8px rgba(0,0,0,0.5);">📋 Profile</button>
+    </div>
+
     <div id="minimap-container" style="display:none;">
         <canvas id="minimap-canvas" width="200" height="200"></canvas>
         <div id="minimap-toggle" title="Toggle Minimap (M)">🗺️</div>
@@ -1777,31 +1788,21 @@
     </div>
 
     <div id="hotbar">
-        <div class="hotbar-slot" id="slot-1"><span>1</span>
-            <div id="slot-name">Item</div>
+        <div class="hotbar-slot" id="slot-1" style="display:none;"><span>1</span>Pistol</div>
+        <div class="hotbar-slot" id="slot-2" style="display:none;"><span>2</span>Boom</div>
+        <div class="hotbar-slot" id="slot-3" style="display:none; border-color:#d900ff; box-shadow:0 0 10px #d900ff;">
+            <span>3</span>VXTOOL
         </div>
-        <div class="hotbar-slot" id="slot-2" style="display:none;"><span>2</span>Pistol</div>
-        <div class="hotbar-slot" id="slot-3" style="display:none;"><span>3</span>Boom</div>
-        <div class="hotbar-slot" id="slot-4" style="display:none; border-color:#d900ff; box-shadow:0 0 10px #d900ff;">
-            <span>4</span>VXTOOL
+        <div class="hotbar-slot" id="slot-4" style="display:none; border-color:#00ccff; box-shadow:0 0 10px #00ccff;">
+            <span>4</span>✈ FLY
         </div>
-    </div>
 
     <div id="mode-indicator" class="normal">Normal Mode</div>
     <div id="ammo-display"><span class="ammo-label">AMMO</span><span id="ammo-count">∞</span></div>
     <div id="vignette-overlay"></div>
 
     <div id="crosshair"></div>
-    <div id="instructions">
-        WASD — Move &nbsp;|&nbsp; RIGHT CLICK — Orbit<br>
-        SHIFT — Sprint &nbsp;|&nbsp; SCROLL — Zoom<br>
-        1/2/3/4 — Equip &nbsp;|&nbsp; O — FPS Toggle<br>
-        LEFT CLICK — Use / Fire &nbsp;|&nbsp; V — ShiftLock<br>
-        E — Sit / Shop &nbsp;|&nbsp; G — Summon NPCs<br>
-        Q — Smoke Bomb &nbsp;|&nbsp; CTRL — Super Stomp<br>
-        M — Minimap &nbsp;|&nbsp; F — Flashlight<br>
-        ENTER or - — Chat &nbsp;|&nbsp; ESC — Menu
-    </div>
+    <div id="instructions" style="display:none;"></div>
 
     <div id="mobile-controls">
         <div id="joystick-zone">
@@ -2269,7 +2270,53 @@
         const multipliers = { coin: 1, speed: 1, jump: 1 };
 
         // ── AUTH SYSTEM (localStorage, never in code) ──
-        const DEV_USERNAMES = ['dev'];
+        const DEV_USERNAMES = []; // unlocked via console only
+        let adminOpen = false, adminDevEnabled = false; // declared early so owner unlock can set it
+
+        // ── CONSOLE OWNER UNLOCK ──
+        // Type unlockOwner('YOUR_CODE') in the browser console to activate.
+        // Only a one-way djb2 hash is stored here — the secret itself is never in source.
+        function _djb2(str) {
+            let h = 5381;
+            for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
+            return (h >>> 0).toString(16);
+        }
+        const _OWNER_HASH = '136a23f6';
+        const _OWNER_KEY  = 'R6M_owner_unlocked';
+
+        function _activateOwner() {
+            window._ownerActive = true;
+            adminDevEnabled = true;
+            localStorage.setItem(_OWNER_KEY, _OWNER_HASH);
+            if (typeof username !== 'undefined' && username && !username.includes('[OWNER]'))
+                username = '🔵[OWNER] ' + username;
+            if (typeof syncHotbarVisibilityForOwnedItems === 'function') syncHotbarVisibilityForOwnedItems();
+            const mb = document.getElementById('btn-admin');
+            if (mb) mb.style.display = 'flex';
+            const aeBtn = document.getElementById('anim-editor-btn');
+            if (aeBtn) aeBtn.style.display = '';
+            const peBtn = document.getElementById('part-editor-btn');
+            if (peBtn) peBtn.style.display = '';
+            if (typeof addSystemChat === 'function') addSystemChat('🔵 Owner mode activated.');
+            console.log('%c🔵 [OWNER] unlocked! Admin panel enabled. Persists across sessions.', 'color:#5599ff;font-size:14px;font-weight:bold;');
+        }
+
+        window.unlockOwner = function(code) {
+            if (_djb2(code) !== _OWNER_HASH) {
+                console.log('%c✗ Wrong code.', 'color:#ff4444;font-weight:bold;font-size:13px;');
+                return;
+            }
+            _activateOwner();
+        };
+
+        // Auto-restore from localStorage on page load
+        (function _checkOwnerPersist() {
+            if (localStorage.getItem(_OWNER_KEY) === _OWNER_HASH) {
+                window._ownerActive = true;
+                adminDevEnabled = true;
+                // username may not exist yet — will be tagged in showGameLobby/host/join
+            }
+        })();
         function authHash(str) {
             // Simple djb2 hash — not cryptographic but keeps passwords out of plain text
             let h = 5381;
@@ -2290,7 +2337,7 @@
             return null;
         }
         function authLogin(user, pass) {
-            if (DEV_USERNAMES.includes(user.toLowerCase())) return null; // devs bypass
+            if (window._ownerActive) return null; // owner bypass
             const db = authGetDB();
             const rec = db[user.toLowerCase()];
             if (!rec) return 'Account not found';
@@ -2298,7 +2345,7 @@
             return null;
         }
         function authGetDisplayName(user) {
-            if (DEV_USERNAMES.includes(user.toLowerCase())) return user;
+            if (window._ownerActive) return user;
             const db = authGetDB();
             return db[user.toLowerCase()]?.display || user;
         }
@@ -2312,6 +2359,7 @@
             document.getElementById('auth-error').textContent = '';
         }
         window.switchAuthTab = switchAuthTab;
+        window.toggleCrownEquip = () => toggleCrownEquip();
 
         document.getElementById('auth-submit-btn').addEventListener('click', () => {
             const user = (document.getElementById('auth-username').value || '').trim();
@@ -2322,7 +2370,7 @@
             if (!user) { errEl.textContent = 'Enter a username'; return; }
 
             // Dev bypass (no password needed)
-            if (DEV_USERNAMES.includes(user.toLowerCase())) {
+            if (window._ownerActive) {
                 loggedInUser = user;
                 showGameLobby(user);
                 return;
@@ -2350,7 +2398,7 @@
 
         function showGameLobby(user) {
             let display = authGetDisplayName(user);
-            if (DEV_USERNAMES.includes(user.toLowerCase()) && !display.includes('[DEV]')) display = '[DEV] ' + display;
+            if (window._ownerActive && !display.includes('[OWNER]')) display = '🔵[OWNER] ' + display;
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-menu').style.display = 'flex';
             document.getElementById('logged-in-as').textContent = display;
@@ -2375,7 +2423,7 @@
         const grenades = [];
         const explosions = [];
 
-        let adminOpen = false, adminDevEnabled = false;
+        // adminOpen + adminDevEnabled declared at top
         let noGrenadeCooldown = false;
 
         let actionMode = false, fpsMode = false;
@@ -2423,7 +2471,7 @@
             { id: 'smokeBomb', name: 'SMOKE BOMB', icon: '🌫️', desc: 'Press Q to deploy a smoke screen. 15s cooldown.', price: 65, slot: -1 },
             { id: 'tacSprint', name: 'TAC SPRINT', icon: '🏃', desc: 'Sprint 40% faster (replaces +20% speed boost).', price: 80, slot: -1 },
             { id: 'glowTrail', name: 'GLOW TRAIL', icon: '✨', desc: 'Leave a glowing neon trail as you move.', price: 55, slot: -1 },
-            { id: 'superStomp', name: 'SUPER STOMP', icon: '💢', desc: 'Ground pound from the air! Press CTRL while falling.', price: 70, slot: -1 },
+            { id: 'superStomp', name: 'SUPER STOMP', icon: '💢', desc: 'Ground pound from the air! Press ALT while falling.', price: 70, slot: -1 },
         ];
 
         // John's Multiplier Shop items
@@ -2485,7 +2533,7 @@
             initAudio();
             const displayInput = document.getElementById('username-input').value.trim();
             username = displayInput || authGetDisplayName(loggedInUser || 'Guest');
-            if (DEV_USERNAMES.includes((loggedInUser||'').toLowerCase()) && !username.includes('[DEV]')) username = '[DEV] ' + username;
+            if (window._ownerActive && !username.includes('[OWNER]')) username = '🔵[OWNER] ' + username;
             if (loggedInUser) localStorage.setItem('R6M_session', loggedInUser);
             maxPlayers = parseInt(document.getElementById('max-players').value) || 4;
             isTrunchbull = (username.toLowerCase() === 'miss_trunchbull');
@@ -2516,7 +2564,7 @@
             initAudio();
             const displayInput = document.getElementById('username-input').value.trim();
             username = displayInput || authGetDisplayName(loggedInUser || 'Guest');
-            if (DEV_USERNAMES.includes((loggedInUser||'').toLowerCase()) && !username.includes('[DEV]')) username = '[DEV] ' + username;
+            if (window._ownerActive && !username.includes('[OWNER]')) username = '🔵[OWNER] ' + username;
             if (loggedInUser) localStorage.setItem('R6M_session', loggedInUser);
             let code = document.getElementById('join-code').value.toUpperCase();
             isTrunchbull = (username.toLowerCase() === 'miss_trunchbull');
@@ -2575,6 +2623,8 @@
                         p.state = data.state;
                         p.avatar.devFx = data.devFx || null;
                         if (p.avatar.flashlight) p.avatar.flashlight.intensity = data.flash ? 3 : 0;
+                        // Sync saturn ring count for remote display
+                        p.saturnRingCount = data.saturnRingCount || 0;
                     }
                     if (p.avatar.equipped !== data.equip) setAvatarEquip(p.avatar, data.equip);
                     // Rebuild avatar if colors changed
@@ -2704,6 +2754,7 @@
                 state: playerState,
                 equip: localAvatar.equipped,
                 devFx: window.devFx || null,
+                saturnRingCount: (window._saturnRings || []).length,
                 flash: localAvatar.flashlight ? (localAvatar.flashlight.intensity > 0) : false,
                 skin: playerSkinColor,
                 shirt: playerShirtColor,
@@ -4259,7 +4310,10 @@
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             scene.add(mesh);
-            dynamicObjects[data.id] = { mesh, data };
+            // Build axis-aligned bounding box for collision
+            mesh.updateMatrixWorld(true);
+            const aabb = new THREE.Box3().setFromObject(mesh);
+            dynamicObjects[data.id] = { mesh, data, aabb };
         }
 
         function updateDynamicObjects(t, dt) {
@@ -4318,12 +4372,15 @@
             hd.castShadow = PERF.enableShadows;
             hG.add(hd);
 
-            const hr = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.05, 16), new THREE.MeshStandardMaterial({ color: 0x111111 }));
-            hr.position.y = 0.5;
-            const hc = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.6, 16), new THREE.MeshStandardMaterial({ color: 0x111111 }));
-            hc.position.y = 0.8;
+            const hr = new THREE.Mesh(new THREE.CylinderGeometry(0.82, 0.82, 0.09, 20), new THREE.MeshStandardMaterial({ color: 0x111111 }));
+            hr.position.y = 0.55;
+            const hc = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.85, 20), new THREE.MeshStandardMaterial({ color: 0x111111 }));
+            hc.position.y = 1.0;
+            // Hat band
+            const hb = new THREE.Mesh(new THREE.CylinderGeometry(0.535, 0.535, 0.12, 20), new THREE.MeshStandardMaterial({ color: 0x8B0000 }));
+            hb.position.y = 0.68;
             const hatGroup = new THREE.Group();
-            hatGroup.add(hr); hatGroup.add(hc);
+            hatGroup.add(hr); hatGroup.add(hc); hatGroup.add(hb);
             hatGroup.visible = false;
             hG.add(hatGroup);
 
@@ -4369,13 +4426,13 @@
             const cx = cv.getContext('2d');
             cx.font = 'bold 48px Rajdhani,Arial';
             cx.textAlign = 'center';
-            if (playerName && playerName.includes('[DEV]')) {
-                cx.strokeStyle = '#330044';
+            if (playerName && playerName.includes('[OWNER]')) {
+                cx.strokeStyle = '#001a44';
                 cx.lineWidth = 8;
                 cx.strokeText(playerName, 256, 80);
                 cx.shadowBlur = 18;
-                cx.shadowColor = '#d900ff';
-                cx.fillStyle = '#ff88ff';
+                cx.shadowColor = '#2255ff';
+                cx.fillStyle = '#5599ff';
                 cx.fillText(playerName, 256, 80);
                 cx.shadowBlur = 0;
             } else {
@@ -4528,6 +4585,41 @@
         EASTER EGG — THE VOIDANCE
         ───────────────────────────────────────────── */
         let voidanceCrownGiven = false;
+        function buildCrown() {
+            const g = new THREE.Group();
+            const M = (geo, col) => new THREE.Mesh(geo, new THREE.MeshStandardMaterial({color:col,roughness:0.6,metalness:0.2}));
+            const C = 0xedfd0d;
+            const p0 = M(new THREE.TorusGeometry(0.6,0.045,8,24), C); p0.rotation.x=1.5708; g.add(p0);
+            const p1 = M(new THREE.ConeGeometry(0.105,0.315,12), C); p1.position.set(-0.6,0.16,0); g.add(p1);
+            const p2 = M(new THREE.ConeGeometry(0.158,0.155,12), C); p2.position.set(-0.6,0.07,0); g.add(p2);
+            [[-0.55,0.1,0.28],[-0.55,0.1,-0.28],[0.55,0.1,-0.28],[0,0.1,-0.6],[0,0.1,0.6],[0.55,0.1,0.28]].forEach(([x,y,z]) => {
+                const p = M(new THREE.ConeGeometry(0.072,0.145,12), C); p.position.set(x,y,z); g.add(p);
+            });
+            // Gold glow
+            const gl = new THREE.PointLight(0xffd700, 0.8, 4);
+            g.add(gl);
+            return g;
+        }
+
+        let crownEquipped = false;
+        let crownMesh = null;
+
+        function toggleCrownEquip() {
+            if (!playerItems.goldCrown) return;
+            crownEquipped = !crownEquipped;
+            if (crownEquipped) {
+                if (!crownMesh) crownMesh = buildCrown();
+                crownMesh.position.set(0, 0.55, 0);   // lower — sits on head
+                crownMesh.rotation.set(0, Math.PI / 4, 0);  // 45° so it faces forward
+                crownMesh.scale.setScalar(0.9);
+                if (localAvatar?.headGroup) localAvatar.headGroup.add(crownMesh);
+                addSystemChat('👑 Gold Plated Crown equipped!');
+            } else {
+                if (crownMesh && localAvatar?.headGroup) localAvatar.headGroup.remove(crownMesh);
+                addSystemChat('👑 Crown unequipped.');
+            }
+        }
+
         function buildEasterEgg() {
             const EX = 182, EZ = 182; // near corner
             const DEPTH = -20;  // deeper — 2x room needs more space
@@ -4679,31 +4771,60 @@
         }
 
         /* ─────────────────────────────────────────────
-        FLOATING NOTIFICATION
+        STACKING NOTIFICATION SYSTEM
         ───────────────────────────────────────────── */
         function showFloatingNotif(html, duration = 3500) {
+            const stack = document.getElementById('notif-stack');
+            if (!stack) {
+                // Fallback if stack not found
+                const el = document.createElement('div');
+                el.style.cssText = 'position:absolute;top:80px;left:50%;transform:translateX(-50%);z-index:350;font-family:"Comic Sans MS",cursive;font-size:17px;color:#fff;text-align:center;pointer-events:none;text-shadow:0 0 12px #ffd700,0 2px 4px #000;white-space:nowrap;';
+                el.innerHTML = html;
+                document.body.appendChild(el);
+                setTimeout(() => document.body.contains(el) && document.body.removeChild(el), duration);
+                return;
+            }
+
             const el = document.createElement('div');
             el.style.cssText = `
-                position:absolute;top:80px;left:50%;transform:translateX(-50%) translateY(-30px);
-                z-index:350;font-family:'Comic Sans MS','Comic Sans',cursive;font-size:18px;
-                color:#fff;text-align:center;pointer-events:none;
-                text-shadow:0 0 12px #ffd700,0 2px 4px #000;
-                opacity:0;transition:opacity 0.4s,transform 0.8s;
-                white-space:nowrap;
+                background:rgba(0,0,0,0.88);
+                border:1px solid rgba(255,255,255,0.15);
+                border-radius:10px;
+                padding:10px 18px;
+                font-family:'Comic Sans MS','Comic Sans',cursive;
+                font-size:15px;
+                color:#fff;
+                text-align:center;
+                pointer-events:none;
+                text-shadow:0 1px 4px #000;
+                box-shadow:0 2px 16px rgba(0,0,0,0.5);
+                opacity:0;
+                transform:translateY(-10px);
+                transition:opacity 0.3s,transform 0.3s;
+                max-width:480px;
+                word-break:break-word;
             `;
             el.innerHTML = html;
-            document.body.appendChild(el);
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    el.style.opacity = '1';
-                    el.style.transform = 'translateX(-50%) translateY(0px)';
-                });
-            });
+            stack.appendChild(el);
+
+            // Animate in
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }));
+
+            // Animate out and remove
             setTimeout(() => {
                 el.style.opacity = '0';
-                el.style.transform = 'translateX(-50%) translateY(20px)';
-                setTimeout(() => document.body.removeChild(el), 500);
+                el.style.transform = 'translateY(-8px)';
+                setTimeout(() => { if (stack.contains(el)) stack.removeChild(el); }, 350);
             }, duration);
+        }
+
+        // Show HUD buttons when game starts
+        function showGameHudButtons() {
+            const btns = document.getElementById('hud-game-btns');
+            if (btns) btns.style.display = 'flex';
         }
 
         /* ─────────────────────────────────────────────
@@ -4807,8 +4928,7 @@
         const RARITY_COLORS = { legendary:'#ffd700', epic:'#aa44ff', rare:'#4488ff', uncommon:'#44ff88', bundle:'#ff9944', common:'#aaaaaa' };
 
         function openInventory() {
-            isPaused = true;
-            document.getElementById('pause-menu').style.display = 'none';
+            shopOpen = true;
             const grid = document.getElementById('inventory-items-grid');
             const empty = document.getElementById('inventory-empty');
             grid.innerHTML = '';
@@ -4820,7 +4940,8 @@
                 div.style.cssText = `background:#0a0a15;border:2px solid ${rc}33;border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:border 0.15s;`;
                 div.innerHTML = `<div style="font-size:32px;margin-bottom:6px;">${item.icon}</div>
                     <div style="font-size:12px;color:#eee;font-weight:bold;">${item.name}</div>
-                    <div style="font-size:10px;color:${rc};margin-top:3px;text-transform:uppercase;">${item.rarity}</div>`;
+                    <div style="font-size:10px;color:${rc};margin-top:3px;text-transform:uppercase;">${item.rarity}</div>
+                    ${item.id === 'goldCrown' ? `<button class="menu-btn" onclick="toggleCrownEquip()" style="margin-top:6px;padding:4px 10px;font-size:11px;width:100%;background:linear-gradient(135deg,#886600,#553300);">${crownEquipped?'✓ Worn':'Equip 👑'}</button>` : ''}`;
                 div.title = item.desc;
                 div.addEventListener('mouseenter', () => div.style.border = `2px solid ${rc}`);
                 div.addEventListener('mouseleave', () => div.style.border = `2px solid ${rc}33`);
@@ -4830,7 +4951,7 @@
         }
         function closeInventory() {
             document.getElementById('inventory-ui').style.display = 'none';
-            document.getElementById('pause-menu').style.display = 'flex';
+            isPaused = false;
         }
         document.getElementById('inventory-btn').addEventListener('click', openInventory);
         document.getElementById('close-inventory-btn').addEventListener('click', closeInventory);
@@ -4845,8 +4966,7 @@
         let _pendingPurchase = null;
 
         function openPremiumShop() {
-            isPaused = true;
-            document.getElementById('pause-menu').style.display = 'none';
+            shopOpen = true;
             const grid = document.getElementById('premium-shop-grid');
             grid.innerHTML = '';
             PREMIUM_ITEMS.forEach(item => {
@@ -4884,7 +5004,7 @@
         }
         function closePremiumShop() {
             document.getElementById('premium-shop-ui').style.display = 'none';
-            document.getElementById('pause-menu').style.display = 'flex';
+            shopOpen = false;
         }
         document.getElementById('premium-shop-btn').addEventListener('click', openPremiumShop);
         document.getElementById('close-premium-shop-btn').addEventListener('click', closePremiumShop);
@@ -4948,8 +5068,6 @@
 
         /* ── PROFILE / INDEX UI ── */
         function openProfile() {
-            isPaused = true;
-            document.getElementById('pause-menu').style.display = 'none';
             document.getElementById('profile-username').textContent = username || 'Guest';
             document.getElementById('profile-coins').textContent = coins;
             const items = Object.values(playerItems);
@@ -5009,7 +5127,7 @@
         }
         function closeProfile() {
             document.getElementById('profile-ui').style.display = 'none';
-            document.getElementById('pause-menu').style.display = 'flex';
+            shopOpen = false;
         }
         document.getElementById('profile-btn').addEventListener('click', openProfile);
         document.getElementById('close-profile-btn').addEventListener('click', closeProfile);
@@ -5429,12 +5547,10 @@
                     playBuySound();
                     addSystemChat(`✅ Purchased ${item.name}!`);
                     if (item.slot === 2) {
-                        document.getElementById('slot-2').style.display = 'flex';
-                        if (isMobile) document.getElementById('btn-slot2').style.display = 'flex';
+                        document.getElementById('slot-1').style.display = 'flex';
                     }
                     if (item.slot === 3) {
-                        document.getElementById('slot-3').style.display = 'flex';
-                        if (isMobile) document.getElementById('btn-slot3').style.display = 'flex';
+                        document.getElementById('slot-2').style.display = 'flex';
                     }
                 });
             });
@@ -5743,12 +5859,14 @@
                     const k = 'p' + peGizmoAxis;
                     p[k] = Math.max(-8, Math.min(8, peGizmoDragStartVal + delta));
                     const el = document.getElementById('pe-' + k); if (el) el.value = p[k];
+                    const ne = document.getElementById('pe-' + k + '-num'); if (ne) ne.value = p[k].toFixed(3);
                     const vEl = document.getElementById('pe-' + k + '-val'); if (vEl) vEl.textContent = p[k].toFixed(2);
                     peUpdateMeshTransform(p);
                 } else {
                     const k = 'r' + peGizmoAxis;
                     p[k] = Math.max(-180, Math.min(180, peGizmoDragStartVal + delta));
                     const el = document.getElementById('pe-' + k); if (el) el.value = p[k];
+                    const ne = document.getElementById('pe-' + k + '-num'); if (ne) ne.value = parseFloat(p[k]).toFixed(1);
                     const vEl = document.getElementById('pe-' + k + '-val'); if (vEl) vEl.textContent = Math.round(p[k]) + '°';
                     peUpdateMeshTransform(p);
                 }
@@ -6768,13 +6886,16 @@
             try {
                 showLoading(false);
                 document.getElementById('main-menu').style.display = 'none';
-                if (!isMobile) document.getElementById('instructions').style.display = 'block';
+                if (!isMobile) {
+                    const cp = document.getElementById('controls-panel');
+                    if (cp) cp.style.display = 'block';
+                }
                 document.getElementById('chat-container').style.display = 'flex';
                 document.getElementById('hotbar').style.display = 'flex';
                 let hudRef = document.getElementById('hud-bottom-left');
                 if (hudRef) hudRef.style.display = 'flex';
                 document.getElementById('invite-display').innerText = "CODE: " + code;
-                document.getElementById('slot-name').innerText = isTrunchbull ? "Whip" : "Cake";
+                // slot-name removed (cake removed)
 
                 const mi = document.getElementById('mode-indicator');
                 mi.style.display = 'block';
@@ -6792,6 +6913,7 @@
                 gameActive = true;
                 updateCoinDisplay();
                 initAdminPanel();
+                showGameHudButtons();
 
                 if (isMobile) {
                     document.getElementById('mobile-controls').style.display = 'block';
@@ -6856,9 +6978,7 @@
         }
 
         function isDevUser() {
-            if (localStorage.getItem('R6_DEV_COMP') === 'true') return true;
-            if (DEV_USERNAMES.includes((loggedInUser || '').toLowerCase())) return true;
-            return (username || '').toLowerCase() === 'dev' || (username || '').includes('[DEV]');
+            return !!window._ownerActive;
         }
 
         function syncAdminGrantCheckboxes() {
@@ -6877,28 +6997,13 @@
         }
 
         function syncHotbarVisibilityForOwnedItems() {
-            // Gun (slot 2)
-            const slot2 = document.getElementById('slot-2');
-            const btn2 = document.getElementById('btn-slot2');
-            const showGun = !!inventory.gun;
-            if (slot2) slot2.style.display = showGun ? 'flex' : 'none';
-            if (btn2) btn2.style.display = showGun ? 'flex' : 'none';
-
-            // Grenade (slot 3)
-            const slot3 = document.getElementById('slot-3');
-            const btn3 = document.getElementById('btn-slot3');
-            const showGrenade = !!inventory.grenade;
-            if (slot3) slot3.style.display = showGrenade ? 'flex' : 'none';
-            if (btn3) btn3.style.display = showGrenade ? 'flex' : 'none';
-
-            // VX Tools (slot 4)
-            const slot4 = document.getElementById('slot-4');
-            const btn4 = document.getElementById('btn-slot4');
-            const showVx = !!isDevUser();
-            if (slot4) slot4.style.display = showVx ? 'flex' : 'none';
-            if (btn4) btn4.style.display = showVx ? 'flex' : 'none';
-
+            // Gun → slot 1, Grenade → slot 2, VXTool → slot 3, Fly → slot 4
+            const s1 = document.getElementById('slot-1'); if (s1) s1.style.display = inventory.gun ? 'flex' : 'none';
+            const s2 = document.getElementById('slot-2'); if (s2) s2.style.display = inventory.grenade ? 'flex' : 'none';
+            const s3 = document.getElementById('slot-3'); if (s3) s3.style.display = isDevUser() ? 'flex' : 'none';
+            const s4 = document.getElementById('slot-4'); if (s4) s4.style.display = isDevUser() ? 'flex' : 'none';
         }
+
 
         function openAdminPanel() {
             if (!adminDevEnabled) return;
@@ -7111,33 +7216,74 @@
         /* ─────────────────────────────────────────────
         INVENTORY / ACTIONS
         ───────────────────────────────────────────── */
+        /* ─────────────────────────────────────────────
+        FLY MODE (owner only)
+        ───────────────────────────────────────────── */
+        let flyMode = false;
+        const FLY_SPEED = 24;
+
+        function toggleFlyMode() {
+            if (!isDevUser()) return;
+            flyMode = !flyMode;
+            const mi = document.getElementById('mode-indicator');
+            if (flyMode) {
+                vel.set(0, 0, 0);
+                playerState = STATE.IDLE;
+                addSystemChat('✈ Fly mode ON — WASD to move, SPACE = up, ALT = down');
+                if (mi) { mi.style.display = 'block'; mi.className = ''; mi.style.background = 'rgba(0,180,255,0.35)'; mi.style.color = '#00ccff'; mi.textContent = '✈ FLY MODE'; }
+                document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('active'));
+                const s4fly = document.getElementById('slot-4'); if (s4fly) s4fly.classList.add('active');
+            } else {
+                addSystemChat('✈ Fly mode OFF');
+                if (mi && mi.textContent === '✈ FLY MODE') { mi.style.display = 'none'; mi.style.background = ''; mi.style.color = ''; }
+                document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('active'));
+                vel.set(0, 0, 0);
+            }
+        }
+
+        function updateFlyPhysics(dt) {
+            if (!flyMode || !localAvatar || !gameActive || isDead || isPaused || chatFocused || adminOpen) return;
+            const boost = keys.ctrl ? 2.5 : 1; // ctrl = speed boost in fly mode
+            const speed = FLY_SPEED * boost;
+            // Use camYaw so direction follows where you're looking
+            const sin = Math.sin(camYaw), cos = Math.cos(camYaw);
+            let fx = 0, fz = 0, fy = 0;
+            if (keys.w) { fx -= sin * speed; fz -= cos * speed; }
+            if (keys.s) { fx += sin * speed; fz += cos * speed; }
+            if (keys.a) { fx -= cos * speed; fz += sin * speed; }
+            if (keys.d) { fx += cos * speed; fz -= sin * speed; }
+            if (keys.space) fy = speed;
+            if (keys.alt) fy = -speed;
+            localAvatar.group.position.x += fx * dt;
+            localAvatar.group.position.y += fy * dt;
+            localAvatar.group.position.z += fz * dt;
+            vel.set(0, 0, 0); // cancel gravity every frame
+            playerState = STATE.IDLE;
+        }
+
         function equipItem(slot) {
             if (!localAvatar || isDead) return;
+            if (slot === 4 && isDevUser()) { toggleFlyMode(); return; }
             let target = null;
-            if (slot === 1) target = isTrunchbull ? 'whip' : 'cake';
-            else if (slot === 2 && inventory.gun) target = 'gun';
-            else if (slot === 3 && inventory.grenade) target = 'grenade';
-            else if (slot === 4 && isDevUser()) target = 'vxtool';
+            if (slot === 1 && inventory.gun) target = 'gun';
+            else if (slot === 2 && inventory.grenade) target = 'grenade';
+            else if (slot === 3 && isDevUser()) target = 'vxtool';
             if (!target) return;
 
             if (localAvatar.equipped === target) {
                 setAvatarEquip(localAvatar, null);
                 playUnequipSound();
                 document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('active'));
-                document.querySelectorAll('.mobile-btn').forEach(s => s.classList.remove('active-slot'));
                 const vu = document.getElementById('vx-ui'); if (vu) vu.style.display = 'none';
             } else {
                 setAvatarEquip(localAvatar, target);
                 playEquipSound();
                 document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('active'));
-                document.querySelectorAll('.mobile-btn[id^=btn-slot]').forEach(s => s.classList.remove('active-slot'));
-                const hs = document.getElementById('slot-' + slot);
-                if (hs) hs.classList.add('active');
-                const mb = document.getElementById('btn-slot' + slot);
-                if (mb) mb.classList.add('active-slot');
+                const hs = document.getElementById('slot-' + slot); if (hs) hs.classList.add('active');
                 const vu = document.getElementById('vx-ui'); if (vu) vu.style.display = target === 'vxtool' ? 'block' : 'none';
             }
         }
+
 
         function handleInteract() {
             // Voidance NPC dialogue
@@ -7247,7 +7393,32 @@
                     spawnGrenade(grenadeData);
                     broadcast({ type: 'action', id: myPeerId, action: 'grenade', grenade: grenadeData });
                 } else if (localAvatar.equipped === 'vxtool' && playerState !== STATE.SIT) {
-                    localAvatar.actionTimer = 0.5;
+                    // VXtool: clicking places the previewed object immediately
+                    localAvatar.actionTimer = 0.3;
+                    const w = parseFloat(document.getElementById('vx-w')?.value) || 2;
+                    const h = parseFloat(document.getElementById('vx-h')?.value) || 2;
+                    const d = parseFloat(document.getElementById('vx-d')?.value) || 2;
+                    const col = document.getElementById('vx-col')?.value || '#3399ff';
+                    const move = document.getElementById('vx-move')?.checked || false;
+                    const rx = parseFloat(document.getElementById('vx-rx')?.value) || 0;
+                    const ry = parseFloat(document.getElementById('vx-ry')?.value) || 0;
+                    const rz = parseFloat(document.getElementById('vx-rz')?.value) || 0;
+                    let fd = fpsMode
+                        ? new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize()
+                        : getPlayerForwardDir();
+                    const origin = localAvatar.group.position.clone()
+                        .add(new THREE.Vector3(0, 2, 0))
+                        .addScaledVector(fd, 4 + Math.max(w, d) / 2);
+                    const camYaw2 = Math.atan2(-localAvatar.group.rotation.y, 1);
+                    const packet = {
+                        id: Math.random().toString(36).substring(2, 10),
+                        w, h, d, col, move,
+                        pos: origin.toArray(),
+                        rot: [rx * Math.PI / 180, (fpsMode ? camera.rotation.y : localAvatar.group.rotation.y) + ry * Math.PI / 180, rz * Math.PI / 180]
+                    };
+                    spawnDynamicObject(packet);
+                    broadcast({ type: 'sync_obj', data: packet });
+                    playBuySound();
                 } else if (playerState !== STATE.SIT) {
                     localAvatar.actionTimer = 0.5;
                     broadcast({ type: 'action', id: myPeerId, action: localAvatar.equipped });
@@ -7260,9 +7431,9 @@
         window.addEventListener('keydown', (e) => {
             if (!gameActive || isPaused || chatFocused || isDead || adminOpen) return;
             if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
-            if (e.key === '1') { equipItem(1); return; }
-            if (e.key === '2' && inventory.gun) { equipItem(2); return; }
-            if (e.key === '3' && inventory.grenade) { equipItem(3); return; }
+            if (e.key === '1' && inventory.gun) { equipItem(1); return; }
+            if (e.key === '2' && inventory.grenade) { equipItem(2); return; }
+            if (e.key === '3' && isDevUser()) { equipItem(3); return; }
             if (e.key === '4' && isDevUser()) { equipItem(4); return; }
             if (e.key.toLowerCase() === 'o') { toggleFpsMode(); return; }
             if (e.key.toLowerCase() === 'e') { handleInteract(); return; }
@@ -7375,7 +7546,7 @@
             const isDev = DEV_USERNAMES.includes((loggedInUser||'').toLowerCase());
             if (!isDev && coins < 1200) { errEl.textContent = 'Need 1200 coins'; return; }
             if (!isDev) { coins -= 1200; updateCoinDisplay(); }
-            username = isDev ? '[DEV] ' + newName : newName;
+            username = isDev ? '🔵[OWNER] ' + newName : newName;
             // Persist display name to account
             if (loggedInUser) {
                 const db = authGetDB();
@@ -7712,9 +7883,8 @@
                 });
             }
             function updateValLabel(key, val) {
-                const el = document.getElementById('ae-' + key + '-val');
-                // val display removed — num input replaces the label
-                // keep function for gizmo delta compat (no-op is fine)
+                const ne = document.getElementById('ae-' + key + '-num');
+                if (ne) ne.value = parseFloat(val).toFixed(key.startsWith('r') ? 1 : 3);
             }
             ['rx','ry','rz','px','py','pz'].forEach(key => {
                 const el  = document.getElementById('ae-' + key);
@@ -8010,7 +8180,7 @@
         });
 
         let shiftLock = false, rightClickDown = false;
-        const keys = { w: false, a: false, s: false, d: false, space: false, shift: false, ctrl: false };
+        const keys = { w: false, a: false, s: false, d: false, space: false, shift: false, ctrl: false, alt: false };
         let camDist = 12, camYaw = 0, camPitch = 0, smoothCamDist = 12;
 
         window.addEventListener('keydown', (e) => {
@@ -8018,13 +8188,14 @@
             if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
             const k = e.key.toLowerCase();
             if (keys.hasOwnProperty(k)) keys[k] = true;
-            if (e.key === 'Shift') keys.shift = true;
+            // Shift key is now shift-lock toggle (handled below)
+            if (e.key === 'Alt') { keys.alt = true; e.preventDefault(); }
             if (e.key === 'Control') keys.ctrl = true;
             if (e.code === 'Space') {
                 keys.space = true;
                 e.preventDefault();
             }
-            if (e.key === 'v' && !actionMode) toggleShiftLock();
+            if (e.key === 'Shift' && !actionMode) toggleShiftLock();
             if (e.key.toLowerCase() === 'f' && localAvatar && localAvatar.flashlight) {
                 localAvatar.flashlight.intensity = localAvatar.flashlight.intensity > 0 ? 0 : 3;
                 playEquipSound();
@@ -8077,7 +8248,8 @@
         window.addEventListener('keyup', (e) => {
             const k = e.key.toLowerCase();
             if (keys.hasOwnProperty(k)) keys[k] = false;
-            if (e.key === 'Shift') keys.shift = false;
+            // Shift keyup (shift-lock toggle, no keys.shift needed)
+            if (e.key === 'Alt') keys.alt = false;
             if (e.key === 'Control') keys.ctrl = false;
             if (e.code === 'Space') keys.space = false;
         });
@@ -8270,7 +8442,7 @@
             btnE('btn-fps', () => toggleFpsMode());
             btnE('btn-summon', () => summonNpcs(false, null));
             btnE('btn-admin', () => { if (adminDevEnabled) toggleAdminPanel(); });
-            btnE('btn-slot4', () => { if (isDevUser()) equipItem(4); });
+            btnE('btn-slot4', () => { if (isDevUser()) equipItem(4); }); // slot 4 = fly
 
             // Minimap toggle for mobile
             if (document.getElementById('minimap-toggle')) {
@@ -8334,6 +8506,18 @@
                             const top = pt.position.y + 0.25;
                             if (checkY >= top - 1) maxH = Math.max(maxH, top);
                         }
+                    }
+                }
+
+                // Dynamic VX objects — stand on top of them
+                for (const id in dynamicObjects) {
+                    const obj = dynamicObjects[id];
+                    if (obj.data.move) continue; // skip rotating objects
+                    const aabb = obj.aabb;
+                    if (!aabb) continue;
+                    if (x >= aabb.min.x && x <= aabb.max.x && z >= aabb.min.z && z <= aabb.max.z) {
+                        const top = aabb.max.y;
+                        if (checkY >= top - 0.5) maxH = Math.max(maxH, top);
                     }
                 }
 
@@ -8410,7 +8594,7 @@
             }
             if (md.lengthSq() > 1) md.normalize();
 
-            let sprinting = keys.shift && (md.lengthSq() > 0.01) && stamina > 0;
+            let sprinting = keys.ctrl && (md.lengthSq() > 0.01) && stamina > 0;
             if (sprinting) stamina -= dt * 30;
             else stamina = Math.min(100, stamina + dt * 15);
             let sFill = document.getElementById('stamina-fill');
@@ -8476,7 +8660,7 @@
                         }
                     }
                     // Super stomp (Ctrl while falling)
-                    if (inventory.superStomp && superStompReady && keys.ctrl && playerState === STATE.FALL) {
+                    if (inventory.superStomp && superStompReady && keys.alt && playerState === STATE.FALL) {
                         vel.y = -60;
                         superStompReady = false;
                     }
@@ -9057,6 +9241,7 @@
             const dt = Math.min(clock.getDelta(), 0.1);
             const t = clock.elapsedTime;
 
+            updateFlyPhysics(dt);
             updatePhysics(dt);
             updateAnimations(t, dt);
             updateCamera(dt);
@@ -9079,6 +9264,20 @@
                     if (mp.axis === 'x') mp.mesh.position.x = mp.base.x + off;
                     else mp.mesh.position.z = mp.base.z + off;
                 });
+            }
+
+            // ── Easter Egg hole — auto drop when player walks over ──
+            if (localAvatar && gameActive && !isDead && window._easterEggEntry && !window._eggCooldown) {
+                const en = window._easterEggEntry;
+                const px2 = localAvatar.group.position.x, pz2 = localAvatar.group.position.z, py2 = localAvatar.group.position.y;
+                const overHole = Math.abs(px2 - en.x) < 3 && Math.abs(pz2 - en.z) < 3 && Math.abs(py2 - en.y) < 2.5;
+                if (overHole) {
+                    window._eggCooldown = true;
+                    setTimeout(() => { window._eggCooldown = false; }, 3000);
+                    localAvatar.group.position.y = en.dropY;
+                    vel.set(0, -2, 0);
+                    addSystemChat('🕳️ You fell into the hole...');
+                }
             }
 
             // ── Parkour teleporter logic ──
@@ -9111,13 +9310,53 @@
                 }
             }
 
-            // ── Saturn Rings orbit ──
+            // ── Saturn Rings orbit (local) ──
             if (window._saturnRings && localAvatar) {
                 const base = localAvatar.group.position.clone().add(new THREE.Vector3(0, 4.5, 0));
                 window._saturnRings.forEach(r => {
                     r.container.position.copy(base);
                     r.container.rotation.y += dt * r.speed;
                 });
+            }
+
+            // ── Remote player saturn rings ──
+            if (!window._remoteRings) window._remoteRings = {};
+            const ringColors = [0x00ffff, 0xff00ff, 0xffd700, 0x4444ff, 0xff8800, 0x00ff88];
+            for (const id in remotePlayers) {
+                const rp = remotePlayers[id];
+                const count = rp.saturnRingCount || 0;
+                if (!window._remoteRings[id]) window._remoteRings[id] = [];
+                const existing = window._remoteRings[id];
+                // Add missing rings
+                while (existing.length < count) {
+                    const idx = existing.length;
+                    const color = ringColors[idx % ringColors.length];
+                    const radius = 4.5 + idx * 0.8;
+                    const container = new THREE.Group();
+                    const ringMesh = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.18, 8, 48), new THREE.MeshBasicMaterial({ color }));
+                    const glowRing = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.32, 8, 64), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.18 }));
+                    container.add(ringMesh); container.add(glowRing);
+                    container.rotation.x = Math.PI / 3 + idx * 0.5;
+                    container.rotation.z = idx * 0.4;
+                    scene.add(container);
+                    existing.push({ container, speed: 0.8 + idx * 0.12 });
+                }
+                // Remove excess rings
+                while (existing.length > count) {
+                    scene.remove(existing.pop().container);
+                }
+                // Animate
+                existing.forEach(r => {
+                    r.container.position.copy(rp.avatar.group.position).add(new THREE.Vector3(0, 4.5, 0));
+                    r.container.rotation.y += dt * r.speed;
+                });
+            }
+            // Clean up rings for disconnected players
+            for (const id in window._remoteRings) {
+                if (!remotePlayers[id]) {
+                    window._remoteRings[id].forEach(r => scene.remove(r.container));
+                    delete window._remoteRings[id];
+                }
             }
 
             // Smoke bomb cooldown
@@ -9212,6 +9451,34 @@
 
         animate();
     </script>
+
+    <!-- Controls panel — must be last child of body for fixed positioning to work correctly -->
+    <div id="controls-panel" style="position:fixed !important;top:12px !important;right:12px !important;z-index:99999;display:none;">
+        <button id="controls-toggle"
+            onclick="var c=document.getElementById('controls-content');var open=c.style.display!=='none';c.style.display=open?'none':'block';this.textContent=open?'⌨ Controls ▾':'⌨ Controls ▴';"
+            style="background:rgba(0,0,0,0.75);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:5px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;white-space:nowrap;display:block;">
+            ⌨ Controls ▾
+        </button>
+        <div id="controls-content" style="display:none;background:rgba(0,0,0,0.85);border:1px solid rgba(255,255,255,0.12);border-top:none;border-radius:0 0 10px 10px;padding:10px 14px;color:rgba(255,255,255,0.82);font-size:12px;line-height:1.85;text-align:right;white-space:nowrap;pointer-events:none;">
+            WASD — Move<br>
+            CTRL — Sprint<br>
+            LMB — Fire / Use<br>
+            RMB — Orbit<br>
+            SCROLL — Zoom<br>
+            1/2/3/4 — Equip<br>
+            E — Interact<br>
+            O — FPS Mode<br>
+            SHIFT — Shift Lock<br>
+            Q — Smoke Bomb<br>
+            R — Reload<br>
+            G — Summon NPCs<br>
+            M — Minimap<br>
+            F — Flashlight<br>
+            ENTER — Chat<br>
+            ESC — Menu
+        </div>
+    </div>
+    <div id="instructions" style="display:none;"></div>
 </body>
 
 </html>
