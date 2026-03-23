@@ -856,50 +856,52 @@
         /* Mobile controls */
         #mobile-controls {
             display: none;
-            position: absolute;
+            position: fixed;
             inset: 0;
             pointer-events: none;
             z-index: 20;
+            touch-action: none;
         }
 
         #joystick-zone {
             position: absolute;
             bottom: 20px;
             left: 20px;
-            width: 140px;
-            height: 140px;
+            width: 160px;
+            height: 160px;
             pointer-events: auto;
             touch-action: none;
         }
 
         #joystick-base {
             position: absolute;
-            width: 130px;
-            height: 130px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.07);
+            border: 2px solid rgba(255,255,255,0.18);
             left: 5px;
             top: 5px;
         }
 
         #joystick-stick {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 58px;
+            height: 58px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.15));
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            left: 40px;
-            top: 40px;
+            background: radial-gradient(circle, rgba(255,255,255,0.55), rgba(255,255,255,0.18));
+            border: 2px solid rgba(255,255,255,0.45);
+            left: 46px;
+            top: 46px;
+            transition: none;
         }
 
         #look-zone {
             position: absolute;
             top: 0;
             right: 0;
-            width: 45%;
-            height: 70%;
+            width: 55%;
+            height: 100%;
             pointer-events: auto;
             touch-action: none;
         }
@@ -912,183 +914,144 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Orbitron', sans-serif;
             font-weight: 700;
             color: white;
-            text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
-            transition: transform 0.1s;
+            text-shadow: 0 0 4px rgba(0,0,0,0.8);
+            user-select: none;
+            -webkit-user-select: none;
         }
 
-        .mobile-btn:active,
-        .mobile-btn.pressed {
-            transform: scale(0.9);
+        .mobile-btn:active, .mobile-btn.pressed {
+            transform: scale(0.88);
+            filter: brightness(1.4);
         }
 
+        /* === RIGHT SIDE BUTTONS === */
         #btn-jump {
-            bottom: 30px;
-            right: 30px;
-            width: 70px;
-            height: 70px;
-            font-size: 24px;
-            background: rgba(50, 150, 255, 0.35);
-            border: 2px solid rgba(100, 180, 255, 0.5);
+            bottom: 28px; right: 28px;
+            width: 82px; height: 82px; font-size: 28px;
+            background: rgba(50,150,255,0.38);
+            border: 2px solid rgba(100,180,255,0.6);
         }
-
         #btn-fire {
-            bottom: 115px;
-            right: 25px;
-            width: 65px;
-            height: 65px;
-            font-size: 18px;
-            background: rgba(255, 60, 30, 0.35);
-            border: 2px solid rgba(255, 80, 50, 0.5);
+            bottom: 128px; right: 24px;
+            width: 70px; height: 70px; font-size: 22px;
+            background: rgba(255,60,30,0.38);
+            border: 2px solid rgba(255,80,50,0.6);
         }
-
         #btn-interact {
-            bottom: 115px;
-            right: 105px;
-            width: 55px;
-            height: 55px;
-            font-size: 16px;
-            background: rgba(255, 200, 0, 0.3);
-            border: 2px solid rgba(255, 220, 50, 0.5);
+            bottom: 120px; right: 112px;
+            width: 62px; height: 62px; font-size: 18px;
+            background: rgba(255,200,0,0.32);
+            border: 2px solid rgba(255,220,50,0.55);
         }
 
+        /* === ITEM SLOTS === */
         #btn-slot1 {
-            bottom: 195px;
-            right: 95px;
-            width: 48px;
-            height: 48px;
-            font-size: 12px;
-            background: rgba(100, 100, 100, 0.3);
-            border: 2px solid rgba(150, 150, 150, 0.4);
+            bottom: 220px; right: 110px;
+            width: 56px; height: 56px; font-size: 13px;
+            background: rgba(100,100,100,0.32);
+            border: 2px solid rgba(150,150,150,0.45);
+            display: none;
         }
-
-        #btn-slot1.active-slot {
-            background: rgba(255, 100, 30, 0.45);
-        }
-
         #btn-slot2 {
-            bottom: 195px;
-            right: 35px;
-            width: 48px;
-            height: 48px;
-            font-size: 12px;
-            background: rgba(100, 100, 100, 0.3);
-            border: 2px solid rgba(150, 150, 150, 0.4);
+            bottom: 220px; right: 40px;
+            width: 56px; height: 56px; font-size: 13px;
+            background: rgba(100,100,100,0.32);
+            border: 2px solid rgba(150,150,150,0.45);
             display: none;
         }
-
-        #btn-slot2.active-slot {
-            background: rgba(255, 100, 30, 0.45);
-        }
-
         #btn-slot3 {
-            bottom: 250px;
-            right: 65px;
-            width: 48px;
-            height: 48px;
-            font-size: 12px;
-            background: rgba(100, 100, 100, 0.3);
-            border: 2px solid rgba(150, 150, 150, 0.4);
+            bottom: 290px; right: 78px;
+            width: 52px; height: 52px; font-size: 13px;
+            background: rgba(100,100,100,0.32);
+            border: 2px solid rgba(150,150,150,0.45);
             display: none;
         }
-
-        #btn-slot3.active-slot {
-            background: rgba(255, 100, 30, 0.45);
+        #btn-slot4 {
+            bottom: 355px; right: 78px;
+            width: 52px; height: 52px; font-size: 13px;
+            background: rgba(0,200,255,0.28);
+            border: 2px solid rgba(0,200,255,0.45);
+            display: none;
         }
+        .mobile-btn.active-slot { background: rgba(255,100,30,0.5) !important; }
 
+        /* === TOP LEFT === */
         #btn-pause {
-            top: 12px;
-            left: 12px;
-            width: 44px;
-            height: 44px;
-            font-size: 18px;
-            background: rgba(100, 100, 100, 0.3);
-            border: 2px solid rgba(150, 150, 150, 0.3);
-            border-radius: 10px;
+            top: 14px; left: 14px;
+            width: 52px; height: 52px; font-size: 20px;
+            background: rgba(80,80,80,0.38);
+            border: 2px solid rgba(150,150,150,0.35);
+            border-radius: 12px;
         }
-
         #btn-chat {
-            top: 12px;
-            left: 66px;
-            width: 44px;
-            height: 44px;
-            font-size: 16px;
-            background: rgba(100, 100, 100, 0.3);
-            border: 2px solid rgba(150, 150, 150, 0.3);
-            border-radius: 10px;
+            top: 14px; left: 76px;
+            width: 52px; height: 52px; font-size: 18px;
+            background: rgba(80,80,80,0.38);
+            border: 2px solid rgba(150,150,150,0.35);
+            border-radius: 12px;
         }
-
         #btn-fps {
-            top: 12px;
-            left: 120px;
-            width: 44px;
-            height: 44px;
-            font-size: 10px;
-            background: rgba(100, 100, 100, 0.3);
-            border: 2px solid rgba(150, 150, 150, 0.3);
-            border-radius: 10px;
+            top: 14px; left: 138px;
+            width: 52px; height: 52px; font-size: 11px;
+            background: rgba(80,80,80,0.38);
+            border: 2px solid rgba(150,150,150,0.35);
+            border-radius: 12px;
+            display: none;
+        }
+        #btn-fps.active-fps { background: rgba(200,0,0,0.5); }
+
+        #btn-summon {
+            top: 76px; left: 14px;
+            width: 52px; height: 52px; font-size: 16px;
+            background: rgba(100,50,200,0.32);
+            border: 2px solid rgba(150,100,255,0.45);
+            border-radius: 12px;
+        }
+        #btn-admin {
+            top: 76px; left: 76px;
+            width: 52px; height: 52px; font-size: 16px;
+            background: rgba(255,215,0,0.18);
+            border: 2px solid rgba(255,215,0,0.38);
+            border-radius: 12px;
             display: none;
         }
 
-        #btn-fps.active-fps {
-            background: rgba(200, 0, 0, 0.5);
+        /* === ZOOM === */
+        #btn-zoom-in {
+            bottom: 90px; left: 195px;
+            width: 44px; height: 44px; font-size: 22px;
+            background: rgba(100,100,100,0.22);
+            border: 2px solid rgba(150,150,150,0.25);
+            border-radius: 10px;
+        }
+        #btn-zoom-out {
+            bottom: 36px; left: 195px;
+            width: 44px; height: 44px; font-size: 22px;
+            background: rgba(100,100,100,0.22);
+            border: 2px solid rgba(150,150,150,0.25);
+            border-radius: 10px;
+        }
+
+        /* === RESPONSIVE: bigger iPad === */
+        @media (min-width: 768px) {
+            #joystick-zone { width: 200px; height: 200px; }
+            #joystick-base { width: 190px; height: 190px; }
+            #joystick-stick { width: 70px; height: 70px; left: 60px; top: 60px; }
+            #btn-jump { width: 96px; height: 96px; font-size: 34px; bottom: 32px; right: 32px; }
+            #btn-fire { width: 80px; height: 80px; font-size: 26px; bottom: 146px; right: 28px; }
+            #btn-interact { width: 72px; height: 72px; font-size: 20px; bottom: 140px; right: 124px; }
+            #btn-slot1 { width: 64px; height: 64px; bottom: 250px; right: 122px; }
+            #btn-slot2 { width: 64px; height: 64px; bottom: 250px; right: 46px; }
+            #btn-slot3 { width: 60px; height: 60px; bottom: 330px; right: 86px; }
+            #btn-slot4 { width: 60px; height: 60px; bottom: 408px; right: 86px; }
+            #btn-zoom-in  { bottom: 100px; left: 225px; width: 50px; height: 50px; }
+            #btn-zoom-out { bottom: 40px;  left: 225px; width: 50px; height: 50px; }
         }
 
         .ae-num-input::-webkit-inner-spin-button { display:none; }
-        .ae-num-input { -moz-appearance:textfield; }
-        @keyframes dlgFadeIn {
-            from { opacity: 0; transform: translateY(18px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        #btn-summon {
-            top: 64px;
-            left: 12px;
-            width: 44px;
-            height: 44px;
-            font-size: 14px;
-            background: rgba(100, 50, 200, 0.3);
-            border: 2px solid rgba(150, 100, 255, 0.4);
-            border-radius: 10px;
-        }
-
-        #btn-admin {
-            top: 64px;
-            left: 62px;
-            width: 44px;
-            height: 44px;
-            font-size: 14px;
-            background: rgba(255, 215, 0, 0.18);
-            border: 2px solid rgba(255, 215, 0, 0.35);
-            border-radius: 10px;
-            display: none;
-        }
-
-        #btn-zoom-in {
-            bottom: 30px;
-            left: 180px;
-            width: 38px;
-            height: 38px;
-            font-size: 20px;
-            background: rgba(100, 100, 100, 0.25);
-            border: 2px solid rgba(150, 150, 150, 0.25);
-            border-radius: 8px;
-        }
-
-        #btn-zoom-out {
-            bottom: 80px;
-            left: 180px;
-            width: 38px;
-            height: 38px;
-            font-size: 20px;
-            background: rgba(100, 100, 100, 0.25);
-            border: 2px solid rgba(150, 150, 150, 0.25);
-            border-radius: 8px;
-        }
-
-        #rotate-hint {
+        .ae-num-input { -moz-appearance:textfield; }        #rotate-hint {
             display: none;
             position: absolute;
             inset: 0;
@@ -1820,6 +1783,14 @@
     <div id="vignette-overlay"></div>
 
     <div id="crosshair"></div>
+
+    <!-- EMOTE WHEEL -->
+    <div id="emote-wheel" style="display:none;position:fixed;inset:0;z-index:500;pointer-events:none;">
+        <div id="emote-wheel-inner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:320px;height:320px;pointer-events:all;">
+            <div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);border-radius:50%;backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,0.1);"></div>
+            <div id="emote-center-label" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(255,255,255,0.4);font-size:12px;text-align:center;pointer-events:none;">EMOTES<br><span style="font-size:10px;opacity:0.5;">hold Z</span></div>
+        </div>
+    </div>
     <div id="instructions" style="display:none;"></div>
 
     <div id="mobile-controls">
@@ -1850,23 +1821,41 @@
         <div id="btn-zoom-out" class="mobile-btn">−</div>
     </div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script>
+    // Shim RoundedBoxGeometry — use THREE.BoxGeometry as fallback if needed
+    // Will be properly set up once THREE loads
+    window._RBG_pending = true;
+    </script>
+
+    <script>
+        // RoundedBoxGeometry — defined here so THREE is guaranteed loaded
+        class RoundedBoxGeometry extends THREE.BufferGeometry {
+            constructor(w=1,h=1,d=1,segs=2,r=0.1) {
+                super();
+                r = Math.min(r, w/2, h/2, d/2);
+                const bg = new THREE.BoxGeometry(w,h,d,segs,segs,segs);
+                const pos = bg.attributes.position;
+                for (let i=0;i<pos.count;i++) {
+                    const x=pos.getX(i), y=pos.getY(i), z=pos.getZ(i);
+                    const ax=Math.abs(x),ay=Math.abs(y),az=Math.abs(z);
+                    const mx=w/2-r, my=h/2-r, mz=d/2-r;
+                    const cx=Math.max(-mx,Math.min(mx,x));
+                    const cy=Math.max(-my,Math.min(my,y));
+                    const cz=Math.max(-mz,Math.min(mz,z));
+                    const dx=x-cx, dy=y-cy, dz=z-cz;
+                    const len=Math.sqrt(dx*dx+dy*dy+dz*dz)||1;
+                    pos.setXYZ(i, cx+dx/len*r, cy+dy/len*r, cz+dz/len*r);
+                }
+                pos.needsUpdate=true;
+                this.copy(bg);
+                this.computeVertexNormals();
             }
         }
-        </script>
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-
-
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         MOBILE / PERFORMANCE CONFIG
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         const isMobile =
             /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
             ('ontouchstart' in window && window.innerWidth < 1200);
@@ -1904,9 +1893,9 @@
         window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 200));
         checkOrientation();
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         AUDIO SYSTEM
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         let audioCtx = null;
         let musicStarted = false;
         let musicEnabled = true;
@@ -2276,9 +2265,9 @@
             });
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         GAME STATE
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         const STATE = { IDLE: 0, RUN: 1, JUMP: 2, FALL: 3, SWIM: 4, CLIMB: 5, SIT: 6 };
 
         let gameActive = false, isPaused = false, isDead = false, username = "Guest", isTrunchbull = false, currentMap = "none", localAvatar = null;
@@ -2287,11 +2276,11 @@
         // Multiplier state (John's shop)
         const multipliers = { coin: 1, speed: 1, jump: 1 };
 
-        // ── AUTH SYSTEM (localStorage, never in code) ──
+        // -- AUTH SYSTEM (localStorage, never in code) --
         const DEV_USERNAMES = []; // unlocked via console only
         let adminOpen = false, adminDevEnabled = false; // declared early so owner unlock can set it
 
-        // ── CONSOLE OWNER UNLOCK ──
+        // -- CONSOLE OWNER UNLOCK --
         // Type unlockOwner('YOUR_CODE') in the browser console to activate.
         // Only a one-way djb2 hash is stored here — the secret itself is never in source.
         function _djb2(str) {
@@ -2545,9 +2534,9 @@
         let npcsAreSitting = false;
         const occupiedChairs = new Set();
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         MULTIPLAYER
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         let peer = null, isHost = false, myPeerId = "", hostConn = null, clientConns = [], maxPlayers = 4;
         const remotePlayers = {};
         let networkTickRate = 33; // ~30hz for lower latency
@@ -2740,6 +2729,13 @@
                 }
                 if (isHost) clientConns.forEach(c => { if (c.peer !== data.id && c.open) c.send(data); });
             }
+            else if (data.type === 'emote') {
+                if (remotePlayers[data.id]) {
+                    remotePlayers[data.id].emote = data.emote;
+                    remotePlayers[data.id].emoteTimer = 0;
+                }
+                if (isHost) clientConns.forEach(c => { if (c.peer !== senderId && c.open) c.send(data); });
+            }
             else if (data.type === 'dev_broadcast') {
                 if (data.from !== myPeerId && window._handleDevBroadcast) window._handleDevBroadcast(data.text);
                 if (isHost) clientConns.forEach(c => { if (c.peer !== senderId && c.open) c.send(data); });
@@ -2820,9 +2816,9 @@
             broadcast({ type: 'shirt_sync', id: myPeerId, dataUrl: playerCustomShirtTexture });
         }, 2000);
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         CHAT + SPEECH BUBBLES
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         const chatInput = document.getElementById('chat-input');
         const chatInputWrapper = document.getElementById('chat-input-wrapper');
         const chatMessages = document.getElementById('chat-messages');
@@ -3037,9 +3033,9 @@
             }
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         THREE.JS SETUP
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x87CEEB);
         scene.fog = PERF.enableFog ? new THREE.Fog(0x87CEEB, 80, 250) : null;
@@ -3071,7 +3067,7 @@
         // Request shadow map update every 3 frames on PC (saves ~2ms/frame)
         let _shadowUpdateCounter = 0;
 
-        // ── GEOMETRY & MATERIAL POOLS (avoid GC spikes from per-shot allocation) ──
+        // -- GEOMETRY & MATERIAL POOLS (avoid GC spikes from per-shot allocation) --
         const _pool = {
             sphereGeos: {},    // key: radius_segs → BufferGeometry
             cylGeos:    {},    // key: r_rl → BufferGeometry
@@ -3130,7 +3126,7 @@
             dl2.position.set(-3, 1, -2);
             fpsWeaponScene.add(dl2);
 
-            // ── Materials ──
+            // -- Materials --
             const matBody    = new THREE.MeshStandardMaterial({ color: 0x1c1c1c, metalness: 0.55, roughness: 0.35 });
             const matSlide   = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9,  roughness: 0.15 });
             const matBarrel  = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.95, roughness: 0.1  });
@@ -3140,7 +3136,7 @@
 
             fpsWeaponGroup = new THREE.Group();
 
-            // ── SLIDE (upper receiver) ──
+            // -- SLIDE (upper receiver) --
             const slide = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.058, 0.28), matSlide);
             slide.position.set(0, 0.006, -0.02);
             fpsWeaponGroup.add(slide);
@@ -3160,7 +3156,7 @@
             rSight.position.set(0, 0.042, 0.095);
             fpsWeaponGroup.add(rSight);
 
-            // ── FRAME (lower receiver) ──
+            // -- FRAME (lower receiver) --
             const frame = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.048, 0.22), matBody);
             frame.position.set(0, -0.026, -0.008);
             fpsWeaponGroup.add(frame);
@@ -3176,7 +3172,7 @@
             trigger.position.set(0, -0.044, 0.014);
             fpsWeaponGroup.add(trigger);
 
-            // ── BARREL ──
+            // -- BARREL --
             const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 0.18, 10), matBarrel);
             barrel.rotation.x = Math.PI / 2;
             barrel.position.set(0, 0.008, -0.225);
@@ -3188,7 +3184,7 @@
             muzzle.position.set(0, 0.008, -0.31);
             fpsWeaponGroup.add(muzzle);
 
-            // ── GRIP ──
+            // -- GRIP --
             const grip = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.115, 0.055), matGrip);
             grip.position.set(0, -0.09, 0.048);
             grip.rotation.x = 0.18;
@@ -3199,7 +3195,7 @@
             mag.position.set(0, -0.09, 0.035);
             fpsWeaponGroup.add(mag);
 
-            // ── HANDS ──
+            // -- HANDS --
             // Right hand (trigger hand)
             const rHand = new THREE.Group();
             const rPalm = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.072, 0.062), matHand);
@@ -3230,7 +3226,7 @@
             lHand.rotation.set(0.1, 0.12, -0.08);
             fpsWeaponGroup.add(lHand);
 
-            // ── Muzzle flash (hidden by default) ──
+            // -- Muzzle flash (hidden by default) --
             const muzzleFlash = new THREE.Mesh(
                 new THREE.SphereGeometry(0.028, 6, 6),
                 new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0 })
@@ -3244,7 +3240,7 @@
             fpsWeaponGroup.rotation.set(0.04, -0.06, 0.02);
             fpsWeaponScene.add(fpsWeaponGroup);
 
-            // ── Animation state machine ──
+            // -- Animation state machine --
             window.gunAnim = {
                 state: 'draw',     // draw | idle | run | fire | reload | ads | sprint
                 timer: 0,
@@ -3261,9 +3257,9 @@
             };
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         TEXTURES
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function mkTex(fn) {
             const c = document.createElement('canvas');
             c.width = c.height = 256;
@@ -3391,17 +3387,17 @@
         const NPC_PANT_COLORS = [0x3b5998, 0x222222, 0x4a4a4a, 0x2a4a2a, 0x4a2a2a, 0x2a2a4a, 0x555555, 0x333344, 0x443333];
         const NPC_NAMES = ['Alex', 'Jordan', 'Sam', 'Riley', 'Morgan', 'Casey', 'Taylor', 'Quinn', 'Avery', 'Blake', 'Drew', 'Finley', 'Harper', 'Jamie', 'Kai', 'Logan', 'Parker', 'Reese', 'Sage', 'Skyler', 'Toby', 'Val', 'Wren', 'Zara', 'Niko', 'Eli', 'Mia', 'Ari', 'Juno', 'Leo'];
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         MAP SYSTEM
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         const envGroup = new THREE.Group();
         scene.add(envGroup);
 
         const POOL_CX = 60, POOL_CZ = -40;
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         MINIMAP SYSTEM
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         let minimapVisible = false;
         let minimapZoom = 1;
         let minimapCanvas, minimapCtx;
@@ -3651,18 +3647,21 @@
                 gr.receiveShadow = true;
                 envGroup.add(gr);
 
-                // ── TREES (procedural) ──
+                // -- TREES (procedural) --
                 const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5a3a1a, roughness: 0.9 });
+                if (!window._treeColliders) window._treeColliders = [];
                 const buildTree = (tx, tz) => {
                     const scale = 0.8 + Math.random() * 0.7;
                     const trunkH = (3.5 + Math.random() * 2) * scale;
+                    const trunkR = 0.42 * scale;
                     const trunk = new THREE.Mesh(
-                        new THREE.CylinderGeometry(0.28 * scale, 0.42 * scale, trunkH, 7),
+                        new THREE.CylinderGeometry(0.28 * scale, trunkR, trunkH, 7),
                         trunkMat
                     );
                     trunk.position.set(tx, trunkH / 2, tz);
                     trunk.castShadow = PERF.enableShadows;
                     envGroup.add(trunk);
+                    window._treeColliders.push({ x: tx, z: tz, r: trunkR + 0.15 });
                     const hue = 0.25 + Math.random() * 0.08;
                     const leavesLayers = 2 + Math.floor(Math.random() * 2);
                     for (let li = 0; li < leavesLayers; li++) {
@@ -3694,7 +3693,7 @@
                     if (isClear(tx, tz)) buildTree(tx, tz);
                 }
 
-                // ── BENCHES ──
+                // -- BENCHES --
                 const benchPositions = [];
                 const benchMat = new THREE.MeshStandardMaterial({ color: 0x7a5230, roughness: 0.8 });
                 const legMat = new THREE.MeshStandardMaterial({ color: 0x444444, metalness: 0.5 });
@@ -3738,7 +3737,7 @@
                 buildShop(-18, 0, -10);
                 buildJohnShop(40, 0, -10);
 
-                // ── ZOMBIE SPAWNER PAD ──
+                // -- ZOMBIE SPAWNER PAD --
                 const zPadMat = new THREE.MeshStandardMaterial({ color: 0x880000, emissive: 0xff0000, emissiveIntensity: 0.6 });
                 const zPad = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 0.18, 32), zPadMat);
                 zPad.position.set(-60, 0.09, 30); envGroup.add(zPad);
@@ -3753,7 +3752,7 @@
                 zSprite.scale.set(7, 1.75, 1); zSprite.position.set(-60, 4.5, 30); envGroup.add(zSprite);
                 window.zombieSpawnerPos = new THREE.Vector3(-60, 0, 30);
 
-                // ── PARKOUR TELEPORTER ──
+                // -- PARKOUR TELEPORTER --
                 const PKX = 80, PKZ = 80, PKY_ARENA = 120;
                 window.parkourTeleporter = { gx: PKX, gz: PKZ, gy: 0, ax: 0, ay: PKY_ARENA, az: 0 };
 
@@ -3779,7 +3778,7 @@
                 const lblSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(lblCvs) }));
                 lblSprite.scale.set(7, 1.75, 1); lblSprite.position.set(PKX, 4.5, PKZ); envGroup.add(lblSprite);
 
-                // ── FLOATING PARKOUR ARENA ──
+                // -- FLOATING PARKOUR ARENA --
                 const pkMats = {
                     base: new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.4 }),
                     plat: new THREE.MeshStandardMaterial({ color: 0x00ff88, emissive: 0x003322 }),
@@ -3872,7 +3871,7 @@
                 bW(400, 40, 0, 20, -200, 0); bW(400, 40, 0, 20, 200, Math.PI);
                 bW(400, 40, -200, 20, 0, Math.PI / 2); bW(400, 40, 200, 20, 0, -Math.PI / 2);
 
-                // ── EASTER EGG: Underground room at corner ──
+                // -- EASTER EGG: Underground room at corner --
                 buildEasterEgg();
 
             }
@@ -4073,7 +4072,7 @@
                 buildShop(58, 0, 60);
             }
 
-            // ── PC OPTIMIZATION: freeze matrices on all static env objects ──
+            // -- PC OPTIMIZATION: freeze matrices on all static env objects --
             // This prevents Three.js from recalculating world matrices every frame
             if (!isMobile) {
                 envGroup.traverse(obj => {
@@ -4259,9 +4258,9 @@
                 actionTimer: 0, isTrunchbull: false, isJohnNpc: true };
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         AVATAR FACTORY
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         const armGeo = new RoundedBoxGeometry(1, 2, 1, 4, 0.1);
         const legGeoR = new RoundedBoxGeometry(1, 2, 1, 4, 0.1);
         const torsoGeo = new RoundedBoxGeometry(2, 2, 1, 4, 0.1);
@@ -4577,7 +4576,7 @@
             const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv) }));
             sp.scale.set(4, 1, 1); sp.position.set(0, 6.5, 0); group.add(sp);
 
-            // ── AK-47 model (nozzle pointing up, held vertically) ──
+            // -- AK-47 model (nozzle pointing up, held vertically) --
             function buildAK47() {
                 const g = new THREE.Group();
                 const mSteel  = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, metalness: 0.9, roughness: 0.2 });
@@ -4639,9 +4638,9 @@
             };
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         EASTER EGG — THE VOIDANCE
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         let voidanceCrownGiven = false;
         function buildCrown() {
             const g = new THREE.Group();
@@ -4776,9 +4775,9 @@
             window._easterEggEntry = { x: EX, z: EZ, y: 0, dropY: DEPTH + 1 };
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         DIALOGUE SYSTEM
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         let dialogueActive = false;
         function showDialogue(lines, onFinish) {
             if (dialogueActive) return;
@@ -4828,9 +4827,9 @@
             showNext();
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         STACKING NOTIFICATION SYSTEM
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function showFloatingNotif(html, duration = 3500) {
             const stack = document.getElementById('notif-stack');
             if (!stack) {
@@ -4885,9 +4884,9 @@
             if (btns) btns.style.display = 'flex';
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         BROADCAST MESSAGE SYSTEM (dev → all players)
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function sendBroadcastMessage(msg) {
             const full = `${username}: ${msg}`;
             showFloatingNotif(`<span style="font-family:'Orbitron',sans-serif;color:#ffd700;">[DEV BROADCAST]</span><br>${full}`, 5000);
@@ -4901,9 +4900,92 @@
             addSystemChat(`📢 ${text}`);
         };
 
-        /* ─────────────────────────────────────────────
-        PLAYER ITEM SYSTEM
-        ───────────────────────────────────────────── */
+        /* ---------------------------------------------
+        EMOTE SYSTEM
+        --------------------------------------------- */
+        const EMOTE_DEFS = [
+            { id: 'wave',  label: '👋 Wave',   duration: 2.5 },
+            { id: 'dance', label: '💃 Dance',  duration: 4.0 },
+            { id: 'point', label: '👆 Point',  duration: 1.8 },
+            { id: 'bow',   label: '🙇 Bow',    duration: 2.0 },
+            { id: 'flex',  label: '💪 Flex',   duration: 2.5 },
+            { id: 'laugh', label: '😂 Laugh',  duration: 2.0 },
+            { id: 'shrug', label: '🤷 Shrug',  duration: 1.8 },
+            { id: 'cheer', label: '🎉 Cheer',  duration: 3.0 },
+        ];
+        let emoteActive = null;
+        let emoteWheelOpen = false;
+
+        function buildEmoteWheel() {
+            const inner = document.getElementById('emote-wheel-inner');
+            inner.querySelectorAll('.emote-btn').forEach(b => b.remove());
+            const count = EMOTE_DEFS.length;
+            EMOTE_DEFS.forEach((e, i) => {
+                const angle = (i / count) * Math.PI * 2 - Math.PI / 2;
+                const r = 115;
+                const bx = Math.cos(angle) * r, by = Math.sin(angle) * r;
+                const btn = document.createElement('button');
+                btn.className = 'emote-btn';
+                btn.style.cssText = `position:absolute;left:calc(50% + ${bx}px - 36px);top:calc(50% + ${by}px - 36px);width:72px;height:72px;border-radius:50%;background:rgba(20,20,30,0.9);border:2px solid rgba(255,255,255,0.15);color:#fff;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:all 0.12s;padding:4px;`;
+                const parts = e.label.split(' ');
+                btn.innerHTML = `<span style="font-size:22px;">${parts[0]}</span><span style="font-size:10px;opacity:0.8;">${parts.slice(1).join(' ')}</span>`;
+                btn.addEventListener('mouseenter', () => { btn.style.background='rgba(60,60,160,0.95)'; btn.style.border='2px solid #8888ff'; btn.style.transform='scale(1.15)'; });
+                btn.addEventListener('mouseleave', () => { btn.style.background='rgba(20,20,30,0.9)'; btn.style.border='2px solid rgba(255,255,255,0.15)'; btn.style.transform=''; });
+                btn.addEventListener('click', () => { playEmote(e.id); closeEmoteWheel(); });
+                inner.appendChild(btn);
+            });
+        }
+
+        function openEmoteWheel() {
+            if (!gameActive || isDead || isPaused || chatFocused) return;
+            emoteWheelOpen = true;
+            buildEmoteWheel();
+            document.getElementById('emote-wheel').style.display = 'block';
+            try { document.exitPointerLock(); } catch(e) {}
+        }
+
+        function closeEmoteWheel() {
+            emoteWheelOpen = false;
+            document.getElementById('emote-wheel').style.display = 'none';
+            if (!isMobile && (shiftLock || actionMode || flyMode)) document.body.requestPointerLock();
+        }
+
+        function playEmote(id) {
+            const def = EMOTE_DEFS.find(e => e.id === id);
+            if (!def) return;
+            emoteActive = { id, timer: 0, duration: def.duration };
+            broadcast({ type: 'emote', id: myPeerId, emote: id });
+        }
+
+        function getEmoteAnimTarget(id, t, aT) {
+            switch(id) {
+                case 'wave':
+                    aT.rAX = -Math.PI/2; aT.rAZ = -0.4 + Math.sin(t*8)*0.55; aT.rAY = 0.3; break;
+                case 'dance':
+                    aT.torsoX = Math.sin(t*4)*0.18;
+                    aT.lAX = -0.8+Math.sin(t*4)*0.6; aT.rAX = -0.8-Math.sin(t*4)*0.6;
+                    aT.lAZ = 0.3+Math.sin(t*4)*0.2; aT.rAZ = -0.3-Math.sin(t*4)*0.2;
+                    aT.lLX = Math.sin(t*4)*0.5; aT.rLX = -Math.sin(t*4)*0.5;
+                    aT.hZ = Math.sin(t*4)*0.15; break;
+                case 'point':
+                    aT.rAX = -1.3; aT.rAY = -0.4; aT.rAZ = -0.2; break;
+                case 'bow':
+                    aT.torsoX = 0.7; aT.hX = -0.5; aT.lAX = 0.3; aT.rAX = 0.3; break;
+                case 'flex':
+                    aT.lAX = -Math.PI/2+0.2; aT.lAZ = 1.0;
+                    aT.rAX = -Math.PI/2+0.2; aT.rAZ = -1.0; aT.torsoX = -0.1; break;
+                case 'laugh':
+                    aT.torsoX = Math.abs(Math.sin(t*10))*0.25;
+                    aT.lAX = 0.5; aT.rAX = 0.5; aT.lAZ = 0.4; aT.rAZ = -0.4; break;
+                case 'shrug':
+                    aT.lAX = -0.4; aT.rAX = -0.4; aT.lAZ = 0.9; aT.rAZ = -0.9;
+                    aT.lAY = 0.3; aT.rAY = -0.3; aT.torsoX = Math.sin(t*3)*0.05; break;
+                case 'cheer':
+                    aT.lAX = -Math.PI/2-Math.abs(Math.sin(t*6))*0.6;
+                    aT.rAX = -Math.PI/2-Math.abs(Math.sin(t*6))*0.6;
+                    aT.lAZ = 0.5; aT.rAZ = -0.5; break;
+            }
+        }
         // playerItems: { id → { id, name, icon, desc, rarity, equippable, equipped } }
         const playerItems = {};
         const earnedBadges = [];
@@ -4982,7 +5064,7 @@
             grantBadge('firstCrown');
         };
 
-        /* ── INVENTORY UI ── */
+        /* -- INVENTORY UI -- */
         const RARITY_COLORS = { legendary:'#ffd700', epic:'#aa44ff', rare:'#4488ff', uncommon:'#44ff88', bundle:'#ff9944', common:'#aaaaaa' };
 
         function openInventory() {
@@ -5014,7 +5096,7 @@
         document.getElementById('inventory-btn').addEventListener('click', openInventory);
         document.getElementById('close-inventory-btn').addEventListener('click', closeInventory);
 
-        /* ── PREMIUM SHOP UI ── */
+        /* -- PREMIUM SHOP UI -- */
         const PREMIUM_ITEMS = [
             ITEM_DEFS.premiumSword,
             ITEM_DEFS.neonTrailPack,
@@ -5067,7 +5149,7 @@
         document.getElementById('premium-shop-btn').addEventListener('click', openPremiumShop);
         document.getElementById('close-premium-shop-btn').addEventListener('click', closePremiumShop);
 
-        /* ── FAKE PAYMENT ── */
+        /* -- FAKE PAYMENT -- */
         function openFakePayment(item) {
             document.getElementById('fake-pay-title').textContent = `Buy: ${item.icon} ${item.name}`;
             document.getElementById('fake-pay-desc').textContent = item.desc;
@@ -5124,7 +5206,7 @@
             e.target.value = v;
         });
 
-        /* ── PROFILE / INDEX UI ── */
+        /* -- PROFILE / INDEX UI -- */
         function openProfile() {
             document.getElementById('profile-username').textContent = username || 'Guest';
             document.getElementById('profile-coins').textContent = coins;
@@ -5207,9 +5289,9 @@
             }
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         NPC SYSTEM
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function findNearestChairIndex(pos, maxDist) {
             let best = -1, bestD = maxDist;
             for (let i = 0; i < window.chairPositions.length; i++) {
@@ -5323,9 +5405,9 @@
             });
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         ZOMBIE SYSTEM
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function spawnZombie() {
             if (!localAvatar || zombies.length >= ZOMBIE_MAX) return;
 
@@ -5487,9 +5569,9 @@
             }
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         JOHN'S SHOP
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         let johnShopOpen = false;
 
         function buildJohnShopUI() {
@@ -5561,9 +5643,9 @@
         }
         document.getElementById('close-john-shop-btn').addEventListener('click', closeJohnShop);
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         SHOP
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function buildShopUI() {
             const container = document.getElementById('shop-items-container');
             container.innerHTML = '';
@@ -5690,7 +5772,7 @@
                 const tp = window.parkourTeleporter;
                 const px = avPos.x, pz = avPos.z, py = avPos.y;
                 const nearGround = Math.sqrt((px-tp.gx)**2+(pz-tp.gz)**2)<7 && Math.abs(py)<4;
-                const nearReturn = Math.sqrt((px-tp.ax+3)**2+(pz-tp.az+3)**2)<6 && Math.abs(py-tp.ay)<5;
+                const nearReturn = Math.sqrt((px-(tp.ax-3))**2+(pz-(tp.az-3))**2)<6 && Math.abs(py-tp.ay)<6;
                 const ph = document.getElementById('parkour-hint');
                 if (nearReturn) { ph.textContent='⬇ Step on red pad to return to ground'; ph.style.display='block'; }
                 else if (nearGround) { ph.textContent='🚀 Step on pad to teleport to Parkour Arena'; ph.style.display='block'; }
@@ -5702,9 +5784,9 @@
         document.getElementById('close-shop-btn').addEventListener('click', closeShop);
         document.getElementById('close-clothes-shop-btn').addEventListener('click', closeClothesShop);
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         CLOTHES SHOP
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         let clothesShopOpen = false;
         // Published shirts stored in-memory (dev publishes → all players can see during session)
         // For persistence across sessions we use localStorage
@@ -5800,9 +5882,9 @@
             img.src = dataUrl;
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         SHIRT MAKER
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         document.getElementById('clothes-remove-shirts-btn')?.addEventListener('click', () => {
             if (!isDevUser()) return;
             if (!confirm('Remove ALL published shirts? This cannot be undone.')) return;
@@ -5811,9 +5893,9 @@
             addSystemChat('🗑 All published shirts removed.');
         });
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         PART EDITOR
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         (function initPartEditor() {
             const UI = document.getElementById('part-editor-ui');
             const canvas = document.getElementById('pe-canvas');
@@ -5835,7 +5917,7 @@
             const peCamera = new THREE.PerspectiveCamera(50, 1, 0.01, 500);
             peCamera.position.set(6,5,8); peCamera.lookAt(0,1,0);
 
-            // ── Gizmo ──
+            // -- Gizmo --
             const peGizmoGroup = new THREE.Group(); peGizmoGroup.visible = false; peScene.add(peGizmoGroup);
             const peGizmoArrows = new THREE.Group(); peGizmoGroup.add(peGizmoArrows);
             const peGizmoRings  = new THREE.Group(); peGizmoGroup.add(peGizmoRings);
@@ -6339,9 +6421,9 @@
             };
         })();
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         ACTION / FPS MODE
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function enterActionMode() {
             actionMode = true;
             document.getElementById('crosshair').style.display = 'block';
@@ -6450,9 +6532,9 @@
             if (isMobile) document.getElementById('btn-fps').classList.remove('active-fps');
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         BULLETS / FX
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function getPlayerForwardDir() {
             const a = camYaw + Math.PI;
             return new THREE.Vector3(Math.sin(a), 0, Math.cos(a));
@@ -6481,7 +6563,7 @@
 
             const rl = PERF.mobileLowPower ? 30 : 50;
 
-            // ── Tracer: pooled geometries, shared materials ──
+            // -- Tracer: pooled geometries, shared materials --
             const mp = or.clone().addScaledVector(fd, rl / 2);
             const tracerQuat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), fd);
 
@@ -6499,7 +6581,7 @@
                 makeTracer(0.10,  _sharedMats.tracerRed);
             }
 
-            // ── Muzzle flash: pooled sphere, clone mat only for independent opacity ──
+            // -- Muzzle flash: pooled sphere, clone mat only for independent opacity --
             if (PERF.enableParticles) {
                 const fp = or.clone().addScaledVector(fd, 0.6);
                 const flashMat = _sharedMats.flashMat.clone();
@@ -6535,7 +6617,7 @@
             camShake.intensity = PERF.mobileLowPower ? 0.05 : 0.12;
             fpsGunRecoil = 0.22;
 
-            // ── Instant raycast zombie hit detection ──
+            // -- Instant raycast zombie hit detection --
             if (zombies.length > 0) {
                 const ray = new THREE.Raycaster(or, fd.clone().normalize(), 0, 60);
                 for (let zi = zombies.length - 1; zi >= 0; zi--) {
@@ -6653,9 +6735,9 @@
             }
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         GRENADES / EXPLOSIONS
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
 
         // Pre-built explosion particle geometries (pooled, never recreated)
         const _explGeos = {
@@ -6940,9 +7022,9 @@
             }
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         GAME START
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function safeStartGame(code) {
             try {
                 showLoading(false);
@@ -7126,7 +7208,7 @@
             addSystemChat('🛠 Admin panel ready (press F2).');
             syncHotbarVisibilityForOwnedItems();
 
-            // ── Tab switching ──
+            // -- Tab switching --
             document.querySelectorAll('.adm-tab').forEach(tab => {
                 tab.addEventListener('click', () => {
                     document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('adm-tab-active'));
@@ -7217,7 +7299,7 @@
             document.getElementById('admin-kill')?.addEventListener('click', () => sendAdminAction('kill', null));
             document.getElementById('admin-kick')?.addEventListener('click', () => sendAdminAction('kick', null));
 
-            // ── Saturn Rings (Summon Circles) ──
+            // -- Saturn Rings (Summon Circles) --
             window._saturnRings = window._saturnRings || [];
             const RING_COLORS = [0x00ffcc, 0xff00ff, 0xffdd00, 0x00aaff, 0xff6600, 0x88ff00];
 
@@ -7273,12 +7355,12 @@
             });
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         INVENTORY / ACTIONS
-        ───────────────────────────────────────────── */
-        /* ─────────────────────────────────────────────
+        --------------------------------------------- */
+        /* ---------------------------------------------
         FLY MODE (owner only)
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         let flyMode = false;
         const FLY_SPEED = 24;
 
@@ -7499,6 +7581,10 @@
             if (e.key === '4' && isDevUser()) { equipItem(4); return; }
             if (e.key.toLowerCase() === 'o') { toggleFpsMode(); return; }
             if (e.key.toLowerCase() === 'e') { handleInteract(); return; }
+            if (e.key.toLowerCase() === 'z') {
+                if (emoteWheelOpen) closeEmoteWheel(); else openEmoteWheel();
+                return;
+            }
             if (e.key.toLowerCase() === 'g') { summonNpcs(false, null); return; }
             if (e.key.toLowerCase() === 'm') { toggleMinimap(); return; }
             if (e.key.toLowerCase() === 'r' && fpsMode && localAvatar?.equipped === 'gun') {
@@ -7515,9 +7601,9 @@
             if (e.button === 0) handleFire();
         });
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         DEATH
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function executeBreakApart(av) {
             if (!av) return;
             av.nametagSprite.visible = false;
@@ -7577,9 +7663,9 @@
             }, 3000);
         });
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         CONTROLS / SHIFT LOCK
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function togglePause() {
             if (!gameActive || isDead) return;
             isPaused = !isPaused;
@@ -7623,11 +7709,11 @@
             addSystemChat('✏ Username changed to: ' + username);
         });
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         AVATAR CUSTOMIZER
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         (function initCustomizer() {
-            // ── Preview renderer ──
+            // -- Preview renderer --
             const pvCanvas = document.getElementById('cust-preview-canvas');
             const pvRenderer = new THREE.WebGLRenderer({ canvas: pvCanvas, antialias: true, alpha: true });
             pvRenderer.setPixelRatio(window.devicePixelRatio);
@@ -7664,7 +7750,7 @@
                 pvScene.add(pvAvatar.group);
             }
 
-            // ── Customizer state ──
+            // -- Customizer state --
             let custSkin  = playerSkinColor;
             let custShirt = playerShirtColor;
             let custPant  = playerPantColor;
@@ -7755,14 +7841,14 @@
             };
         })();
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         ANIMATION EDITOR
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         (function initAnimEditor() {
             const UI = document.getElementById('anim-editor-ui');
             const canvas = document.getElementById('ae-canvas');
 
-            // ── Three.js setup ──
+            // -- Three.js setup --
             const aeRenderer = new THREE.WebGLRenderer({ canvas, antialias: true });
             aeRenderer.setPixelRatio(window.devicePixelRatio);
             aeRenderer.setClearColor(0x0a0a10, 1);
@@ -7792,7 +7878,7 @@
             let aeAvatar = null, selectedPart = null;
             const partObjects = {}, partMeshes = {}, savedMats = {};
 
-            // ── Gizmo ──
+            // -- Gizmo --
             const gizmoGroup = new THREE.Group();
             gizmoGroup.visible = false;
             aeScene.add(gizmoGroup);
@@ -7840,7 +7926,7 @@
             gizmoRings.add(makeRing(0x33ff66, 'y'));
             gizmoRings.add(makeRing(0x3399ff, 'z'));
 
-            // ── Mode state ──
+            // -- Mode state --
             let useGizmo = false;   // false = sliders, true = gizmo
             let gizmoSub = 'move';  // 'move' | 'rotate'
 
@@ -7874,7 +7960,7 @@
             document.getElementById('ae-sub-move').addEventListener('click',   () => setGizmoSub('move'));
             document.getElementById('ae-sub-rotate').addEventListener('click', () => setGizmoSub('rotate'));
 
-            // ── Highlight ──
+            // -- Highlight --
             const hlMat = new THREE.MeshStandardMaterial({ color: 0x00ccff, emissive: 0x003344, emissiveIntensity: 0.6 });
             function setHighlight(pname) {
                 if (selectedPart && partMeshes[selectedPart]) {
@@ -7901,7 +7987,7 @@
                 gizmoGroup.scale.setScalar(s);
             }
 
-            // ── Avatar ──
+            // -- Avatar --
             function buildAeAvatar() {
                 if (aeAvatar) aeScene.remove(aeAvatar.group);
                 aeAvatar = buildAvatar('__anim_editor__', 0x2244cc, 0x1a1a2a, 0xffe0bd);
@@ -7932,7 +8018,7 @@
                 if (selectedPart && useGizmo) updateGizmoPos();
             }
 
-            // ── Sliders ──
+            // -- Sliders --
             function syncSlidersFromState() {
                 if (!selectedPart) return;
                 const s = state[selectedPart];
@@ -8003,7 +8089,7 @@
                 syncSlidersFromState(); applyAllOffsets();
             });
 
-            // ── Export ──
+            // -- Export --
             function generateExport() {
                 const pad = (s, n) => String(s).padEnd(n);
                 let out = '// ╔══════════════════════════════════════════════════════╗\n';
@@ -8059,7 +8145,7 @@
                 document.getElementById('ae-keyframes').appendChild(kf);
             });
 
-            // ── Orbit + Gizmo drag ──
+            // -- Orbit + Gizmo drag --
             const raycaster = new THREE.Raycaster();
             let orbitActive = false, orbitButton = -1;
             let lastMX = 0, lastMY = 0;
@@ -8187,7 +8273,7 @@
                 if (hits.length > 0) setHighlight(hits[0].object.userData.aePart);
             });
 
-            // ── Resize ──
+            // -- Resize --
             function resizeAeCanvas() {
                 const w = canvas.clientWidth, h = canvas.clientHeight;
                 if (!w || !h) return;
@@ -8197,7 +8283,7 @@
             }
             new ResizeObserver(resizeAeCanvas).observe(canvas);
 
-            // ── Render loop ──
+            // -- Render loop --
             let aeAnimating = false;
             function aeLoop() {
                 if (!aeAnimating) return;
@@ -8206,7 +8292,7 @@
                 aeRenderer.render(aeScene, aeCamera);
             }
 
-            // ── Open / Close ──
+            // -- Open / Close --
             document.getElementById('anim-editor-btn').addEventListener('click', () => {
                 document.getElementById('pause-menu').style.display = 'none';
                 UI.style.display = 'flex';
@@ -8236,6 +8322,7 @@
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && gameActive && !isDead && !chatFocused && !adminOpen) {
+                if (emoteWheelOpen) { closeEmoteWheel(); return; }
                 if (shopOpen) { closeShop(); return; }
                 togglePause();
             }
@@ -8365,71 +8452,79 @@
             }
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         MOBILE CONTROLS
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function setupMobileControls() {
             const jZ = document.getElementById('joystick-zone');
             const jS = document.getElementById('joystick-stick');
             const jB = document.getElementById('joystick-base');
             const lZ = document.getElementById('look-zone');
-            const jR = 40;
+            const jR = 55; // joystick radius in px
+            const jCenter = jR + 5; // CSS center offset
 
-            jZ.addEventListener('touchstart', (e) => {
-                if (adminOpen) return;
-                e.preventDefault();
-                for (const t of e.changedTouches) {
-                    if (joystickTouchId === null) {
-                        joystickTouchId = t.identifier;
-                        joystickActive = true;
-                        updateJ(t);
-                    }
-                }
-            }, { passive: false });
+            // ── FLOATING JOYSTICK ──
+            // Joystick repositions to where finger first touches
+            let jBaseRect = null;
 
-            jZ.addEventListener('touchmove', (e) => {
-                if (adminOpen) return;
-                e.preventDefault();
-                for (const t of e.changedTouches) {
-                    if (t.identifier === joystickTouchId) updateJ(t);
-                }
-            }, { passive: false });
+            function resetJoystick() {
+                joystickActive = false;
+                joystickTouchId = null;
+                mobileInput.moveX = 0;
+                mobileInput.moveY = 0;
+                jS.style.left = jCenter + 'px';
+                jS.style.top  = jCenter + 'px';
+                jB.style.opacity = '0.6';
+            }
 
-            const endJ = (e) => {
-                for (const t of e.changedTouches) {
-                    if (t.identifier === joystickTouchId) {
-                        joystickTouchId = null;
-                        joystickActive = false;
-                        mobileInput.moveX = 0;
-                        mobileInput.moveY = 0;
-                        jS.style.left = '40px';
-                        jS.style.top = '40px';
-                    }
-                }
-            };
-            jZ.addEventListener('touchend', endJ);
-            jZ.addEventListener('touchcancel', endJ);
-
-            function updateJ(t) {
-                const r = jB.getBoundingClientRect();
-                const cx = r.left + r.width / 2;
-                const cy = r.top + r.height / 2;
+            function updateJoystick(t) {
+                if (!jBaseRect) jBaseRect = jB.getBoundingClientRect();
+                const cx = jBaseRect.left + jBaseRect.width / 2;
+                const cy = jBaseRect.top  + jBaseRect.height / 2;
                 let dx = t.clientX - cx;
                 let dy = t.clientY - cy;
-                const d = Math.sqrt(dx * dx + dy * dy);
-                if (d > jR) {
-                    dx = (dx / d) * jR;
-                    dy = (dy / d) * jR;
-                }
-                jS.style.left = (40 + dx) + 'px';
-                jS.style.top = (40 + dy) + 'px';
+                const d = Math.sqrt(dx*dx + dy*dy);
+                if (d > jR) { dx = dx/d*jR; dy = dy/d*jR; }
+                jS.style.left = (jCenter + dx) + 'px';
+                jS.style.top  = (jCenter + dy) + 'px';
                 mobileInput.moveX = dx / jR;
                 mobileInput.moveY = dy / jR;
             }
 
-            lZ.addEventListener('touchstart', (e) => {
-                if (adminOpen) return;
+            jZ.addEventListener('touchstart', e => {
                 e.preventDefault();
+                if (adminOpen) return;
+                for (const t of e.changedTouches) {
+                    if (joystickTouchId === null) {
+                        joystickTouchId = t.identifier;
+                        joystickActive = true;
+                        jBaseRect = jB.getBoundingClientRect();
+                        jB.style.opacity = '1';
+                        updateJoystick(t);
+                    }
+                }
+            }, { passive: false });
+
+            jZ.addEventListener('touchmove', e => {
+                e.preventDefault();
+                if (adminOpen) return;
+                for (const t of e.changedTouches) {
+                    if (t.identifier === joystickTouchId) updateJoystick(t);
+                }
+            }, { passive: false });
+
+            const endJ = e => {
+                for (const t of e.changedTouches) {
+                    if (t.identifier === joystickTouchId) { resetJoystick(); jBaseRect = null; }
+                }
+            };
+            jZ.addEventListener('touchend', endJ, { passive: false });
+            jZ.addEventListener('touchcancel', endJ, { passive: false });
+
+            // ── LOOK ZONE — full right half, any touch ──
+            lZ.addEventListener('touchstart', e => {
+                e.preventDefault();
+                if (adminOpen) return;
                 for (const t of e.changedTouches) {
                     if (lookTouchId === null) {
                         lookTouchId = t.identifier;
@@ -8439,102 +8534,107 @@
                 }
             }, { passive: false });
 
-            lZ.addEventListener('touchmove', (e) => {
-                if (adminOpen) return;
+            lZ.addEventListener('touchmove', e => {
                 e.preventDefault();
+                if (adminOpen) return;
                 for (const t of e.changedTouches) {
                     if (t.identifier === lookTouchId) {
                         const dx = t.clientX - lastLookX;
                         const dy = t.clientY - lastLookY;
                         lastLookX = t.clientX;
                         lastLookY = t.clientY;
-                        const s = fpsMode ? 0.004 : 0.006;
-                        camYaw -= dx * s;
-                        camPitch -= dy * s;
-                        camPitch = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, camPitch));
+                        const sens = fpsMode ? 0.003 : 0.005;
+                        camYaw -= dx * sens;
+                        camPitch -= dy * sens;
+                        camPitch = Math.max(-Math.PI/2+0.1, Math.min(Math.PI/2-0.1, camPitch));
                     }
                 }
             }, { passive: false });
 
-            const endL = (e) => {
+            const endL = e => {
                 for (const t of e.changedTouches) {
                     if (t.identifier === lookTouchId) lookTouchId = null;
                 }
             };
-            lZ.addEventListener('touchend', endL);
-            lZ.addEventListener('touchcancel', endL);
+            lZ.addEventListener('touchend', endL, { passive: false });
+            lZ.addEventListener('touchcancel', endL, { passive: false });
 
-            function btnE(id, d, u) {
+            // Prevent document-level mouse handlers from firing on touch
+            document.addEventListener('touchstart', e => {
+                // Only prevent on game canvas area, not on UI elements
+                if (e.target === document.body || e.target.tagName === 'CANVAS') e.preventDefault();
+            }, { passive: false });
+
+            // ── BUTTON HELPER ──
+            function btnE(id, onDown, onUp) {
                 const el = document.getElementById(id);
-                el.addEventListener('touchstart', (e) => {
+                if (!el) return;
+                el.addEventListener('touchstart', e => {
                     e.preventDefault(); e.stopPropagation();
                     el.classList.add('pressed');
                     if (adminOpen && id !== 'btn-admin') return;
-                    if (d) d();
+                    if (onDown) onDown();
                 }, { passive: false });
-                el.addEventListener('touchend', (e) => {
+                el.addEventListener('touchend', e => {
                     e.preventDefault(); e.stopPropagation();
                     el.classList.remove('pressed');
                     if (adminOpen && id !== 'btn-admin') return;
-                    if (u) u();
+                    if (onUp) onUp();
                 }, { passive: false });
                 el.addEventListener('touchcancel', () => {
                     el.classList.remove('pressed');
-                    if (adminOpen && id !== 'btn-admin') return;
-                    if (u) u();
+                    if (onUp) onUp();
                 });
             }
 
-            btnE('btn-jump', () => { keys.space = true; }, () => { keys.space = false; });
+            // ── BIND BUTTONS ──
+            btnE('btn-jump',
+                () => { keys.space = true; },
+                () => { keys.space = false; }
+            );
 
             let fI = null;
-            btnE('btn-fire', () => {
-                handleFire();
-                fI = setInterval(handleFire, 180);
-            }, () => {
-                if (fI) { clearInterval(fI); fI = null; }
-            });
+            btnE('btn-fire',
+                () => { handleFire(); fI = setInterval(handleFire, 180); },
+                () => { if (fI) { clearInterval(fI); fI = null; } }
+            );
 
             btnE('btn-interact', () => handleInteract());
             btnE('btn-slot1', () => equipItem(1));
-            btnE('btn-slot2', () => { if (inventory.gun) equipItem(2); });
-            btnE('btn-slot3', () => { if (inventory.grenade) equipItem(3); });
+            btnE('btn-slot2', () => equipItem(2));
+            btnE('btn-slot3', () => equipItem(3));
+            btnE('btn-slot4', () => { if (isDevUser()) equipItem(4); });
             btnE('btn-pause', () => togglePause());
             btnE('btn-chat', () => { if (!chatFocused) openChat(); else sendChat(); });
             btnE('btn-fps', () => toggleFpsMode());
             btnE('btn-summon', () => summonNpcs(false, null));
             btnE('btn-admin', () => { if (adminDevEnabled) toggleAdminPanel(); });
-            btnE('btn-slot4', () => { if (isDevUser()) equipItem(4); }); // slot 4 = fly
 
-            // Minimap toggle for mobile
-            if (document.getElementById('minimap-toggle')) {
-                document.getElementById('minimap-toggle').addEventListener('click', toggleMinimap);
-            }
-            if (document.getElementById('minimap-zoom')) {
-                document.getElementById('minimap-zoom').addEventListener('click', () => {
-                    minimapZoom = minimapZoom >= 2 ? 0.5 : minimapZoom + 0.5;
-                });
-            }
-
+            // ── ZOOM ──
             let zI = null, zO = null;
-            btnE('btn-zoom-in', () => {
-                zI = setInterval(() => { if (!fpsMode) camDist = Math.max(2, camDist - 0.5); }, 50);
-            }, () => {
-                if (zI) { clearInterval(zI); zI = null; }
-            });
-            btnE('btn-zoom-out', () => {
-                zO = setInterval(() => { if (!fpsMode) camDist = Math.min(40, camDist + 0.5); }, 50);
-            }, () => {
-                if (zO) { clearInterval(zO); zO = null; }
+            btnE('btn-zoom-in',
+                () => { zI = setInterval(() => { if (!fpsMode) camDist = Math.max(2, camDist-0.5); }, 50); },
+                () => { if (zI) { clearInterval(zI); zI = null; } }
+            );
+            btnE('btn-zoom-out',
+                () => { zO = setInterval(() => { if (!fpsMode) camDist = Math.min(40, camDist+0.5); }, 50); },
+                () => { if (zO) { clearInterval(zO); zO = null; } }
+            );
+
+            // Minimap
+            document.getElementById('minimap-toggle')?.addEventListener('click', toggleMinimap);
+            document.getElementById('minimap-zoom')?.addEventListener('click', () => {
+                minimapZoom = minimapZoom >= 2 ? 0.5 : minimapZoom + 0.5;
             });
 
-            shiftLock = true;
-            document.getElementById('crosshair').style.display = 'block';
+            resetJoystick();
         }
 
-        /* ─────────────────────────────────────────────
+
+
+        /* ---------------------------------------------
         PHYSICS
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         const vel = new THREE.Vector3();
         const BASE_MOVE_SPEED = 15;
         const BASE_JUMP_POWER = 20;
@@ -8558,15 +8658,17 @@
             } else {
                 let maxH = 0;
 
-                // Parkour arena platforms
+                // Parkour arena platforms — use world position (handles moving platforms)
                 if (window.pkArena) {
+                    const _wpos = new THREE.Vector3();
                     for (const pt of window.pkArena) {
+                        pt.getWorldPosition(_wpos);
                         const geo = pt.geometry;
-                        const hw = (geo.parameters?.width || 3) / 2;
-                        const hd = (geo.parameters?.depth || 3) / 2;
-                        if (Math.abs(x - pt.position.x) < hw && Math.abs(z - pt.position.z) < hd) {
-                            const top = pt.position.y + 0.25;
-                            if (checkY >= top - 1) maxH = Math.max(maxH, top);
+                        const hw = (geo.parameters?.width || 3) / 2 + 0.05;
+                        const hd = (geo.parameters?.depth || 3) / 2 + 0.05;
+                        const top = _wpos.y + 0.25;
+                        if (Math.abs(x - _wpos.x) < hw && Math.abs(z - _wpos.z) < hd && checkY >= top - 1.5) {
+                            maxH = Math.max(maxH, top);
                         }
                     }
                 }
@@ -8734,6 +8836,86 @@
             localAvatar.group.position.z += vel.z * dt;
             localAvatar.group.position.y += vel.y * dt;
 
+            // -- XZ push-out collision: parkour platforms --
+            if (window.pkArena) {
+                const _wpos2 = new THREE.Vector3();
+                const ppos = localAvatar.group.position;
+                for (const pt of window.pkArena) {
+                    pt.getWorldPosition(_wpos2);
+                    const geo = pt.geometry;
+                    const hw = (geo.parameters?.width || 3) / 2 + 0.4;
+                    const hd = (geo.parameters?.depth || 3) / 2 + 0.4;
+                    const top = _wpos2.y + 0.25;
+                    const bot = _wpos2.y - 0.5;
+                    if (ppos.y < top + 0.2 && ppos.y > bot - 2) {
+                        const dx = ppos.x - _wpos2.x, dz = ppos.z - _wpos2.z;
+                        if (Math.abs(dx) < hw && Math.abs(dz) < hd) {
+                            const overlapX = hw - Math.abs(dx), overlapZ = hd - Math.abs(dz);
+                            if (overlapX < overlapZ) { ppos.x += Math.sign(dx) * (overlapX + 0.05); vel.x = 0; }
+                            else { ppos.z += Math.sign(dz) * (overlapZ + 0.05); vel.z = 0; }
+                        }
+                    }
+                }
+            }
+            // -- XZ push-out collision: VX placed objects --
+            for (const id in dynamicObjects) {
+                const obj = dynamicObjects[id];
+                if (!obj.aabb || obj.data.move) continue;
+                const ppos = localAvatar.group.position;
+                const bb = obj.aabb;
+                const cx = (bb.min.x + bb.max.x) / 2, cz = (bb.min.z + bb.max.z) / 2;
+                const hw = (bb.max.x - bb.min.x) / 2 + 0.4, hd = (bb.max.z - bb.min.z) / 2 + 0.4;
+                if (ppos.y < bb.max.y + 0.2 && ppos.y > bb.min.y - 2) {
+                    const dx = ppos.x - cx, dz = ppos.z - cz;
+                    if (Math.abs(dx) < hw && Math.abs(dz) < hd) {
+                        const overlapX = hw - Math.abs(dx), overlapZ = hd - Math.abs(dz);
+                        if (overlapX < overlapZ) { ppos.x += Math.sign(dx) * (overlapX + 0.05); vel.x = 0; }
+                        else { ppos.z += Math.sign(dz) * (overlapZ + 0.05); vel.z = 0; }
+                    }
+                }
+            }
+
+            // -- Full 6-sided VX collision (ceiling + floor handled here for all axes) --
+            for (const id in dynamicObjects) {
+                const obj = dynamicObjects[id];
+                if (!obj.aabb) continue;
+                const ppos = localAvatar.group.position;
+                const bb = obj.aabb;
+                const PAD = 0.35;
+                // If player overlaps in ALL 3 axes — they are inside the box, push out on all sides
+                const overlapX = Math.min(ppos.x - bb.min.x + PAD, bb.max.x - ppos.x + PAD);
+                const overlapY = Math.min(ppos.y - bb.min.y + PAD, bb.max.y - ppos.y + PAD);
+                const overlapZ = Math.min(ppos.z - bb.min.z + PAD, bb.max.z - ppos.z + PAD);
+                if (overlapX > 0 && overlapY > 0 && overlapZ > 0) {
+                    const minO = Math.min(overlapX, overlapY, overlapZ);
+                    if (minO === overlapX) {
+                        ppos.x += ppos.x < (bb.min.x + bb.max.x) / 2 ? -(overlapX) : overlapX;
+                        vel.x = 0;
+                    } else if (minO === overlapY) {
+                        if (ppos.y < (bb.min.y + bb.max.y) / 2) { ppos.y = bb.min.y - PAD; vel.y = Math.min(0, vel.y); }
+                        else { ppos.y = bb.max.y + PAD; vel.y = Math.max(0, vel.y); }
+                    } else {
+                        ppos.z += ppos.z < (bb.min.z + bb.max.z) / 2 ? -(overlapZ) : overlapZ;
+                        vel.z = 0;
+                    }
+                }
+            }
+
+            // -- Tree trunk cylinder collision --
+            if (window._treeColliders) {
+                const ppos = localAvatar.group.position;
+                for (const tr of window._treeColliders) {
+                    const dx = ppos.x - tr.x, dz = ppos.z - tr.z;
+                    const dist = Math.sqrt(dx * dx + dz * dz);
+                    if (dist < tr.r && dist > 0.001) {
+                        const push = tr.r - dist;
+                        ppos.x += (dx / dist) * push;
+                        ppos.z += (dz / dist) * push;
+                        vel.x = 0; vel.z = 0;
+                    }
+                }
+            }
+
             const ngy = getGroundHeight(localAvatar.group.position.x, localAvatar.group.position.z, localAvatar.group.position.y);
 
             if (currentMap === 'hall') {
@@ -8771,9 +8953,9 @@
             }
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         ANIMATIONS
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         const aT = {
             torsoX: 0,
             lAX: 0, lAY: 0, lAZ: 0,
@@ -8809,7 +8991,29 @@
             aT.rAPX =  1.5; aT.rAPY = 0.5;
             aT.hPX  =  0;   aT.hPY  = 1.5;
 
-            if (!ia) {
+            // Check for active emote on this avatar
+            const isLocal = (av === localAvatar);
+            let activeEmoteId = null;
+            if (isLocal && emoteActive) {
+                emoteActive.timer += dt;
+                if (emoteActive.timer < emoteActive.duration) activeEmoteId = emoteActive.id;
+                else emoteActive = null;
+            } else if (!isLocal) {
+                // Find remote player emote
+                for (const id in remotePlayers) {
+                    const rp = remotePlayers[id];
+                    if (rp.avatar === av && rp.emote) {
+                        rp.emoteTimer = (rp.emoteTimer || 0) + dt;
+                        const def = EMOTE_DEFS.find(e => e.id === rp.emote);
+                        if (def && rp.emoteTimer < def.duration) activeEmoteId = rp.emote;
+                        else rp.emote = null;
+                        break;
+                    }
+                }
+            }
+            if (activeEmoteId) { getEmoteAnimTarget(activeEmoteId, t, aT); }
+
+            if (!ia && !activeEmoteId) {
                 if (ps === STATE.IDLE) {
                     aT.lAX = Math.sin(t * 2) * 0.1;
                     aT.rAX = -Math.sin(t * 2) * 0.1;
@@ -8839,7 +9043,7 @@
                     aT.lLX = -Math.PI / 2; aT.rLX = -Math.PI / 2;
                 }
             } else {
-                // ── GUN POSES — based on Animation Editor export ──
+                // -- GUN POSES — based on Animation Editor export --
                 const B = GUN_BASE;
                 // Breathing / idle sway shared across all gun states
                 const breathe = Math.sin(t * 1.4) * 0.012;
@@ -8898,7 +9102,7 @@
                 }
             }
 
-            // ── Fire recoil / action timer override ──
+            // -- Fire recoil / action timer override --
             if (av.actionTimer > 0) {
                 av.actionTimer -= dt;
                 if (av.equipped === 'whip') aT.rAX = THREE.MathUtils.lerp(Math.PI / 4, -Math.PI / 2, 1 - (av.actionTimer / 0.5));
@@ -8988,7 +9192,7 @@
                 if (av.equipped === 'grenade') aT.rAX = -Math.PI / 3;
             }
 
-            // ── Lerp all channels ──
+            // -- Lerp all channels --
             const ls = 15 * dt;
             av.torso.rotation.x = THREE.MathUtils.lerp(av.torso.rotation.x, aT.torsoX, ls);
             av.torso.rotation.y = THREE.MathUtils.lerp(av.torso.rotation.y || 0, 0, ls);
@@ -9076,9 +9280,9 @@
             }
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         CAMERA
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function updateCamera(dt) {
             if (!gameActive || !localAvatar) return;
 
@@ -9263,9 +9467,9 @@
             }
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         PERFORMANCE HELPERS
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         function updateAdaptiveResolution(dt) {
             if (!isMobile) return;
 
@@ -9292,9 +9496,9 @@
             }
         }
 
-        /* ─────────────────────────────────────────────
+        /* ---------------------------------------------
         RENDER LOOP
-        ───────────────────────────────────────────── */
+        --------------------------------------------- */
         const fpsEl = document.getElementById('fps-counter');
         let frames = 0, lastFt = performance.now();
 
@@ -9320,7 +9524,7 @@
             updateAdaptiveResolution(dt);
             renderMinimap();
 
-            // ── Parkour arena moving platforms ──
+            // -- Parkour arena moving platforms --
             if (window.pkMoving) {
                 window.pkMoving.forEach(mp => {
                     const off = Math.sin(t * mp.speed + mp.phase) * mp.range;
@@ -9329,7 +9533,7 @@
                 });
             }
 
-            // ── Easter Egg hole — auto drop when player walks over ──
+            // -- Easter Egg hole — auto drop when player walks over --
             if (localAvatar && gameActive && !isDead && window._easterEggEntry && !window._eggCooldown) {
                 const en = window._easterEggEntry;
                 const px2 = localAvatar.group.position.x, pz2 = localAvatar.group.position.z, py2 = localAvatar.group.position.y;
@@ -9343,37 +9547,44 @@
                 }
             }
 
-            // ── Parkour teleporter logic ──
-            if (localAvatar && gameActive && !isDead && window.parkourTeleporter) {
+            // -- Parkour teleporter logic --
+            if (localAvatar && gameActive && !isDead && window.parkourTeleporter && !flyMode) {
                 const tp = window.parkourTeleporter;
-                const px = localAvatar.group.position.x, pz = localAvatar.group.position.z, py = localAvatar.group.position.y;
-                // Ground → arena
-                const distGround = Math.sqrt((px - tp.gx) ** 2 + (pz - tp.gz) ** 2);
-                if (distGround < 3.5 && Math.abs(py) < 2 && !window._pkTpCooldown) {
+                const av = localAvatar.group.position;
+
+                // Ground pad → teleport UP to arena
+                const dGround = Math.sqrt((av.x - tp.gx)**2 + (av.z - tp.gz)**2);
+                if (dGround < 4 && av.y < 5 && !window._pkTpCooldown) {
                     window._pkTpCooldown = true;
-                    setTimeout(() => { window._pkTpCooldown = false; }, 2000);
-                    localAvatar.group.position.set(tp.ax + 2, tp.ay + 2, tp.az + 2);
+                    setTimeout(() => { window._pkTpCooldown = false; }, 3000);
+                    localAvatar.group.position.set(tp.ax + 2, tp.ay + 3, tp.az + 2);
                     vel.set(0, 0, 0);
+                    isGrounded = false;
                     addSystemChat('🚀 Teleported to Parkour Arena!');
                 }
-                // Arena return pad
-                const distReturn = Math.sqrt((px - tp.ax + 3) ** 2 + (pz - tp.az + 3) ** 2);
-                if (distReturn < 2.5 && Math.abs(py - tp.ay) < 3 && !window._pkTpCooldown) {
+
+                // Return pad (at arena origin -3, -3) → teleport back to ground
+                const retX = tp.ax - 3, retZ = tp.az - 3;
+                const dReturn = Math.sqrt((av.x - retX)**2 + (av.z - retZ)**2);
+                if (dReturn < 3 && Math.abs(av.y - tp.ay) < 4 && !window._pkTpCooldown) {
                     window._pkTpCooldown = true;
-                    setTimeout(() => { window._pkTpCooldown = false; }, 2000);
-                    localAvatar.group.position.set(tp.gx + 6, 2, tp.gz);
+                    setTimeout(() => { window._pkTpCooldown = false; }, 3000);
+                    localAvatar.group.position.set(tp.gx + 8, 3, tp.gz);
                     vel.set(0, 0, 0);
                     addSystemChat('🌍 Returned to ground!');
                 }
-                // Fall-off safety net (fell off arena)
-                if (py < tp.ay - 20 && py > 20) {
-                    localAvatar.group.position.set(tp.ax + 2, tp.ay + 2, tp.az + 2);
+
+                // Fall-off safety net — if in arena Y-range but below platforms
+                if (av.y > 30 && av.y < tp.ay - 5 && !window._pkTpCooldown) {
+                    window._pkTpCooldown = true;
+                    setTimeout(() => { window._pkTpCooldown = false; }, 3000);
+                    localAvatar.group.position.set(tp.ax + 2, tp.ay + 3, tp.az + 2);
                     vel.set(0, 0, 0);
-                    addSystemChat('💀 Fell off! Respawned at start.');
+                    addSystemChat('💀 Fell off the arena! Respawned at start.');
                 }
             }
 
-            // ── Saturn Rings orbit (local) ──
+            // -- Saturn Rings orbit (local) --
             if (window._saturnRings && localAvatar) {
                 const base = localAvatar.group.position.clone().add(new THREE.Vector3(0, 4.5, 0));
                 window._saturnRings.forEach(r => {
@@ -9382,7 +9593,7 @@
                 });
             }
 
-            // ── Remote player saturn rings ──
+            // -- Remote player saturn rings --
             if (!window._remoteRings) window._remoteRings = {};
             const ringColors = [0x00ffff, 0xff00ff, 0xffd700, 0x4444ff, 0xff8800, 0x00ff88];
             for (const id in remotePlayers) {
