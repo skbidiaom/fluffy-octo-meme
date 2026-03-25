@@ -1585,7 +1585,7 @@
 
                 <!-- WORLD -->
                 <div id="adm-tab-world" class="adm-tab-body" style="display:none;">
-                    <div class="adm-section-title">VXTOOL QUICK PLACE</div>
+                    <div class="adm-section-title">BTOOLS QUICK PLACE</div>
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
                         <div><div style="font-size:10px;color:#555;margin-bottom:3px;">W</div><input type="number" id="vx-w" value="2" step="0.5" style="width:100%;padding:6px;background:#111;color:#eee;border:1px solid #333;border-radius:5px;font-size:13px;"></div>
                         <div><div style="font-size:10px;color:#555;margin-bottom:3px;">H</div><input type="number" id="vx-h" value="2" step="0.5" style="width:100%;padding:6px;background:#111;color:#eee;border:1px solid #333;border-radius:5px;font-size:13px;"></div>
@@ -1825,7 +1825,7 @@
             <div class="hotbar-slot" id="slot-1" style="display:none;"><span>1</span>Pistol</div>
             <div class="hotbar-slot" id="slot-2" style="display:none;"><span>2</span>Boom</div>
             <div class="hotbar-slot" id="slot-3" style="display:none; border-color:#d900ff; box-shadow:0 0 10px #d900ff;">
-                <span>3</span>VXTOOL
+                <span>3</span>BTOOLS
             </div>
             <div class="hotbar-slot" id="slot-4" style="display:none; border-color:#00ccff; box-shadow:0 0 10px #00ccff;">
                 <span>4</span>✈ FLY
@@ -4475,7 +4475,7 @@
 
         function updateVxPreview() {
             if (!vxPreviewMesh) initVxPreview();
-            if (localAvatar && localAvatar.equipped === 'vxtool') {
+            if (localAvatar && localAvatar.equipped === 'btools') {
                 vxPreviewMesh.visible = true;
                 const w = parseFloat(document.getElementById('vx-w').value) || 2;
                 const h = parseFloat(document.getElementById('vx-h').value) || 2;
@@ -5420,7 +5420,7 @@
             if (av.itemCake) av.itemCake.visible = (en === 'cake');
             if (av.itemGun) av.itemGun.visible = (en === 'gun');
             if (av.itemGrenade) av.itemGrenade.visible = (en === 'grenade');
-            if (av.itemVX) av.itemVX.visible = (en === 'vxtool');
+            if (av.itemVX) av.itemVX.visible = (en === 'btools');
 
             if (av === localAvatar) {
                 const wasAction = actionMode;
@@ -7557,7 +7557,7 @@
             let target = null;
             if (slot === 1 && inventory.gun) target = 'gun';
             else if (slot === 2 && inventory.grenade) target = 'grenade';
-            else if (slot === 3 && isDevUser()) target = 'vxtool';
+            else if (slot === 3 && isDevUser()) target = 'btools';
             if (!target) return;
 
             if (localAvatar.equipped === target) {
@@ -7570,7 +7570,7 @@
                 playEquipSound();
                 document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('active'));
                 const hs = document.getElementById('slot-' + slot); if (hs) hs.classList.add('active');
-                const vu = document.getElementById('vx-ui'); if (vu) vu.style.display = target === 'vxtool' ? 'block' : 'none';
+                const vu = document.getElementById('vx-ui'); if (vu) vu.style.display = target === 'btools' ? 'block' : 'none';
             }
         }
 
@@ -7682,7 +7682,7 @@
                     const grenadeData = createGrenadeThrowData();
                     spawnGrenade(grenadeData);
                     broadcast({ type: 'action', id: myPeerId, action: 'grenade', grenade: grenadeData });
-                } else if (localAvatar.equipped === 'vxtool' && playerState !== STATE.SIT) {
+                } else if (localAvatar.equipped === 'btools' && playerState !== STATE.SIT) {
                     // VXtool: clicking places the previewed object immediately
                     localAvatar.actionTimer = 0.3;
                     const w = parseFloat(document.getElementById('vx-w')?.value) || 2;
@@ -8959,20 +8959,16 @@
                     }
                 }
 
-                // Dynamic VX objects — stand on top of them
+                // Dynamic BTOOLS objects — stand on top of them
                 for (const id in dynamicObjects) {
                     const obj = dynamicObjects[id];
                     if (obj.data.move) continue; // skip rotating objects
-                    let aabb = obj.aabb;
-                    if (!aabb) {
-                        obj.mesh.updateMatrixWorld(true);
-                        aabb = new THREE.Box3().setFromObject(obj.mesh);
-                        obj.aabb = aabb;
-                    }
+                    obj.mesh.updateMatrixWorld(true);
+                    const aabb = new THREE.Box3().setFromObject(obj.mesh);
                     if (!aabb) continue;
-                    if (x >= aabb.min.x - 0.3 && x <= aabb.max.x + 0.3 && z >= aabb.min.z - 0.3 && z <= aabb.max.z + 0.3) {
+                    if (x >= aabb.min.x - 0.5 && x <= aabb.max.x + 0.5 && z >= aabb.min.z - 0.5 && z <= aabb.max.z + 0.5) {
                         const top = aabb.max.y;
-                        if (checkY >= top - 1.0) maxH = Math.max(maxH, top);
+                        if (checkY >= top - 2.5) maxH = Math.max(maxH, top);
                     }
                 }
 
