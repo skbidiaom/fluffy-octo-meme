@@ -1839,6 +1839,25 @@
 
     <div id="crosshair"></div>
 
+    <!-- POSE UI -->
+    <div id="pose-ui" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:320px;background:rgba(0,0,0,0.85);border:2px solid #3399ff;border-radius:12px;padding:16px;z-index:300;color:#fff;font-family:'Orbitron',sans-serif;">
+        <div style="text-align:center;margin-bottom:12px;font-size:14px;color:#3399ff;">📸 POSE MODE</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:10px;">
+            <div><label>Torso X: <input type="range" id="pose-torsoX" min="-1" max="1" step="0.05" value="0" style="width:100%;accent-color:#3399ff;"></label></div>
+            <div><label>L.Arm X: <input type="range" id="pose-lAX" min="-3" max="0" step="0.1" value="0" style="width:100%;accent-color:#ff6666;"></label></div>
+            <div><label>L.Arm Y: <input type="range" id="pose-lAY" min="-1.5" max="1.5" step="0.1" value="0" style="width:100%;accent-color:#66ff66;"></label></div>
+            <div><label>L.Arm Z: <input type="range" id="pose-lAZ" min="-1.5" max="1.5" step="0.1" value="0" style="width:100%;accent-color:#6666ff;"></label></div>
+            <div><label>R.Arm X: <input type="range" id="pose-rAX" min="-3" max="0" step="0.1" value="0" style="width:100%;accent-color:#ff6666;"></label></div>
+            <div><label>R.Arm Y: <input type="range" id="pose-rAY" min="-1.5" max="1.5" step="0.1" value="0" style="width:100%;accent-color:#66ff66;"></label></div>
+            <div><label>R.Arm Z: <input type="range" id="pose-rAZ" min="-1.5" max="1.5" step="0.1" value="0" style="width:100%;accent-color:#6666ff;"></label></div>
+            <div><label>L.Leg X: <input type="range" id="pose-lLX" min="-1" max="1" step="0.1" value="0" style="width:100%;accent-color:#ffaa00;"></label></div>
+            <div><label>R.Leg X: <input type="range" id="pose-rLX" min="-1" max="1" step="0.1" value="0" style="width:100%;accent-color:#ffaa00;"></label></div>
+            <div><label>Head X: <input type="range" id="pose-hX" min="-0.5" max="0.5" step="0.05" value="0" style="width:100%;accent-color:#ff00ff;"></label></div>
+            <div><label>Head Z: <input type="range" id="pose-hZ" min="-0.3" max="0.3" step="0.05" value="0" style="width:100%;accent-color:#ff00ff;"></label></div>
+        </div>
+        <button id="pose-reset-btn" style="margin-top:12px;width:100%;padding:8px;background:#333;border:1px solid #555;border-radius:6px;color:#aaa;cursor:pointer;">Reset Pose</button>
+    </div>
+
     <!-- EMOTE WHEEL -->
     <div id="emote-wheel" style="display:none;position:fixed;inset:0;z-index:500;pointer-events:none;">
         <div id="emote-wheel-inner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:320px;height:320px;pointer-events:all;">
@@ -2514,6 +2533,8 @@
         window.shopPositions = [];
 
         let shopOpen = false, isNearShop = false;
+        let poseMode = false;
+        let poseData = { torsoX: 0, lAX: 0, lAY: 0, lAZ: 0, rAX: 0, rAY: 0, rAZ: 0, lLX: 0, rLX: 0, hX: 0, hZ: 0 };
         const shopAvatars = [];
         const bullets = [];
         const shellCasings = [];
@@ -2658,6 +2679,11 @@
                 conn.on('close', () => removePlayer(conn.peer));
                 clientConns.push(conn);
                 addSystemChat("⚡ A player joined.");
+                // Send published shirts to new player
+                const shirts = getPublishedShirts();
+                if (shirts.length > 0) {
+                    conn.send({ type: 'shirts_full', shirts: shirts });
+                }
             });
             peer.on('error', () => {
                 showError("Failed to host.");
@@ -2809,6 +2835,12 @@
                 }
                 if (isHost) clientConns.forEach(c => { if (c.peer !== data.id && c.open) c.send(data); });
             }
+            else if (data.type === 'pose_sync') {
+                if (remotePlayers[data.id]) {
+                    remotePlayers[data.id].pose = data.pose;
+                }
+                if (isHost) clientConns.forEach(c => { if (c.peer !== data.id && c.open) c.send(data); });
+            }
             else if (data.type === 'emote') {
                 if (remotePlayers[data.id]) {
                     remotePlayers[data.id].emote = data.emote;
@@ -2832,6 +2864,28 @@
                 for (let k in dynamicObjects) scene.remove(dynamicObjects[k].mesh);
                 for (let k in dynamicObjects) delete dynamicObjects[k];
                 if (isHost) broadcast(data);
+            }
+            else if (data.type === 'shirt_publish') {
+                const shirts = getPublishedShirts();
+                const exists = shirts.some(s => s.dataUrl === data.shirt.dataUrl);
+                if (!exists) {
+                    shirts.push(data.shirt);
+                    savePublishedShirts(shirts);
+                    if (clothesShopOpen) buildClothesShopUI();
+                    addSystemChat('👕 "' + data.shirt.name + '" added to Clothes Shop!');
+                }
+                if (isHost) clientConns.forEach(c => { if (c.open) c.send(data); });
+            }
+            else if (data.type === 'shirts_full') {
+                for (const s of data.shirts) {
+                    const shirts = getPublishedShirts();
+                    const exists = shirts.some(sh => sh.dataUrl === s.dataUrl);
+                    if (!exists) {
+                        shirts.push(s);
+                        savePublishedShirts(shirts);
+                    }
+                }
+                if (clothesShopOpen) buildClothesShopUI();
             }
             else if (data.type === 'set_time') {
                 if (data.night) {
@@ -2895,6 +2949,12 @@
             if (!gameActive || !localAvatar || !playerCustomShirtTexture) return;
             broadcast({ type: 'shirt_sync', id: myPeerId, dataUrl: playerCustomShirtTexture });
         }, 2000);
+
+        // Send pose updates when in pose mode (every ~100ms)
+        setInterval(() => {
+            if (!gameActive || !poseMode || !localAvatar) return;
+            broadcast({ type: 'pose_sync', id: myPeerId, pose: poseData });
+        }, 100);
 
         /* ---------------------------------------------
         CHAT + SPEECH BUBBLES
@@ -6486,12 +6546,15 @@
                 const name = document.getElementById('shirt-name-input').value.trim() || 'Unnamed Shirt';
                 const dataUrl = drawCanvas.toDataURL('image/png');
                 const shirts = getPublishedShirts();
-                shirts.push({ name, author: username, dataUrl, price: 50 + shirts.length * 10 });
+                const newShirt = { name, author: username, dataUrl, price: 50 + shirts.length * 10 };
+                shirts.push(newShirt);
                 savePublishedShirts(shirts);
                 const st = document.getElementById('shirt-publish-status');
                 st.textContent = '✅ Published to Clothes Shop!';
                 setTimeout(() => { st.textContent = ''; }, 3000);
                 addSystemChat('👕 "' + name + '" published to the Clothes Shop!');
+                // Broadcast new shirt to all players
+                broadcast({ type: 'shirt_publish', shirt: newShirt });
             });
 
             // Open hook (called from admin panel)
@@ -8512,6 +8575,10 @@
                 e.preventDefault();
                 toggleMusic();
             }
+            if (e.key === 'F4') {
+                e.preventDefault();
+                togglePoseMode();
+            }
             // Smoke bomb (Q key)
             if (e.key.toLowerCase() === 'q' && inventory.smokeBomb && smokeBombCooldown <= 0 && localAvatar && !isDead) {
                 smokeBombCooldown = 15;
@@ -8619,6 +8686,38 @@
             }
         }
 
+        function togglePoseMode() {
+            if (!gameActive || isPaused || isDead || chatFocused || shopOpen) return;
+            poseMode = !poseMode;
+            if (poseMode) {
+                addSystemChat('📸 POSE MODE - Use sliders to pose. Press F4 to exit.');
+                document.getElementById('pose-ui').style.display = 'block';
+            } else {
+                addSystemChat('📸 Pose saved!');
+                document.getElementById('pose-ui').style.display = 'none';
+                broadcast({ type: 'pose_sync', id: myPeerId, pose: poseData });
+            }
+        }
+
+        // Pose slider event listeners
+        const poseSliders = ['torsoX', 'lAX', 'lAY', 'lAZ', 'rAX', 'rAY', 'rAZ', 'lLX', 'rLX', 'hX', 'hZ'];
+        poseSliders.forEach(id => {
+            const slider = document.getElementById('pose-' + id);
+            if (slider) {
+                slider.addEventListener('input', () => {
+                    poseData[id] = parseFloat(slider.value);
+                });
+            }
+        });
+
+        document.getElementById('pose-reset-btn')?.addEventListener('click', () => {
+            poseData = { torsoX: 0, lAX: 0, lAY: 0, lAZ: 0, rAX: 0, rAY: 0, rAZ: 0, lLX: 0, rLX: 0, hX: 0, hZ: 0 };
+            poseSliders.forEach(id => {
+                const slider = document.getElementById('pose-' + id);
+                if (slider) slider.value = 0;
+            });
+        });
+
         /* ---------------------------------------------
         MOBILE CONTROLS
         --------------------------------------------- */
@@ -8674,7 +8773,7 @@
                 jS.style.top  = (jCenter + dy) + 'px';
                 mobileInput.moveX = dx / jR;
                 const invertY = mobileSettings.invertJoystick ? -1 : 1;
-                mobileInput.moveY = -dy / jR * invertY;
+                mobileInput.moveY = dy / jR * invertY;
             }
 
             jZ.addEventListener('touchstart', e => {
@@ -8864,11 +8963,16 @@
                 for (const id in dynamicObjects) {
                     const obj = dynamicObjects[id];
                     if (obj.data.move) continue; // skip rotating objects
-                    const aabb = obj.aabb;
+                    let aabb = obj.aabb;
+                    if (!aabb) {
+                        obj.mesh.updateMatrixWorld(true);
+                        aabb = new THREE.Box3().setFromObject(obj.mesh);
+                        obj.aabb = aabb;
+                    }
                     if (!aabb) continue;
-                    if (x >= aabb.min.x && x <= aabb.max.x && z >= aabb.min.z && z <= aabb.max.z) {
+                    if (x >= aabb.min.x - 0.3 && x <= aabb.max.x + 0.3 && z >= aabb.min.z - 0.3 && z <= aabb.max.z + 0.3) {
                         const top = aabb.max.y;
-                        if (checkY >= top - 0.5) maxH = Math.max(maxH, top);
+                        if (checkY >= top - 1.0) maxH = Math.max(maxH, top);
                     }
                 }
 
@@ -9183,14 +9287,41 @@
             aT.rAPX =  1.5; aT.rAPY = 0.5;
             aT.hPX  =  0;   aT.hPY  = 1.5;
 
+            // Check for remote player pose
+            const isLocalAv = (av === localAvatar);
+            let remotePose = null;
+            if (!isLocalAv) {
+                for (const id in remotePlayers) {
+                    if (remotePlayers[id].avatar === av && remotePlayers[id].pose) {
+                        remotePose = remotePlayers[id].pose;
+                        break;
+                    }
+                }
+            }
+
+            // Apply remote pose if exists
+            if (remotePose) {
+                aT.torsoX = remotePose.torsoX || 0;
+                aT.lAX = remotePose.lAX || 0;
+                aT.lAY = remotePose.lAY || 0;
+                aT.lAZ = remotePose.lAZ || 0;
+                aT.rAX = remotePose.rAX || 0;
+                aT.rAY = remotePose.rAY || 0;
+                aT.rAZ = remotePose.rAZ || 0;
+                aT.lLX = remotePose.lLX || 0;
+                aT.rLX = remotePose.rLX || 0;
+                aT.hX = remotePose.hX || 0;
+                aT.hZ = remotePose.hZ || 0;
+                return;
+            }
+
             // Check for active emote on this avatar
-            const isLocal = (av === localAvatar);
             let activeEmoteId = null;
-            if (isLocal && emoteActive) {
+            if (isLocalAv && emoteActive) {
                 emoteActive.timer += dt;
                 if (emoteActive.timer < emoteActive.duration) activeEmoteId = emoteActive.id;
                 else emoteActive = null;
-            } else if (!isLocal) {
+            } else if (!isLocalAv) {
                 // Find remote player emote
                 for (const id in remotePlayers) {
                     const rp = remotePlayers[id];
@@ -9384,31 +9515,34 @@
                 if (av.equipped === 'grenade') aT.rAX = -Math.PI / 3;
             }
 
+            // -- Pose mode override --
+            const pd = poseMode ? poseData : null;
+
             // -- Lerp all channels --
             const ls = 15 * dt;
-            av.torso.rotation.x = THREE.MathUtils.lerp(av.torso.rotation.x, aT.torsoX, ls);
+            av.torso.rotation.x = THREE.MathUtils.lerp(av.torso.rotation.x, pd ? pd.torsoX : aT.torsoX, ls);
             av.torso.rotation.y = THREE.MathUtils.lerp(av.torso.rotation.y || 0, 0, ls);
 
-            av.leftArm.rotation.x  = THREE.MathUtils.lerp(av.leftArm.rotation.x,  aT.lAX, ls);
-            av.leftArm.rotation.y  = THREE.MathUtils.lerp(av.leftArm.rotation.y  || 0, aT.lAY, ls);
-            av.leftArm.rotation.z  = THREE.MathUtils.lerp(av.leftArm.rotation.z  || 0, aT.lAZ, ls);
+            av.leftArm.rotation.x  = THREE.MathUtils.lerp(av.leftArm.rotation.x,  pd ? pd.lAX : aT.lAX, ls);
+            av.leftArm.rotation.y  = THREE.MathUtils.lerp(av.leftArm.rotation.y  || 0, pd ? pd.lAY : aT.lAY, ls);
+            av.leftArm.rotation.z  = THREE.MathUtils.lerp(av.leftArm.rotation.z  || 0, pd ? pd.lAZ : aT.lAZ, ls);
             av.leftArm.position.z  = THREE.MathUtils.lerp(av.leftArm.position.z  || 0, 0, ls);
 
-            av.rightArm.rotation.x = THREE.MathUtils.lerp(av.rightArm.rotation.x, aT.rAX, ls);
-            av.rightArm.rotation.y = THREE.MathUtils.lerp(av.rightArm.rotation.y || 0, aT.rAY, ls);
-            av.rightArm.rotation.z = THREE.MathUtils.lerp(av.rightArm.rotation.z || 0, aT.rAZ, ls);
+            av.rightArm.rotation.x = THREE.MathUtils.lerp(av.rightArm.rotation.x, pd ? pd.rAX : aT.rAX, ls);
+            av.rightArm.rotation.y = THREE.MathUtils.lerp(av.rightArm.rotation.y || 0, pd ? pd.rAY : aT.rAY, ls);
+            av.rightArm.rotation.z = THREE.MathUtils.lerp(av.rightArm.rotation.z || 0, pd ? pd.rAZ : aT.rAZ, ls);
             av.rightArm.position.z = THREE.MathUtils.lerp(av.rightArm.position.z || 0, 0, ls);
 
-            av.leftLeg.rotation.x  = THREE.MathUtils.lerp(av.leftLeg.rotation.x,  aT.lLX, ls);
+            av.leftLeg.rotation.x  = THREE.MathUtils.lerp(av.leftLeg.rotation.x,  pd ? pd.lLX : aT.lLX, ls);
             av.leftLeg.rotation.y  = THREE.MathUtils.lerp(av.leftLeg.rotation.y  || 0, aT.lLY, ls);
-            av.rightLeg.rotation.x = THREE.MathUtils.lerp(av.rightLeg.rotation.x, aT.rLX, ls);
+            av.rightLeg.rotation.x = THREE.MathUtils.lerp(av.rightLeg.rotation.x, pd ? pd.rLX : aT.rLX, ls);
             av.rightLeg.rotation.y = THREE.MathUtils.lerp(av.rightLeg.rotation.y || 0, aT.rLY, ls);
             av.rightLeg.position.x = THREE.MathUtils.lerp(av.rightLeg.position.x || 0.5, 0.5, ls);
             av.rightLeg.position.z = THREE.MathUtils.lerp(av.rightLeg.position.z || 0, 0, ls);
 
             if (av.headGroup) {
-                av.headGroup.rotation.x = THREE.MathUtils.lerp(av.headGroup.rotation.x || 0, aT.hX, ls);
-                av.headGroup.rotation.z = THREE.MathUtils.lerp(av.headGroup.rotation.z || 0, aT.hZ, ls);
+                av.headGroup.rotation.x = THREE.MathUtils.lerp(av.headGroup.rotation.x || 0, pd ? pd.hX : aT.hX, ls);
+                av.headGroup.rotation.z = THREE.MathUtils.lerp(av.headGroup.rotation.z || 0, pd ? pd.hZ : aT.hZ, ls);
                 av.headGroup.position.z = THREE.MathUtils.lerp(av.headGroup.position.z || 0, 0, ls);
             }
 
